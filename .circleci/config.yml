@@ -1,0 +1,62 @@
+version: 2.1
+
+jobs:
+  build-and-test:
+    docker:
+      - image: nvidia/cuda:11.4.2-devel-centos7
+    environment: ISCE3_PREFIX=/opt/isce3
+    steps:
+      - run:
+          name: Install prerequisites
+          command: |
+            yum install -y git
+      - checkout
+      - run:
+          name: Install package manager
+          working_directory: /tmp
+          command: |
+            curl -fsSLo Mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh
+            chmod +x Mambaforge.sh
+            ./Mambaforge.sh -b
+            $HOME/mambaforge/bin/mamba init
+            echo "source $HOME/.bashrc" >> $BASH_ENV
+      - run:
+          name: Install dependencies
+          working_directory: .circleci/conda
+          command: |
+            mamba env update -f runtime-environment.yml
+            mamba env update -f devel-environment.yml
+      - run:
+          name: Configure
+          command: |
+            cmake \
+              -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+              -DCMAKE_INSTALL_PREFIX=$ISCE3_PREFIX \
+              -DWITH_CUDA=ON \
+              -DCMAKE_CUDA_HOST_COMPILER=$CXX \
+              -G Ninja \
+              -B build \
+              -S .
+      - run:
+          name: Build
+          working_directory: build
+          command: |
+            cmake --build .
+      - run:
+          name: Install
+          working_directory: build
+          command: |
+            cmake --build . --target=install
+            echo "export PATH=$ISCE3_PREFIX/bin:$PATH" >> $BASH_ENV
+            echo "export PYTHONPATH=$ISCE3_PREFIX/packages:$PYTHONPATH" >> $BASH_ENV
+            echo "export LD_LIBRARY_PATH=$ISCE3_PREFIX/lib:$LD_LIBRARY_PATH" >> $BASH_ENV
+      - run:
+          name: Test
+          working_directory: build
+          command: |
+            ctest -j $(nproc) --output-on-failure
+
+workflows:
+  pr-checks:
+    jobs:
+      - build-and-test

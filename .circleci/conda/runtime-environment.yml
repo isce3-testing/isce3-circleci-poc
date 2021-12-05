@@ -1,0 +1,19 @@
+name: base
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - eigen
+  - fftw
+  - gdal
+  - h5py
+  - hdf5
+  - libstdcxx-ng
+  - numpy
+  - pyre
+  - python
+  - ruamel.yaml
+  - scipy
+  - shapely
+  - sysroot_linux-64=2.17
+  - yamale
