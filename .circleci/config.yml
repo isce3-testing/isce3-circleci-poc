@@ -12,6 +12,34 @@ jobs:
           command: |
             nvidia-smi
 
+  nix-build:
+    docker:
+      - image: nvidia/cuda:11.4.2-devel-centos7
+    steps:
+      - restore_cache:
+          key: nix-store
+      - run:
+          name: Install Nix
+          command: |
+            curl -L https://nixos.org/nix/install | sh
+            echo "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> $BASH_ENV
+            cat /etc/nix/nix.conf
+      - run:
+          name: Install Cachix
+          command: |
+            nix-env -iA cachix -f https://cachix.org/api/v1/install
+            #cachix use something-i-still-need-to-set-up
+      - checkout
+      - run:
+          name: CUDA smoke test
+          command: |
+            nvidia-smi
+      - save_cache:
+          key: nix-store
+          when: always
+          paths:
+            - /nix
+
 workflows:
   pr-checks:
     jobs:
