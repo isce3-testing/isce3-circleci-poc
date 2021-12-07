@@ -54,7 +54,7 @@ jobs:
           name: Test
           working_directory: build
           command: |
-            ctest -j $(nproc) --output-on-failure
+            ctest -E 'stage_dem' -j $(nproc) --output-on-failure
 
 workflows:
   pr-checks:
