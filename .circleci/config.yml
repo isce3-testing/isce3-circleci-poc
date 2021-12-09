@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build-and-test:
     machine:
-      resource_class: gpu.nvidia.small
+      resource_class: gpu.nvidia.medium
       image: ubuntu-2004-cuda-11.4:202110-01
     steps:
       - checkout
