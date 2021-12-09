@@ -7,6 +7,10 @@ jobs:
       image: ubuntu-2004-cuda-11.4:202110-01
     steps:
       - checkout
+      - run:
+          name: Run nvidia-smi
+          command: |
+            nvidia-smi
 
 workflows:
   pr-checks:
