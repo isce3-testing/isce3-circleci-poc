@@ -43,4 +43,4 @@ jobs:
 workflows:
   pr-checks:
     jobs:
-      - build-and-test
+      - nix-build
