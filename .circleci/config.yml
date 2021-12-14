@@ -13,8 +13,9 @@ jobs:
             nvidia-smi
 
   nix-build:
-    docker:
-      - image: nvidia/cuda:11.4.2-devel-centos7
+    machine:
+      resource_class: gpu.nvidia.medium
+      image: ubuntu-2004-cuda-11.4:202110-01
     steps:
       - restore_cache:
           key: nix-store
@@ -24,7 +25,7 @@ jobs:
           # Based on https://github.com/NixOS/docker
           # (The ordinary Nix install script doesn't work as root)
           command: |
-            yum install -y ca-certificates wget
+            apt-get update && apt-get install -y wget
             export NIX_VERSION=2.3.15
             wget https://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz
             tar xf nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz
