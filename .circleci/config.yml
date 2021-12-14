@@ -19,9 +19,19 @@ jobs:
       - restore_cache:
           key: nix-store
       - run:
-          name: Install Nix
+          name: Install Nix as root
+          # Based on https://github.com/NixOS/docker
+          # (The ordinary Nix install script doesn't work as root)
           command: |
-            curl -L https://nixos.org/nix/install | sh
+            export NIX_VERSION=2.3.15
+            wget https://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz
+            tar xf nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz
+            addgroup -g 30000 -S nixbld
+            for i in $(seq 1 30); do adduser -S -D -h /var/empty -g "Nix build user $i" -u $((30000 + i)) -G nixbld nixbld$i ; done
+            mkdir -m 0755 /etc/nix
+            echo 'sandbox = false' > /etc/nix/nix.conf
+            mkdir -m 0755 /nix && USER=root sh nix-${NIX_VERSION}-$(uname -m)-linux/install
+            ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/
             echo "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> $BASH_ENV
             cat /etc/nix/nix.conf
       - run:
