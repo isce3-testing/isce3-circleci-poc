@@ -34,7 +34,7 @@ jobs:
             mkdir -m 0755 /nix && USER=root sh nix-${NIX_VERSION}-$(uname -m)-linux/install
             ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/
             echo "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> $BASH_ENV
-            cat /etc/nix/nix.conf
+            export PATH=/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:$PATH
       - run:
           name: Install Cachix
           command: |
