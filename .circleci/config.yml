@@ -34,6 +34,7 @@ jobs:
             mkdir -m 0755 /nix && USER=root sh nix-${NIX_VERSION}-$(uname -m)-linux/install
             echo 'source /nix/var/nix/profiles/default/etc/profile.d/nix.sh' >> $BASH_ENV
             echo 'export PATH=/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:$PATH' >> $BASH_ENV
+            echo 'export NIX_SSL_CERT_FILE=/etc/pki/tls/certs/ca-bundle.crt' >> $BASH_ENV
       - run:
           name: Install Cachix
           command: |
