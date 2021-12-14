@@ -1,18 +1,93 @@
 version: 2.1
 
-jobs:
-  build-and-test:
+executors:
+  # Starting with CUDA 11, the Nvidia display driver is forward compatible with
+  # CUDA Toolkit versions within the same major release family. So we should
+  # prefer to use the host image with the oldest available driver version in
+  # order to support the maximum number of CUDA versions.
+  linux-cuda11-medium:
+    resource_class: gpu.nvidia.medium
     machine:
-      resource_class: gpu.nvidia.medium
-      image: ubuntu-2004-cuda-11.4:202110-01
+      image: ubuntu-1604-cuda-11.1:202012-01
+
+jobs:
+  linux-gpu-build-and-test:
+    parameters:
+      executor:
+        type: string
+        description: Host executor (must be a valid Linux GPU executor)
+      image:
+        type: string
+        description: Docker image family {"centos7", "ubuntu2004"}
+      cuda:
+        type: string
+        description: CUDA version string in <major>-<minor> format (e.g. "11-5")
+      gcc:
+        type: string
+        description: GNU compiler version string in PEP440 format (e.g. "11.2.0")
+        default: ""
+      python:
+        type: string
+        description: Python version string in PEP440 format (e.g. "3.10")
+        default: ""
+    executor: <<parameters.executor>>
     steps:
       - checkout
       - run:
-          name: Run nvidia-smi
+          name: Build container
           command: |
-            nvidia-smi
+            build_args="--build-arg cuda_version=<<parameters.cuda>>"
+            if [ ! -z "<<parameters.gcc>>" ]; then
+              build_args="$build_args --build-arg gcc_version=<<parameters.gcc>>"
+            fi
+            if [ ! -z "<<parameters.python>>" ]; then
+              build_args="$build_args --build-arg python_version=<<parameters.python>>"
+            fi
+            docker buildx build -f=.circleci/<<parameters.image>>-gpu/Dockerfile -t=isce3 $build_args .
+      - run:
+          name: Copy source to container
+          command: |
+            docker cp . isce3:/isce3
+      - run:
+          name: Configure
+          command: |
+            docker run isce3 cmake \
+              -G=Ninja \
+              -B=/isce3/build \
+              -DCMAKE_TOOLCHAIN_FILE=/isce3/.circleci/<<parameters.image>>-gpu/toolchain.cmake \
+              /isce3
+      - run:
+          name: Build
+          command: |
+            docker run isce3 cmake --build /isce3/build
+      - run:
+          name: Install
+          command: |
+            docker run isce3 cmake --build /isce3/build --target=install
+      - run:
+          name: Unit tests
+          command: |
+            docker run --gpus=all isce3 ctest -E="stage_dem" -j=$(nproc) --output-on-failure
 
 workflows:
   pr-checks:
     jobs:
-      - build-and-test
+      - linux-gpu-build-and-test:
+          name: build-and-test-ubuntu20.04-cuda11.5
+          executor: linux-cuda11-medium
+          image: ubuntu2004
+          cuda: 11-5
+      - linux-gpu-build-and-test:
+          name: build-and-test-centos7-cuda11.1-gcc9.3-python3.6
+          executor: linux-cuda11-medium
+          image: centos7
+          cuda: 11-1
+          gcc: "9.3"
+          python: "3.6"
+      - linux-gpu-build-and-test:
+          name: build-and-test-centos7-cuda11.5-gcc11.2-python3.10
+          executor: linux-cuda11-medium
+          image: centos7
+          cuda: 11-5
+          gcc: "11.2"
+          python: "3.10"
