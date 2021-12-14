@@ -19,11 +19,11 @@ RUN yum-config-manager --add-repo https://developer.download.nvidia.com/compute/
 
 # Install runtime dependencies with Yum.
 RUN yum update -y \
-    && yum install -y \
+ && yum install -y \
     cuda-cudart-$cuda_version \
     libcufft-$cuda_version \
-    && yum clean all \
-    && rm -rf /var/cache/yum
+ && yum clean all \
+ && rm -rf /var/cache/yum
 
 # Install Mamba package manager.
 ADD https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh .
@@ -47,7 +47,7 @@ RUN mamba install -y \
     shapely \
     sysroot_linux-64=2.17 \
     yamale \
-    && mamba clean -afy
+ && mamba clean -afy
 
 # Add isce3 installation path(s) to environment.
 ENV ISCE3_PREFIX=/opt/isce3
@@ -64,12 +64,12 @@ ARG gcc_version
 
 # Install build & test dependencies with Yum.
 RUN yum update -y \
-    && yum install -y \
+ && yum install -y \
     cuda-cudart-devel-$cuda_version \
     cuda-nvcc-$cuda_version \
     libcufft-devel-$cuda_version \
-    && yum clean all \
-    && rm -rf /var/cache/yum
+ && yum clean all \
+ && rm -rf /var/cache/yum
 
 # Install build & test dependencies with Mamba.
 RUN mamba install -y \
@@ -80,30 +80,12 @@ RUN mamba install -y \
     ninja \
     pybind11 \
     pytest \
-    && mamba clean -afy
+ && mamba clean -afy
 
 # Add CUDA bin path to environment.
 ENV CUDA_PREFIX=/usr/local/cuda
 ENV PATH=$CUDA_PREFIX/bin:$PATH
 
-# # Copy the source directory from the host into the container.
-# COPY . isce3
-# WORKDIR isce3
-#
-# # Configure.
-# RUN cmake -G=Ninja -B=build \
-#     -DCMAKE_CUDA_HOST_COMPILER=$CXX \
-#     -DCMAKE_INSTALL_PREFIX=$ISCE3_PREFIX \
-#     -DWITH_CUDA=ON \
-#     .
-#
-# WORKDIR build
-#
-# # Build.
-# RUN cmake --build . -j=3
-#
-# # Install.
-# RUN cmake --build . --target=install
-#
-# # # Run unit tests.
-# # RUN ctest -E="stage_dem" -j=3 --output-on-failure
+# Copy the source directory from the host into the container.
+COPY . isce3
+WORKDIR isce3

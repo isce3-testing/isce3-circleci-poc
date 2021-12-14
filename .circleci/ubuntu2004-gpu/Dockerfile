@@ -89,23 +89,6 @@ RUN pip install --no-cache-dir \
 ENV CUDA_PREFIX=/usr/local/cuda
 ENV PATH=$CUDA_PREFIX/bin:$PATH
 
-# # Copy the source directory from the host into the container.
-# COPY . isce3
-# WORKDIR isce3
-#
-# # Configure.
-# RUN cmake -G=Ninja -B=build \
-#     -DCMAKE_INSTALL_PREFIX=$ISCE3_PREFIX \
-#     -DWITH_CUDA=ON \
-#     .
-#
-# WORKDIR build
-#
-# # Build.
-# RUN cmake --build .
-#
-# # Install.
-# RUN cmake --build . --target=install
-
-# # Run unit tests.
-# RUN ctest -E="stage_dem" -j=$(nproc) --output-on-failure
+# Copy the source directory from the host into the container.
+COPY . isce3
+WORKDIR isce3

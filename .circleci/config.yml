@@ -45,49 +45,41 @@ jobs:
             fi
             docker build -f=.circleci/<<parameters.image>>-gpu/Dockerfile -t=isce3 $build_args .
       - run:
-          name: Check image cache
+          name: Configure
           command: |
-            docker image ls
-      # - run:
-      #     name: Copy source to container
-      #     command: |
-      #       docker cp . isce3:/isce3
-      # - run:
-      #     name: Configure
-      #     command: |
-      #       docker run isce3 cmake \
-      #         -G=Ninja \
-      #         -B=/isce3/build \
-      #         -DCMAKE_TOOLCHAIN_FILE=/isce3/.circleci/<<parameters.image>>-gpu/toolchain.cmake \
-      #         /isce3
-      # - run:
-      #     name: Build
-      #     command: |
-      #       docker run isce3 cmake --build /isce3/build
-      # - run:
-      #     name: Install
-      #     command: |
-      #       docker run isce3 cmake --build /isce3/build --target=install
-      # - run:
-      #     name: Unit tests
-      #     command: |
-      #       docker run --gpus=all isce3 ctest -E="stage_dem" -j=$(nproc) --output-on-failure
+            docker run isce3 cmake \
+              -G=Ninja \
+              -B=build \
+              -DCMAKE_TOOLCHAIN_FILE=.circleci/<<parameters.image>>-gpu/toolchain.cmake \
+              .
+      - run:
+          name: Build
+          command: |
+            docker run isce3 cmake --build build
+      - run:
+          name: Install
+          command: |
+            docker run isce3 cmake --build build --target=install
+      - run:
+          name: Unit tests
+          command: |
+            docker run --gpus=all isce3 ctest -E="stage_dem" -j=$(nproc) --output-on-failure
 
 workflows:
   pr-checks:
     jobs:
-      # - linux-gpu-build-and-test:
-      #     name: ubuntu20.04-cuda11.5
-      #     executor: linux-cuda11-medium
-      #     image: ubuntu2004
-      #     cuda: 11-5
-      # - linux-gpu-build-and-test:
-      #     name: centos7-cuda11.1-gcc9.3-python3.6
-      #     executor: linux-cuda11-medium
-      #     image: centos7
-      #     cuda: 11-1
-      #     gcc: "9.3"
-      #     python: "3.6"
+      - linux-gpu-build-and-test:
+          name: ubuntu20.04-cuda11.5
+          executor: linux-cuda11-medium
+          image: ubuntu2004
+          cuda: 11-5
+      - linux-gpu-build-and-test:
+          name: centos7-cuda11.1-gcc9.3-python3.6
+          executor: linux-cuda11-medium
+          image: centos7
+          cuda: 11-1
+          gcc: "9.4"
+          python: "3.6"
       - linux-gpu-build-and-test:
           name: centos7-cuda11.5-gcc11.2-python3.10
           executor: linux-cuda11-medium
