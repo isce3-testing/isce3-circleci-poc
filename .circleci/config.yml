@@ -35,9 +35,12 @@ jobs:
             ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/
             echo "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> $BASH_ENV
             export PATH=/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:$PATH
+            ls /nix/var/nix/profiles/default/bin
+            nix-env -q
       - run:
           name: Install Cachix
           command: |
+            export PATH=/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:$PATH
             nix-env -iA cachix -f https://cachix.org/api/v1/install
             #cachix use something-i-still-need-to-set-up
       - checkout
