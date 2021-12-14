@@ -34,65 +34,60 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Smoke test docker buildx
+          name: Build container
           command: |
-            docker --version
-            docker buildx --help
-      # - run:
-      #     name: Build container
-      #     command: |
-      #       build_args="--build-arg cuda_version=<<parameters.cuda>>"
-      #       if [ ! -z "<<parameters.gcc>>" ]; then
-      #         build_args="$build_args --build-arg gcc_version=<<parameters.gcc>>"
-      #       fi
-      #       if [ ! -z "<<parameters.python>>" ]; then
-      #         build_args="$build_args --build-arg python_version=<<parameters.python>>"
-      #       fi
-      #       docker buildx build -f=.circleci/<<parameters.image>>-gpu/Dockerfile -t=isce3 $build_args .
-      # - run:
-      #     name: Copy source to container
-      #     command: |
-      #       docker cp . isce3:/isce3
-      # - run:
-      #     name: Configure
-      #     command: |
-      #       docker run isce3 cmake \
-      #         -G=Ninja \
-      #         -B=/isce3/build \
-      #         -DCMAKE_TOOLCHAIN_FILE=/isce3/.circleci/<<parameters.image>>-gpu/toolchain.cmake \
-      #         /isce3
-      # - run:
-      #     name: Build
-      #     command: |
-      #       docker run isce3 cmake --build /isce3/build
-      # - run:
-      #     name: Install
-      #     command: |
-      #       docker run isce3 cmake --build /isce3/build --target=install
-      # - run:
-      #     name: Unit tests
-      #     command: |
-      #       docker run --gpus=all isce3 ctest -E="stage_dem" -j=$(nproc) --output-on-failure
+            build_args="--build-arg cuda_version=<<parameters.cuda>>"
+            if [ ! -z "<<parameters.gcc>>" ]; then
+              build_args="$build_args --build-arg gcc_version=<<parameters.gcc>>"
+            fi
+            if [ ! -z "<<parameters.python>>" ]; then
+              build_args="$build_args --build-arg python_version=<<parameters.python>>"
+            fi
+            docker build -f=.circleci/<<parameters.image>>-gpu/Dockerfile -t=isce3 $build_args .
+      - run:
+          name: Copy source to container
+          command: |
+            docker cp . isce3:/isce3
+      - run:
+          name: Configure
+          command: |
+            docker run isce3 cmake \
+              -G=Ninja \
+              -B=/isce3/build \
+              -DCMAKE_TOOLCHAIN_FILE=/isce3/.circleci/<<parameters.image>>-gpu/toolchain.cmake \
+              /isce3
+      - run:
+          name: Build
+          command: |
+            docker run isce3 cmake --build /isce3/build
+      - run:
+          name: Install
+          command: |
+            docker run isce3 cmake --build /isce3/build --target=install
+      - run:
+          name: Unit tests
+          command: |
+            docker run --gpus=all isce3 ctest -E="stage_dem" -j=$(nproc) --output-on-failure
 
 workflows:
   pr-checks:
     jobs:
       - linux-gpu-build-and-test:
-          name: build-and-test-ubuntu20.04-cuda11.5
+          name: ubuntu20.04-cuda11.5
           executor: linux-cuda11-medium
           image: ubuntu2004
           cuda: 11-5
-      # - linux-gpu-build-and-test:
-      #     name: build-and-test-centos7-cuda11.1-gcc9.3-python3.6
-      #     executor: linux-cuda11-medium
-      #     image: centos7
-      #     cuda: 11-1
-      #     gcc: "9.3"
-      #     python: "3.6"
-      # - linux-gpu-build-and-test:
-      #     name: build-and-test-centos7-cuda11.5-gcc11.2-python3.10
-      #     executor: linux-cuda11-medium
-      #     image: centos7
-      #     cuda: 11-5
-      #     gcc: "11.2"
-      #     python: "3.10"
+      - linux-gpu-build-and-test:
+          name: centos7-cuda11.1-gcc9.3-python3.6
+          executor: linux-cuda11-medium
+          image: centos7
+          cuda: 11-1
+          gcc: "9.3"
+          python: "3.6"
+      - linux-gpu-build-and-test:
+          name: centos7-cuda11.5-gcc11.2-python3.10
+          executor: linux-cuda11-medium
+          image: centos7
+          cuda: 11-5
+          gcc: "11.2"
+          python: "3.10"
