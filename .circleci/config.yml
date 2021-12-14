@@ -32,15 +32,10 @@ jobs:
             mkdir -m 0755 /etc/nix
             echo 'sandbox = false' > /etc/nix/nix.conf
             mkdir -m 0755 /nix && USER=root sh nix-${NIX_VERSION}-$(uname -m)-linux/install
-            ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/
-            echo "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> $BASH_ENV
-            export PATH=/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:$PATH
-            ls /nix/var/nix/profiles/default/bin
-            nix-env -q
+            echo 'source /nix/var/nix/profiles/default/etc/profile.d/nix.sh' >> $BASH_ENV
       - run:
           name: Install Cachix
           command: |
-            export PATH=/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:$PATH
             nix-env -iA cachix -f https://cachix.org/api/v1/install
             #cachix use something-i-still-need-to-set-up
       - checkout
