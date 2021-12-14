@@ -18,6 +18,7 @@ jobs:
     steps:
       - restore_cache:
           key: nix-store
+      - checkout
       - run:
           name: Install Nix as root
           # Based on https://github.com/NixOS/docker
@@ -40,7 +41,6 @@ jobs:
           command: |
             nix-env -iA cachix -f https://cachix.org/api/v1/install
             #cachix use something-i-still-need-to-set-up
-      - checkout
       - run:
           name: CUDA smoke test
           command: |
