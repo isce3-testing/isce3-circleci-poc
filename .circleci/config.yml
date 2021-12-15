@@ -23,7 +23,7 @@ jobs:
       - run:
           name: Install Nix
           command: |
-            curl -L https://nixos.org/nix/install | sh
+            sh <(curl -L https://nixos.org/nix/install) --daemon
             echo "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> $BASH_ENV
             # For cudatoolkit (TODO: allowUnfreePredicate for cuda only)
             mkdir -p $HOME/.config/nixpkgs
