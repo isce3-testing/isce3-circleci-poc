@@ -61,6 +61,8 @@ FROM runtime AS devel
 
 ARG cuda_version
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 # Add Kitware APT repository.
 ADD https://apt.kitware.com/keys/kitware-archive-latest.asc .
 RUN apt-key add kitware-archive-latest.asc
