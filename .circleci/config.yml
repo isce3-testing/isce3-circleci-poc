@@ -18,7 +18,7 @@ jobs:
       image: ubuntu-2004-cuda-11.4:202110-01
     steps:
       - restore_cache:
-          key: nix-store
+          key: nixpkgs-deps-5f5bc79a1bf33493a5fb0e599c4f206fc0cb491e
       - run:
           name: Install Nix
           command: |
@@ -44,7 +44,7 @@ jobs:
           command: |
             nix-build -A inputDerivation
       - save_cache:
-          key: nix-store
+          key: nixpkgs-deps-5f5bc79a1bf33493a5fb0e599c4f206fc0cb491e
           when: always
           paths:
             - /nix
