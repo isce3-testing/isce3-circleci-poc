@@ -34,6 +34,10 @@ jobs:
           name: CUDA smoke test
           command: |
             nvidia-smi
+      - run:
+          name: Build, install, and test isce3
+          command: |
+            nix-build
       - save_cache:
           key: nix-store
           when: always
