@@ -25,6 +25,9 @@ jobs:
           command: |
             curl -L https://nixos.org/nix/install | sh
             echo "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> $BASH_ENV
+            # For cudatoolkit (TODO: allowUnfreePredicate for cuda only)
+            mkdir -p $HOME/.config/nixpkgs
+            echo '{ allowUnfree = true; }' > $HOME/.config/nixpkgs/config.nix
       - run:
           name: Install Cachix
           command: |
