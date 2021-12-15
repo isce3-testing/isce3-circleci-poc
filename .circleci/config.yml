@@ -19,7 +19,6 @@ jobs:
     steps:
       - restore_cache:
           key: nix-store
-      - checkout
       - run:
           name: Install Nix
           command: |
@@ -39,15 +38,20 @@ jobs:
           name: CUDA smoke test
           command: |
             nvidia-smi
+      - checkout
       - run:
-          name: Build, install, and test isce3
+          name: Build dependencies
           command: |
-            nix-build
+            nix-build -A inputDerivation
       - save_cache:
           key: nix-store
           when: always
           paths:
             - /nix
+      - run:
+          name: Build, install, and test isce3
+          command: |
+            nix-build
 
 workflows:
   pr-checks:
