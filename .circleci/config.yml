@@ -29,7 +29,7 @@ jobs:
             mkdir -p $HOME/.config/nixpkgs
             echo '{ allowUnfree = true; }' > $HOME/.config/nixpkgs/config.nix
             # Enable CUDA support in sandboxed builds
-            echo 'extra-sandbox-paths = /run/opengl-driver/lib=/usr/lib/x86_64-linux-gnu /dev/nvidiactl /dev/nvidia-uvm /dev/nvidia0' >> /etc/nix/nix.conf
+            echo 'extra-sandbox-paths = /run/opengl-driver/lib=/usr/lib/x86_64-linux-gnu /dev/nvidiactl /dev/nvidia-uvm /dev/nvidia0' | sudo tee -a /etc/nix/nix.conf
       - run:
           name: Install Cachix
           command: |
