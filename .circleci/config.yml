@@ -32,43 +32,47 @@ jobs:
         default: ""
     executor: <<parameters.executor>>
     steps:
-      - checkout
       - run:
-          name: Build container
+          name: Check docker-compose
           command: |
-            build_args="--build-arg cuda_version=<<parameters.cuda>>"
-            if [ ! -z "<<parameters.gcc>>" ]; then
-              build_args="$build_args --build-arg gcc_version=<<parameters.gcc>>"
-            fi
-            if [ ! -z "<<parameters.python>>" ]; then
-              build_args="$build_args --build-arg python_version=<<parameters.python>>"
-            fi
-            docker build -f=.circleci/<<parameters.image>>-gpu/Dockerfile -t=isce3 $build_args .
-      - run:
-          name: Configure
-          command: |
-            docker run isce3 bash -lc "cmake -G=Ninja -B=build -DCMAKE_TOOLCHAIN_FILE=.circleci/<<parameters.image>>-gpu/toolchain.cmake ."
-      - run:
-          name: Build
-          command: |
-            docker run isce3 bash -lc "cmake --build build"
-      - run:
-          name: Install
-          command: |
-            docker run isce3 bash -lc "cmake --build build --target=install"
-      - run:
-          name: Unit tests
-          command: |
-            docker run --gpus=all isce3 bash -lc "ctest -E="stage_dem" -j=$(nproc) --output-on-failure"
+            docker-compose --version
+      # - checkout
+      # - run:
+      #     name: Build container
+      #     command: |
+      #       build_args="--build-arg cuda_version=<<parameters.cuda>>"
+      #       if [ ! -z "<<parameters.gcc>>" ]; then
+      #         build_args="$build_args --build-arg gcc_version=<<parameters.gcc>>"
+      #       fi
+      #       if [ ! -z "<<parameters.python>>" ]; then
+      #         build_args="$build_args --build-arg python_version=<<parameters.python>>"
+      #       fi
+      #       docker build -f=.circleci/<<parameters.image>>-gpu/Dockerfile -t=isce3 $build_args .
+      # - run:
+      #     name: Configure
+      #     command: |
+      #       docker run isce3 bash -lc "cmake -G=Ninja -B=build -DCMAKE_TOOLCHAIN_FILE=.circleci/<<parameters.image>>-gpu/toolchain.cmake ."
+      # - run:
+      #     name: Build
+      #     command: |
+      #       docker run isce3 bash -lc "cmake --build build"
+      # - run:
+      #     name: Install
+      #     command: |
+      #       docker run isce3 bash -lc "cmake --build build --target=install"
+      # - run:
+      #     name: Unit tests
+      #     command: |
+      #       docker run --gpus=all isce3 bash -lc "ctest -E="stage_dem" -j=$(nproc) --output-on-failure"
 
 workflows:
   pr-checks:
     jobs:
-      - linux-gpu-build-and-test:
-          name: ubuntu20.04-cuda11.5
-          executor: linux-cuda11-medium
-          image: ubuntu2004
-          cuda: 11-5
+      # - linux-gpu-build-and-test:
+      #     name: ubuntu20.04-cuda11.5
+      #     executor: linux-cuda11-medium
+      #     image: ubuntu2004
+      #     cuda: 11-5
       # - linux-gpu-build-and-test:
       #     name: centos7-cuda11.1-gcc9.3-python3.6
       #     executor: linux-cuda11-medium
