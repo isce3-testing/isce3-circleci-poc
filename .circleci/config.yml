@@ -24,7 +24,7 @@ jobs:
           name: Install Nix
           command: |
             sh <(curl -L https://nixos.org/nix/install) --daemon < /dev/null
-            echo "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> $BASH_ENV
+            echo 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' >> $BASH_ENV
             # For cudatoolkit (TODO: allowUnfreePredicate for cuda only)
             mkdir -p $HOME/.config/nixpkgs
             echo '{ allowUnfree = true; }' > $HOME/.config/nixpkgs/config.nix
