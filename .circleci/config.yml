@@ -75,7 +75,8 @@ jobs:
       - run:
           name: Test
           working_directory: ci
-          command: docker-compose run test
+          command: |
+            docker run --gpus all --rm isce3:tester ctest -E "stage_dem" -j$(nproc) --output-on-failure
 
 workflows:
   pr-checks:
