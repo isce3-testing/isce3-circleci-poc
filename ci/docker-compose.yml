@@ -60,7 +60,11 @@ services:
     command: ctest -E "stage_dem" -j$$(nproc) --output-on-failure --progress
     depends_on:
       - install
-    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]
 
   isce3:
     image: "isce3:isce3"
@@ -69,4 +73,8 @@ services:
       dockerfile: *build-dockerfile
       target: isce3
       args: *build-args
-    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]
