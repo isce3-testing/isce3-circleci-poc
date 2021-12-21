@@ -51,6 +51,13 @@ jobs:
       PYTHON_VERSION: <<parameters.python>>
       BUILD_TYPE: <<parameters.build_type>>
     steps:
+      - run:
+          name: Check version info
+          command: |
+            docker --version
+            docker-compose --version
+            nvidia-smi
+            nvcc --version
       - checkout
       - run:
           name: Build runtime environment
@@ -75,7 +82,8 @@ jobs:
       - run:
           name: Test
           working_directory: ci
-          command: docker-compose run test
+          command: |
+            docker run --gpus all --rm isce3:tester ctest -E "stage_dem" -j$(nproc) --output-on-failure
 
 workflows:
   pr-checks:
