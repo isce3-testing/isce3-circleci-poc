@@ -1,62 +1,106 @@
 version: 2.1
 
+executors:
+  linux-cuda11-medium:
+    resource_class: gpu.nvidia.medium
+    machine:
+      image: ubuntu-1604-cuda-11.1:202012-01
+
 jobs:
-  build-and-test:
-    docker:
-      - image: nvidia/cuda:11.4.2-devel-centos7
-    environment: ISCE3_PREFIX=/opt/isce3
+  linux-gpu-build-and-test:
+    parameters:
+      executor:
+        type: string
+        description: Host executor (must be a valid Linux GPU runner)
+      imageset:
+        type: string
+        description: Docker image family {"centos7-gpu", "ubuntu2004-gpu"}
+      cmake:
+        type: string
+        description: CMake version string
+      cuda:
+        type: string
+        description: CUDA version string
+      gcc:
+        type: string
+        description: GCC version string
+      gdal:
+        type: string
+        description: GDAL version string
+      eigen:
+        type: string
+        description: Eigen version string
+      pybind11:
+        type: string
+        description: pybind11 version string
+      python:
+        type: string
+        description: Python version string
+      build_type:
+        type: string
+        description: CMake build type
+    executor: <<parameters.executor>>
+    environment:
+      IMAGESET: <<parameters.imageset>>
+      CMAKE_VERSION: <<parameters.cmake>>
+      CUDA_VERSION: <<parameters.cuda>>
+      GCC_VERSION: <<parameters.gcc>>
+      GDAL_VERSION: <<parameters.gdal>>
+      EIGEN_VERSION: <<parameters.eigen>>
+      PYBIND11_VERSION: <<parameters.pybind11>>
+      PYTHON_VERSION: <<parameters.python>>
+      BUILD_TYPE: <<parameters.build_type>>
     steps:
-      - run:
-          name: Install prerequisites
-          command: |
-            yum install -y git
       - checkout
       - run:
-          name: Install package manager
-          working_directory: /tmp
-          command: |
-            curl -fsSLo Mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh
-            chmod +x Mambaforge.sh
-            ./Mambaforge.sh -b
-            $HOME/mambaforge/bin/mamba init
-            echo "source $HOME/.bashrc" >> $BASH_ENV
+          name: Build runtime environment
+          working_directory: ci
+          command: docker-compose build runtime
       - run:
-          name: Install dependencies
-          working_directory: .circleci/conda
-          command: |
-            mamba env update -f runtime-environment.yml
-            mamba env update -f devel-environment.yml
+          name: Build devel environment
+          working_directory: ci
+          command: docker-compose build devel
       - run:
           name: Configure
-          command: |
-            cmake \
-              -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
-              -DCMAKE_INSTALL_PREFIX=$ISCE3_PREFIX \
-              -DWITH_CUDA=ON \
-              -DCMAKE_CUDA_HOST_COMPILER=$CXX \
-              -G Ninja \
-              -B build \
-              -S .
+          working_directory: ci
+          command: docker-compose build configure
       - run:
           name: Build
-          working_directory: build
-          command: |
-            cmake --build .
+          working_directory: ci
+          command: docker-compose build build
       - run:
           name: Install
-          working_directory: build
-          command: |
-            cmake --build . --target=install
-            echo "export PATH=$ISCE3_PREFIX/bin:$PATH" >> $BASH_ENV
-            echo "export PYTHONPATH=$ISCE3_PREFIX/packages:$PYTHONPATH" >> $BASH_ENV
-            echo "export LD_LIBRARY_PATH=$ISCE3_PREFIX/lib:$LD_LIBRARY_PATH" >> $BASH_ENV
+          working_directory: ci
+          command: docker-compose build install
       - run:
           name: Test
-          working_directory: build
-          command: |
-            ctest -E 'stage_dem' -j $(nproc) --output-on-failure
+          working_directory: ci
+          command: docker-compose run test
 
 workflows:
   pr-checks:
     jobs:
-      - build-and-test
+      - linux-gpu-build-and-test:
+          name: centos7-cuda11.5-gcc11.2-python3.10-release
+          executor: linux-cuda11-medium
+          imageset: centos7-gpu
+          cmake: "3.21"
+          cuda: 11-5
+          gcc: "11.2"
+          gdal: "3.4"
+          eigen: "3.4"
+          pybind11: "2.8"
+          python: "3.10"
+          build_type: Release
+      - linux-gpu-build-and-test:
+          name: centos7-cuda11.1-gcc9.3-python3.6-release
+          executor: linux-cuda11-medium
+          imageset: centos7-gpu
+          cmake: "3.18"
+          cuda: 11-1
+          gcc: "9.3"
+          gdal: "2.4"
+          eigen: "3.3.7"
+          pybind11: "2.5"
+          python: "3.6"
+          build_type: Release

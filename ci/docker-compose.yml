@@ -1,0 +1,72 @@
+version: "3.4"
+
+x-build-context: &build-context ..
+x-build-dockerfile: &build-dockerfile ci/$IMAGESET.Dockerfile
+
+x-build-args:
+  &build-args
+  cmake_version: $CMAKE_VERSION
+  cuda_version: $CUDA_VERSION
+  eigen_version: $EIGEN_VERSION
+  gcc_version: $GCC_VERSION
+  gdal_version: $GDAL_VERSION
+  pybind11_version: $PYBIND11_VERSION
+  python_version: $PYTHON_VERSION
+  build_type: $BUILD_TYPE
+
+services:
+  runtime:
+    image: "isce3:runtime"
+    build:
+      context: *build-context
+      dockerfile: *build-dockerfile
+      target: runtime
+      args: *build-args
+
+  devel:
+    image: "isce3:devel"
+    build:
+      context: *build-context
+      dockerfile: *build-dockerfile
+      target: devel
+      args: *build-args
+
+  configure:
+    image: "isce3:builder"
+    build:
+      context: *build-context
+      dockerfile: *build-dockerfile
+      target: builder
+      args: *build-args
+
+  build:
+    image: "isce3:installer"
+    build:
+      context: *build-context
+      dockerfile: *build-dockerfile
+      target: installer
+      args: *build-args
+
+  install:
+    image: "isce3:tester"
+    build:
+      context: *build-context
+      dockerfile: *build-dockerfile
+      target: tester
+      args: *build-args
+
+  test:
+    image: "isce3:tester"
+    command: ctest -E "stage_dem" -j$$(nproc) --output-on-failure --progress
+    depends_on:
+      - install
+    runtime: nvidia
+
+  isce3:
+    image: "isce3:isce3"
+    build:
+      context: *build-context
+      dockerfile: *build-dockerfile
+      target: isce3
+      args: *build-args
+    runtime: nvidia
