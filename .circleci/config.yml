@@ -26,7 +26,7 @@ jobs:
         default: linux-gpu-medium-cuda11
       imageset:
         type: enum
-        enum: [centos7-gpu]
+        enum: [centos7-gpu, ubuntu2004-gpu]
         description: Docker image family
         default: centos7-gpu
       cmake:
@@ -103,17 +103,17 @@ workflows:
   pr-checks:
     jobs:
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_<<matrix.build_type>>
+          name: centos7-gpu_<<matrix.build_type>>
           matrix:
             parameters:
               build_type: ["Release", "Debug"]
 
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_cmake-v3.18
+          name: centos7-gpu_cmake-v3.18
           cmake: "3.18"
 
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_cuda-v<<matrix.cuda>>_gcc-v<<matrix.gcc>>
+          name: centos7-gpu_cuda-v<<matrix.cuda>>_gcc-v<<matrix.gcc>>
           matrix:
             parameters:
               cuda: ["11-1", "11-2", "11-3", "11-4"]
@@ -130,22 +130,26 @@ workflows:
                 gcc: "11"
 
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_gdal-v<<matrix.gdal>>
+          name: centos7-gpu_gdal-v<<matrix.gdal>>
           matrix:
             parameters:
               gdal: ["2.4", "3.0", "3.4"]
 
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_eigen-v3.3
+          name: centos7-gpu_eigen-v3.3
           eigen: "3.3"
 
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_pybind11-v2.6_python-v3.6
+          name: centos7-gpu_pybind11-v2.5_python-v3.7
           pybind11: "2.5"
-          python: "3.6"
+          python: "3.7"
 
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_python-v<<matrix.python>>
+          name: centos7-gpu_python-v<<matrix.python>>
           matrix:
             parameters:
               python: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+
+      - linux-gpu-build-and-test:
+          name: ubuntu2004-gpu
+          imageset: ubuntu2004-gpu
