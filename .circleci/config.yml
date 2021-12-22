@@ -1,7 +1,7 @@
 version: 2.1
 
 executors:
-  linux-cuda11-medium:
+  linux-gpu-medium-cuda11:
     resource_class: gpu.nvidia.medium
     machine:
       image: ubuntu-2004-cuda-11.4:202110-01
@@ -12,7 +12,7 @@ jobs:
       executor:
         type: string
         description: Host executor (must be a valid Linux GPU runner)
-        default: linux-cuda11-medium
+        default: linux-gpu-medium-cuda11
       imageset:
         type: string
         description: Docker image family {"centos7-gpu", "ubuntu2004-gpu"}
@@ -106,6 +106,16 @@ workflows:
             parameters:
               cuda: ["11-1", "11-2", "11-3", "11-4"]
               gcc: ["9", "10", "11"]
+            exclude:
+              # The following CUDA & GNU compiler version combinations are
+              # excluded due to restrictions on the CUDA host compiler. Prior to
+              # CUDA v11.4, nvcc only supports gcc<=10 as the host compiler.
+              - cuda: "11-1"
+                gcc: "11"
+              - cuda: "11-2"
+                gcc: "11"
+              - cuda: "11-3"
+                gcc: "11"
 
       - linux-gpu-build-and-test:
           name: linux-gpu-build-and-test_gdal-v<<matrix.gdal>>

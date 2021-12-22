@@ -13,6 +13,7 @@ RUN echo "skip_missing_names_on_install=False" >> /etc/yum.conf
 # Add Nvidia CUDA Yum repository.
 RUN yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
 
+# CUDA version string, in "<major>-<minor>" format.
 ARG cuda_version
 
 # Install runtime dependencies with Yum.
@@ -23,7 +24,9 @@ RUN yum update -y \
  && yum clean all \
  && rm -rf /var/cache/yum
 
-# Install Mamba package manager.
+# Install Mamba package manager. The Mambaforge distribution is a stripped-down
+# version of mamba (similar to Miniconda) that uses `conda-forge` as the default
+# (and only) channel.
 ADD https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh .
 ARG mamba_prefix=/opt/mambaforge
 RUN sh Mambaforge-Linux-x86_64.sh -b -p $mamba_prefix
@@ -31,9 +34,12 @@ ENV PATH=$mamba_prefix/bin:$PATH
 ENV MAMBA_NO_BANNER=1
 RUN mamba init
 
-# Create an empty conda environment.
+# Create an empty conda environment. The `base` environment contains some
+# pre-installed packages that could cause conflicts or mask missing dependencies.
 RUN mamba create -n isce3
 
+# Package version specifications for several dependencies. These could be empty
+# strings, in which case the version is unconstrained.
 ARG eigen_version
 ARG gcc_version
 ARG gdal_version
@@ -99,19 +105,21 @@ RUN mamba update -y mamba \
     pytest \
  && mamba clean -afy
 
-# Add CUDA bin path to environment.
+# Add CUDA bin path to environment. Some older CUDA packages don't create a
+# version-agnostic symlink, so we create one manually.
 ENV CUDA_PREFIX=/usr/local/cuda
 RUN ln -s /usr/local/cuda-${cuda_version//-/.} $CUDA_PREFIX
 ENV PATH=$CUDA_PREFIX/bin:$PATH
 
 FROM devel AS builder
 
-# Copy the source directory from the host. (Note that the build context must be
-# the root directory of the repository for this to work properly.)
+# Copy the source directory from the host. (The build context must be the root
+# directory of the repository for this to work properly.)
 COPY . isce3
 
 WORKDIR isce3
 
+# CMake build type ("Release", "Debug", etc).
 ARG build_type
 
 # Run CMake.
@@ -130,7 +138,7 @@ FROM builder AS installer
 WORKDIR build
 
 # Build isce3.
-RUN mamba activate isce3 && cmake --build . -j4
+RUN mamba activate isce3 && cmake --build .
 
 FROM installer AS tester
 
