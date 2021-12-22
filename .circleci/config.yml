@@ -51,6 +51,7 @@ jobs:
         default: Release
     executor: <<parameters.executor>>
     environment:
+      DOCKER_BUILDKIT: 1
       IMAGESET: <<parameters.imageset>>
       CMAKE_VERSION: <<parameters.cmake>>
       CUDA_VERSION: <<parameters.cuda>>
@@ -107,9 +108,9 @@ workflows:
               cuda: ["11-1", "11-2", "11-3", "11-4"]
               gcc: ["9", "10", "11"]
             exclude:
-              # The following CUDA & GNU compiler version combinations are
-              # excluded due to restrictions on the CUDA host compiler. Prior to
-              # CUDA v11.4, nvcc only supports gcc<=10 as the host compiler.
+              # Some CUDA + GNU compiler version combinations are excluded due
+              # to restrictions on the CUDA host compiler. Prior to CUDA v11.4,
+              # gcc>=11 is unsupported.
               - cuda: "11-1"
                 gcc: "11"
               - cuda: "11-2"
@@ -128,8 +129,8 @@ workflows:
           eigen: "3.3"
 
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_pybind11-v2.5
-          pybind11: "2.5"
+          name: linux-gpu-build-and-test_pybind11-v2.6
+          pybind11: "2.6"
 
       - linux-gpu-build-and-test:
           name: linux-gpu-build-and-test_python-v<<matrix.python>>
