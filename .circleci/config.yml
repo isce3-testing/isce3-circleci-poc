@@ -81,11 +81,11 @@ workflows:
   pr-checks:
     jobs:
       - linux-gpu-build-and-test:
-          name: centos7-cuda11.5-gcc11.2-python3.10-release
+          name: centos7-cuda11.4-gcc11.2-python3.10-release
           executor: linux-cuda11-medium
           imageset: centos7-gpu
           cmake: "3.21"
-          cuda: 11-5
+          cuda: 11-4
           gcc: "11.2"
           gdal: "3.4"
           eigen: "3.4"
