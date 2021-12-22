@@ -113,15 +113,17 @@ workflows:
           cmake: "3.18"
 
       - linux-gpu-build-and-test:
-          name: centos7-gpu_cuda-v<<matrix.cuda>>_gcc-v<<matrix.gcc>>
+          name: centos7-gpu_gcc-v<<matrix.gcc>>_cuda-v<<matrix.cuda>>
           matrix:
             parameters:
-              cuda: ["11-1", "11-2", "11-3", "11-4"]
+              cuda: ["11-0", "11-1", "11-2", "11-3", "11-4"]
               gcc: ["9", "10", "11"]
             exclude:
               # Some CUDA + GNU compiler version combinations are excluded due
               # to restrictions on the CUDA host compiler. Prior to CUDA v11.4,
               # gcc>=11 is unsupported.
+              - cuda: "11-0"
+                gcc: "11"
               - cuda: "11-1"
                 gcc: "11"
               - cuda: "11-2"
