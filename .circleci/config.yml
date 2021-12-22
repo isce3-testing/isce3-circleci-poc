@@ -12,33 +12,43 @@ jobs:
       executor:
         type: string
         description: Host executor (must be a valid Linux GPU runner)
+        default: linux-cuda11-medium
       imageset:
         type: string
         description: Docker image family {"centos7-gpu", "ubuntu2004-gpu"}
+        default: centos7-gpu
       cmake:
         type: string
         description: CMake version string
+        default: "3.21"
       cuda:
         type: string
         description: CUDA version string
+        default: 11-4
       gcc:
         type: string
         description: GCC version string
+        default: "11.2"
       gdal:
         type: string
         description: GDAL version string
+        default: "3.4"
       eigen:
         type: string
         description: Eigen version string
+        default: "3.4"
       pybind11:
         type: string
         description: pybind11 version string
+        default: "2.8"
       python:
         type: string
         description: Python version string
+        default: "3.10"
       build_type:
         type: string
         description: CMake build type
+        default: Release
     executor: <<parameters.executor>>
     environment:
       IMAGESET: <<parameters.imageset>>
@@ -81,26 +91,37 @@ workflows:
   pr-checks:
     jobs:
       - linux-gpu-build-and-test:
-          name: centos7-cuda11.4-gcc11.2-python3.10-release
-          executor: linux-cuda11-medium
-          imageset: centos7-gpu
-          cmake: "3.21"
-          cuda: 11-4
-          gcc: "11.2"
-          gdal: "3.4"
-          eigen: "3.4"
-          pybind11: "2.8"
-          python: "3.10"
-          build_type: Release
+          matrix:
+            parameters:
+              cmake: ["3.18", "3.21"]
+
       - linux-gpu-build-and-test:
-          name: centos7-cuda11.1-gcc9.3-python3.6-release
-          executor: linux-cuda11-medium
-          imageset: centos7-gpu
-          cmake: "3.18"
-          cuda: 11-1
-          gcc: "9.3"
-          gdal: "2.4"
-          eigen: "3.3.7"
-          pybind11: "2.5"
-          python: "3.6"
-          build_type: Release
+          matrix:
+            parameters:
+              cuda: ["11-1", "11-4"]
+              gcc: ["9", "10", "11"]
+
+      - linux-gpu-build-and-test:
+          matrix:
+            parameters:
+              gdal: ["2.4", "3.4"]
+
+      - linux-gpu-build-and-test:
+          matrix:
+            parameters:
+              eigen: ["3.3", "3.4"]
+
+      - linux-gpu-build-and-test:
+          matrix:
+            parameters:
+              pybind11: ["2.5", "2.8"]
+
+      - linux-gpu-build-and-test:
+          matrix:
+            parameters:
+              python: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+
+      - linux-gpu-build-and-test:
+          matrix:
+            parameters:
+              build_type: ["Release", "Debug"]
