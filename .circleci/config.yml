@@ -120,8 +120,9 @@ workflows:
               gcc: ["9", "10", "11"]
             exclude:
               # Some CUDA + GNU compiler version combinations are excluded due
-              # to restrictions on the CUDA host compiler. Prior to CUDA v11.4,
-              # gcc>=11 is unsupported.
+              # to restrictions on the CUDA host compiler.
+              - cuda: "11-0"
+                gcc: "10"
               - cuda: "11-0"
                 gcc: "11"
               - cuda: "11-1"
