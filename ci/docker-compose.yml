@@ -63,7 +63,7 @@ services:
 
   test:
     image: "isce3:tester"
-    command: ctest -E "stage_dem" -j$$(nproc) --output-on-failure --progress
+    command: ctest -E "stage_dem" --output-on-failure --progress
     depends_on:
       - install
     deploy:
