@@ -1,5 +1,3 @@
-version: "3.4"
-
 x-build-context: &build-context ..
 x-build-dockerfile: &build-dockerfile ci/$IMAGESET.Dockerfile
 
