@@ -20,7 +20,7 @@ jobs:
       cmake:
         type: string
         description: CMake version string
-        default: "3.21"
+        default: ""
       cuda:
         type: string
         description: CUDA version string
@@ -28,23 +28,23 @@ jobs:
       gcc:
         type: string
         description: GCC version string
-        default: "11.2"
+        default: ""
       gdal:
         type: string
         description: GDAL version string
-        default: "3.4"
+        default: ""
       eigen:
         type: string
         description: Eigen version string
-        default: "3.4"
+        default: ""
       pybind11:
         type: string
         description: pybind11 version string
-        default: "2.8"
+        default: ""
       python:
         type: string
         description: Python version string
-        default: "3.10"
+        default: ""
       build_type:
         type: string
         description: CMake build type
@@ -91,37 +91,38 @@ workflows:
   pr-checks:
     jobs:
       - linux-gpu-build-and-test:
-          matrix:
-            parameters:
-              cmake: ["3.18", "3.21"]
-
-      - linux-gpu-build-and-test:
-          matrix:
-            parameters:
-              cuda: ["11-1", "11-4"]
-              gcc: ["9", "10", "11"]
-
-      - linux-gpu-build-and-test:
-          matrix:
-            parameters:
-              gdal: ["2.4", "3.4"]
-
-      - linux-gpu-build-and-test:
-          matrix:
-            parameters:
-              eigen: ["3.3", "3.4"]
-
-      - linux-gpu-build-and-test:
-          matrix:
-            parameters:
-              pybind11: ["2.5", "2.8"]
-
-      - linux-gpu-build-and-test:
-          matrix:
-            parameters:
-              python: ["3.6", "3.7", "3.8", "3.9", "3.10"]
-
-      - linux-gpu-build-and-test:
+          name: linux-gpu-build-and-test_<<matrix.build_type>>
           matrix:
             parameters:
               build_type: ["Release", "Debug"]
+
+      - linux-gpu-build-and-test:
+          name: linux-gpu-build-and-test_cmake-v3.18
+          cmake: "3.18"
+
+      - linux-gpu-build-and-test:
+          name: linux-gpu-build-and-test_cuda-v<<matrix.cuda>>_gcc-v<<matrix.gcc>>
+          matrix:
+            parameters:
+              cuda: ["11-1", "11-2", "11-3", "11-4"]
+              gcc: ["9", "10", "11"]
+
+      - linux-gpu-build-and-test:
+          name: linux-gpu-build-and-test_gdal-v<<matrix.gdal>>
+          matrix:
+            parameters:
+              gdal: ["2.4", "3.0", "3.4"]
+
+      - linux-gpu-build-and-test:
+          name: linux-gpu-build-and-test_eigen-v3.3
+          eigen: "3.3"
+
+      - linux-gpu-build-and-test:
+          name: linux-gpu-build-and-test_pybind11-v2.5
+          pybind11: "2.5"
+
+      - linux-gpu-build-and-test:
+          name: linux-gpu-build-and-test_python-v<<matrix.python>>
+          matrix:
+            parameters:
+              python: ["3.6", "3.7", "3.8", "3.9", "3.10"]
