@@ -14,6 +14,12 @@ x-build-args:
   python_version: $PYTHON_VERSION
   build_type: $BUILD_TYPE
 
+x-devices:
+  &devices
+  - driver: nvidia
+    count: all
+    capabilities: [ gpu ]
+
 services:
   runtime:
     image: "isce3:runtime"
@@ -63,8 +69,7 @@ services:
     deploy:
       resources:
         reservations:
-          devices:
-            - capabilities: [ gpu ]
+          devices: *devices
 
   isce3:
     image: "isce3:isce3"
@@ -76,5 +81,4 @@ services:
     deploy:
       resources:
         reservations:
-          devices:
-            - capabilities: [ gpu ]
+          devices: *devices
