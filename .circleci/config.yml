@@ -1,21 +1,33 @@
 version: 2.1
 
 executors:
+  linux-gpu-small-cuda11:
+    resource_class: gpu.nvidia.small
+    machine:
+      image: ubuntu-2004-cuda-11.4:202110-01
+    environment:
+      CUDA_ARCH: 61
+    docker_layer_caching: true
+
   linux-gpu-medium-cuda11:
     resource_class: gpu.nvidia.medium
     machine:
       image: ubuntu-2004-cuda-11.4:202110-01
+    environment:
+      CUDA_ARCH: 75
+    docker_layer_caching: true
 
 jobs:
   linux-gpu-build-and-test:
     parameters:
       executor:
-        type: string
-        description: Host executor (must be a valid Linux GPU runner)
+        type: executor
+        description: Linux GPU runner
         default: linux-gpu-medium-cuda11
       imageset:
-        type: string
-        description: Docker image family {"centos7-gpu", "ubuntu2004-gpu"}
+        type: enum
+        enum: [centos7-gpu]
+        description: Docker image family
         default: centos7-gpu
       cmake:
         type: string
@@ -51,7 +63,6 @@ jobs:
         default: Release
     executor: <<parameters.executor>>
     environment:
-      DOCKER_BUILDKIT: 1
       IMAGESET: <<parameters.imageset>>
       CMAKE_VERSION: <<parameters.cmake>>
       CUDA_VERSION: <<parameters.cuda>>
@@ -129,8 +140,9 @@ workflows:
           eigen: "3.3"
 
       - linux-gpu-build-and-test:
-          name: linux-gpu-build-and-test_pybind11-v2.6
-          pybind11: "2.6"
+          name: linux-gpu-build-and-test_pybind11-v2.6_python-v3.6
+          pybind11: "2.5"
+          python: "3.6"
 
       - linux-gpu-build-and-test:
           name: linux-gpu-build-and-test_python-v<<matrix.python>>
