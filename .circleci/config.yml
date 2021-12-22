@@ -5,17 +5,17 @@ executors:
     resource_class: gpu.nvidia.small
     machine:
       image: ubuntu-2004-cuda-11.4:202110-01
+      docker_layer_caching: true
     environment:
-      CUDA_ARCH: 61
-    docker_layer_caching: true
+      CUDA_ARCH: "61"
 
   linux-gpu-medium-cuda11:
     resource_class: gpu.nvidia.medium
     machine:
       image: ubuntu-2004-cuda-11.4:202110-01
+      docker_layer_caching: true
     environment:
-      CUDA_ARCH: 75
-    docker_layer_caching: true
+      CUDA_ARCH: "75"
 
 jobs:
   linux-gpu-build-and-test:
