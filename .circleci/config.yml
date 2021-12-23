@@ -102,15 +102,22 @@ jobs:
 workflows:
   pr-checks:
     jobs:
+      - hold:
+          type: approval
+
       - linux-gpu-build-and-test:
           name: centos7-gpu_<<matrix.build_type>>
           matrix:
             parameters:
               build_type: ["Release", "Debug"]
+          requires:
+            - hold
 
       - linux-gpu-build-and-test:
           name: centos7-gpu_cmake-v3.18
           cmake: "3.18"
+          requires:
+            - hold
 
       - linux-gpu-build-and-test:
           name: centos7-gpu_gcc-v<<matrix.gcc>>_cuda-v<<matrix.cuda>>
@@ -131,28 +138,40 @@ workflows:
                 gcc: "11"
               - cuda: "11-3"
                 gcc: "11"
+          requires:
+            - hold
 
       - linux-gpu-build-and-test:
           name: centos7-gpu_gdal-v<<matrix.gdal>>
           matrix:
             parameters:
               gdal: ["2.4", "3.0", "3.4"]
+          requires:
+            - hold
 
       - linux-gpu-build-and-test:
           name: centos7-gpu_eigen-v3.3
           eigen: "3.3"
+          requires:
+            - hold
 
       - linux-gpu-build-and-test:
           name: centos7-gpu_pybind11-v2.5_python-v3.7
           pybind11: "2.5"
           python: "3.7"
+          requires:
+            - hold
 
       - linux-gpu-build-and-test:
           name: centos7-gpu_python-v<<matrix.python>>
           matrix:
             parameters:
               python: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+          requires:
+            - hold
 
       - linux-gpu-build-and-test:
           name: ubuntu2004-gpu
           imageset: ubuntu2004-gpu
+          requires:
+            - hold
