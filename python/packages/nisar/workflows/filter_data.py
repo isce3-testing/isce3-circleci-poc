@@ -1,16 +1,19 @@
 import os
-import isce3
+from dataclasses import dataclass
+
 import h5py
+import isce3
 import numpy as np
 from osgeo import gdal
-from dataclasses import dataclass
+
 
 @dataclass
 class BlockParam:
-    '''
+    """
     Class for block specific parameters
     Facilitate block parameters exchange between functions
-    '''
+    """
+
     # Length of current block to filter; padding not included
     block_length: int
 
@@ -33,6 +36,7 @@ class BlockParam:
     # in class so one less value is to be passed between functions.
     data_width: int
 
+
 def np2gdal_dtype(np_dtype):
     dict_np2gdal = {
         np.byte: gdal.GDT_Byte,
@@ -43,15 +47,17 @@ def np2gdal_dtype(np_dtype):
         np.float32: gdal.GDT_Float32,
         np.float64: gdal.GDT_Float64,
         np.complex64: gdal.GDT_CFloat32,
-        np.complex128: gdal.GDT_CFloat64}
+        np.complex128: gdal.GDT_CFloat64,
+    }
     if np_dtype not in dict_np2gdal:
         # throw unsupported error
         pass
     else:
         return dict_np2gdal[int_dtype]
 
+
 def block_param_generator(lines_per_block, data_shape, pad_shape):
-    ''' Generator for block specific parameter class.
+    """Generator for block specific parameter class.
 
     Parameters
     ----------
@@ -66,7 +72,7 @@ def block_param_generator(lines_per_block, data_shape, pad_shape):
     -------
     _: BlockParam
         BlockParam object for current block
-    '''
+    """
     data_length, data_width = data_shape
     pad_length, pad_width = pad_shape
 
@@ -97,8 +103,8 @@ def block_param_generator(lines_per_block, data_shape, pad_shape):
 
         # If applicable, save negative start line as deficit to account for later
         read_start_line, start_line_deficit = (
-            0, read_start_line) if read_start_line < 0 else (
-            read_start_line, 0)
+            (0, read_start_line) if read_start_line < 0 else (read_start_line, 0)
+        )
 
         # Initial guess at number lines to read; accounting for negative start at the end
         read_length = block_length + read_length_pad
@@ -106,8 +112,7 @@ def block_param_generator(lines_per_block, data_shape, pad_shape):
             read_length -= abs(start_line_deficit)
 
         # Check for over-reading and adjust lines read as needed
-        end_line_deficit = min(
-            data_length - read_start_line - read_length, 0)
+        end_line_deficit = min(data_length - read_start_line - read_length, 0)
         read_length -= abs(end_line_deficit)
 
         # Determine block padding in length
@@ -118,24 +123,29 @@ def block_param_generator(lines_per_block, data_shape, pad_shape):
             bottom_pad = abs(end_line_deficit)
         elif last_block:
             # Only the bottom part of the block should be padded
-            top_pad = abs(
-                start_line_deficit) if start_line_deficit < 0 else 0
+            top_pad = abs(start_line_deficit) if start_line_deficit < 0 else 0
             bottom_pad = pad_length // 2
         else:
             # Top and bottom should be added taking into account line deficit
-            top_pad = abs(
-                start_line_deficit) if start_line_deficit < 0 else 0
+            top_pad = abs(start_line_deficit) if start_line_deficit < 0 else 0
             bottom_pad = abs(end_line_deficit)
 
-        block_pad = ((top_pad, bottom_pad),
-                     (pad_width // 2, pad_width // 2))
+        block_pad = ((top_pad, bottom_pad), (pad_width // 2, pad_width // 2))
 
-        yield BlockParam(block_length, write_start_line, read_start_line, read_length, block_pad, data_width)
+        yield BlockParam(
+            block_length,
+            write_start_line,
+            read_start_line,
+            read_length,
+            block_pad,
+            data_width,
+        )
 
     return
 
+
 def get_raster_info(raster):
-    ''' Determine raster shape based on raster
+    """Determine raster shape based on raster
         type (h5py.Dataset or GDAL-friendly raster).
 
     Parameters
@@ -150,7 +160,7 @@ def get_raster_info(raster):
             Width of raster.
         data_length: int
             Length of raster.
-    '''
+    """
     if isinstance(raster, h5py.Dataset):
         return raster.shape, raster.dtype
     else:
@@ -161,8 +171,9 @@ def get_raster_info(raster):
         data_type = ds.GetRasterBand(1).DataType
         return (data_length, data_width), data_type
 
+
 def get_raster_block(raster, block_param):
-    ''' Get a block of data from raster.
+    """Get a block of data from raster.
         Raster can be a HDF5 file or a GDAL-friendly raster
 
     Parameters
@@ -178,28 +189,39 @@ def get_raster_block(raster, block_param):
     -------
     data_block: np.ndarray
         Block read from raster with shape specified in block_param.
-    '''
+    """
     if isinstance(raster, h5py.Dataset):
-        data_block = np.empty((block_param.read_length, block_param.data_width),
-                           dtype=raster.dtype)
-        raster.read_direct(data_block, np.s_[block_param.read_start_line:
-                                        block_param.read_start_line + block_param.read_length, :])
+        data_block = np.empty(
+            (block_param.read_length, block_param.data_width), dtype=raster.dtype
+        )
+        raster.read_direct(
+            data_block,
+            np.s_[
+                block_param.read_start_line : block_param.read_start_line
+                + block_param.read_length,
+                :,
+            ],
+        )
     else:
         # Open input data using GDAL to get raster length
         ds_data = gdal.Open(raster, gdal.GA_Update)
-        data_block = ds_data.GetRasterBand(1).ReadAsArray(0,
-                                                block_param.read_start_line,
-                                                block_param.data_width,
-                                                block_param.read_length)
+        data_block = ds_data.GetRasterBand(1).ReadAsArray(
+            0,
+            block_param.read_start_line,
+            block_param.data_width,
+            block_param.read_length,
+        )
 
     # Pad igram_block with zeros according to pad_length/pad_width
-    data_block = np.pad(data_block, block_param.block_pad,
-                         mode='constant', constant_values=0)
+    data_block = np.pad(
+        data_block, block_param.block_pad, mode="constant", constant_values=0
+    )
 
     return data_block
 
+
 def write_raster_block(out_raster, data, block_param):
-    ''' Write processed block to out_raster.
+    """Write processed block to out_raster.
 
     Parameters
     ----------
@@ -210,20 +232,32 @@ def write_raster_block(out_raster, data, block_param):
         Filtered data to write to out_raster.
     block_param: BlockParam
         Object specifying where and how much to write to out_raster.
-    '''
+    """
     if isinstance(out_raster, h5py.Dataset):
-       out_raster.write_direct(data,
-                      dest_sel=np.s_[
-                               block_param.write_start_line:block_param.write_start_line + block_param.block_length,
-                               :])
+        out_raster.write_direct(
+            data,
+            dest_sel=np.s_[
+                block_param.write_start_line : block_param.write_start_line
+                + block_param.block_length,
+                :,
+            ],
+        )
     else:
         ds_data = gdal.Open(out_raster, gdal.GA_Update)
-        ds_data.GetRasterBand(1).WriteArray(data, xoff=0, yoff=block_param.write_start_line)
+        ds_data.GetRasterBand(1).WriteArray(
+            data, xoff=0, yoff=block_param.write_start_line
+        )
 
 
-def filter_data(input_data, lines_per_block,
-           kernel_rows, kernel_cols, output_data=None, mask_path=None):
-    ''' Filter data using two separable 1D kernels.
+def filter_data(
+    input_data,
+    lines_per_block,
+    kernel_rows,
+    kernel_cols,
+    output_data=None,
+    mask_path=None,
+):
+    """Filter data using two separable 1D kernels.
 
     Parameters
     ----------
@@ -244,7 +278,7 @@ def filter_data(input_data, lines_per_block,
 
     Returns
     -------
-    '''
+    """
 
     data_shape, data_type = get_raster_info(input_data)
     data_length, data_width = data_shape
@@ -255,8 +289,7 @@ def filter_data(input_data, lines_per_block,
     pad_shape = (pad_length, pad_width)
 
     # Determine number of blocks to process
-    lines_per_block = min(data_length,
-                          lines_per_block)
+    lines_per_block = min(data_length, lines_per_block)
 
     # Start block processing
     block_params = block_param_generator(lines_per_block, data_shape, pad_shape)
@@ -268,24 +301,23 @@ def filter_data(input_data, lines_per_block,
         # Get if filtering needs to be performed with or without a mask
         if mask_path is not None:
             # Use gdal to extract a mask block, pad the mask (mask need to be same shape as input)
-            ds_mask = gdal.Open(mask_path,
-                                gdal.GA_ReadOnly)
-            mask_block = ds_mask.GetRasterBand(1).ReadAsArray(0,
-                                                              block_param.read_start_line,
-                                                              block_param.data_width,
-                                                              block_param.read_length)
-            mask_block = np.pad(mask_block, block_param.block_pad,
-                                mode='constant', constant_values=0)
-            filt_data_block = isce3.signal.convolve2D(data_block,
-                                                      mask_block,
-                                                      kernel_cols,
-                                                      kernel_rows,
-                                                      False)
+            ds_mask = gdal.Open(mask_path, gdal.GA_ReadOnly)
+            mask_block = ds_mask.GetRasterBand(1).ReadAsArray(
+                0,
+                block_param.read_start_line,
+                block_param.data_width,
+                block_param.read_length,
+            )
+            mask_block = np.pad(
+                mask_block, block_param.block_pad, mode="constant", constant_values=0
+            )
+            filt_data_block = isce3.signal.convolve2D(
+                data_block, mask_block, kernel_cols, kernel_rows, False
+            )
         else:
-            filt_data_block = isce3.signal.convolve2D(data_block,
-                                                      kernel_cols,
-                                                      kernel_rows,
-                                                      False)
+            filt_data_block = isce3.signal.convolve2D(
+                data_block, kernel_cols, kernel_rows, False
+            )
         # If no value provided for output_data, then overwrite existing
         # input with filtered output
         # Otherwise write filtered output to output_data
@@ -293,9 +325,14 @@ def filter_data(input_data, lines_per_block,
 
         # If writing to GDAL raster, prepare file
         if not isinstance(out_raster, h5py.Dataset) and not os.path.isfile(out_raster):
-            raster = isce3.io.Raster(path=out_raster, width=data_width,
-                                     length=data_length, num_bands=1,
-                                     dtype=data_type, driver_name='GTiff')
+            raster = isce3.io.Raster(
+                path=out_raster,
+                width=data_width,
+                length=data_length,
+                num_bands=1,
+                dtype=data_type,
+                driver_name="GTiff",
+            )
             del raster
 
         write_raster_block(out_raster, filt_data_block, block_param)

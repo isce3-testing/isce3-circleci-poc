@@ -102,8 +102,8 @@ runconfig:
                 lines_per_block: 1000
                 window_function: tukey
                 window_shape: 0.25
-                range_fft_size: 
-                
+                range_fft_size:
+
             geo2rdr:
                 topo_path: '.'
                 threshold: 1.0e-9

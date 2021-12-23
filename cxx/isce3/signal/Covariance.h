@@ -42,10 +42,10 @@ public:
      * @param[out] cov covariance components obtained by cross multiplication
      * and multi-looking the polarimetric channels
      */
-    void covariance(std::map<std::string, isce3::io::Raster> & slc,
-                    std::map<std::pair<std::string, std::string>,
-                             isce3::io::Raster> & cov,
-                    size_t rangeLooks=1, size_t azimuthLooks=1);
+    void covariance(std::map<std::string, isce3::io::Raster>& slc,
+            std::map<std::pair<std::string, std::string>, isce3::io::Raster>&
+                    cov,
+            size_t rangeLooks = 1, size_t azimuthLooks = 1);
 
     /**
      * Estimate the Faraday rotation angle from quad-pol data
@@ -55,9 +55,9 @@ public:
      * @param[in] rangeLooks number of looks in range direction
      * @param[in] azimuthLooks number of looks in azimuth direction
      */
-    void faradayRotation(std::map<std::string, isce3::io::Raster> & slc,
-                         isce3::io::Raster & faradayAngleRaster,
-                         size_t rangeLooks, size_t azimuthLooks);
+    void faradayRotation(std::map<std::string, isce3::io::Raster>& slc,
+            isce3::io::Raster& faradayAngleRaster, size_t rangeLooks,
+            size_t azimuthLooks);
 
     /**
      * Estimate polarimetric orientation angle
@@ -69,10 +69,9 @@ public:
      * @param[in] lookAngleRaster raster object of the look angle
      * @param[out] tauRaster raster object of the polarimetric orientation angle
      */
-    void orientationAngle(isce3::io::Raster & azimuthSlopeRaster,
-                          isce3::io::Raster & rangeSlopeRaster,
-                          isce3::io::Raster & lookAngleRaster,
-                          isce3::io::Raster & tauRaster);
+    void orientationAngle(isce3::io::Raster& azimuthSlopeRaster,
+            isce3::io::Raster& rangeSlopeRaster,
+            isce3::io::Raster& lookAngleRaster, isce3::io::Raster& tauRaster);
 
     /**
      * Geocode covariance components
@@ -82,8 +81,8 @@ public:
      * @param[out] geoCov geocoded covariance componenets
      * @param[in] demRaster digital elevation model (DEM) raster object
      */
-    void geocodeCovariance(isce3::io::Raster & rdrCov, isce3::io::Raster & geoCov,
-                           isce3::io::Raster & demRaster);
+    void geocodeCovariance(isce3::io::Raster& rdrCov, isce3::io::Raster& geoCov,
+            isce3::io::Raster& demRaster);
 
     /**
      * Geocode covariance components. Radiometric Terrain Correction (RTC) is
@@ -96,9 +95,8 @@ public:
      * @param[in] rtcRaster raster object for radiometric terrain correction
      * (RTC) factor
      */
-    void geocodeCovariance(isce3::io::Raster & rdrCov, isce3::io::Raster & geoCov,
-                           isce3::io::Raster & demRaster,
-                           isce3::io::Raster & rtc);
+    void geocodeCovariance(isce3::io::Raster& rdrCov, isce3::io::Raster& geoCov,
+            isce3::io::Raster& demRaster, isce3::io::Raster& rtc);
 
     /**
      * Geocode covariance components. RTC and polarimetric orientation angle
@@ -113,9 +111,9 @@ public:
      * @param[in] orientationAngleRaster raster object for polarimetric
      * orientation angle
      */
-    void geocodeCovariance(isce3::io::Raster & rdrCov, isce3::io::Raster & geoCov,
-                           isce3::io::Raster & demRaster, isce3::io::Raster & rtc,
-                           isce3::io::Raster & orientationAngle);
+    void geocodeCovariance(isce3::io::Raster& rdrCov, isce3::io::Raster& geoCov,
+            isce3::io::Raster& demRaster, isce3::io::Raster& rtc,
+            isce3::io::Raster& orientationAngle);
 
     /**
      * Set geocoded grid.
@@ -133,8 +131,8 @@ public:
      * @param[in] epsgcode EPSG code for defining the projection system
      */
     void geoGrid(double geoGridStartX, double geoGridStartY,
-                 double geoGridSpacingX, double geoGridSpacingY,
-                 double geoGridEndX, double geoGridEndY, int epsgcode);
+            double geoGridSpacingX, double geoGridSpacingY, double geoGridEndX,
+            double geoGridEndY, int epsgcode);
 
     /**
      * Set geocoded grid.
@@ -150,8 +148,8 @@ public:
      * @param[in] epsgcode EPSG code for defining the projection system
      */
     void geoGrid(double geoGridStartX, double geoGridStartY,
-                 double geoGridSpacingX, double geoGridSpacingY, int width,
-                 int length, int epsgcode);
+            double geoGridSpacingX, double geoGridSpacingY, int width,
+            int length, int epsgcode);
 
     /**
      * Set the input radar grid.
@@ -171,17 +169,16 @@ public:
      * direction
      */
     void radarGrid(isce3::core::LUT2d<double> doppler,
-                   isce3::core::DateTime refEpoch, double azimuthStartTime,
-                   double azimuthTimeInterval, int radarGridLength,
-                   double startingRange, double rangeSpacing,
-                   isce3::core::LookSide side,
-                   double wavelength, int radarGridWidth);
+            isce3::core::DateTime refEpoch, double azimuthStartTime,
+            double azimuthTimeInterval, int radarGridLength,
+            double startingRange, double rangeSpacing,
+            isce3::core::LookSide side, double wavelength, int radarGridWidth);
 
     /** Set pulse repetition frequency (PRF). */
     void prf(double p) { _prf = p; }
 
     /** Set Doppler */
-    void doppler(const isce3::core::LUT2d<double> & dop) { _doppler = dop; }
+    void doppler(const isce3::core::LUT2d<double>& dop) { _doppler = dop; }
 
     /** Set range sampling frequency */
     void rangeSamplingFrequency(double rngSamplingFreq);
@@ -190,7 +187,10 @@ public:
     void rangeBandwidth(double rngBandwidth) { _rangeBandwidth = rngBandwidth; }
 
     /** Set range pixel spacing*/
-    void rangePixelSpacing(double rngPixelSpacing) { _rangePixelSpacing = rngPixelSpacing; }
+    void rangePixelSpacing(double rngPixelSpacing)
+    {
+        _rangePixelSpacing = rngPixelSpacing;
+    }
 
     /** Set radar wavelength*/
     void wavelength(double wvl) { _wavelength = wvl; }
@@ -199,13 +199,16 @@ public:
     void interpolator(isce3::core::dataInterpMethod method);
 
     /** Set platform's orbit*/
-    void orbit(const isce3::core::Orbit & orbit) { _orbit = orbit; }
+    void orbit(const isce3::core::Orbit& orbit) { _orbit = orbit; }
 
     /** Set ellipsoid */
-    void ellipsoid(const isce3::core::Ellipsoid & ellipsoid) { _ellipsoid = ellipsoid; }
+    void ellipsoid(const isce3::core::Ellipsoid& ellipsoid)
+    {
+        _ellipsoid = ellipsoid;
+    }
 
     /** Set the projection object*/
-    void projection(isce3::core::ProjectionBase * proj) { _proj = proj; }
+    void projection(isce3::core::ProjectionBase* proj) { _proj = proj; }
 
     /** Set the threshold for Geo2rdr computation*/
     void thresholdGeo2rdr(double threshold) { _threshold = threshold; }
@@ -217,68 +220,74 @@ public:
     void linesPerBlock(size_t linesPerBlock) { _linesPerBlock = linesPerBlock; }
 
     /** Set DEM block margin*/
-    void demBlockMargin(double demBlockMargin) { _demBlockMargin = demBlockMargin; }
+    void demBlockMargin(double demBlockMargin)
+    {
+        _demBlockMargin = demBlockMargin;
+    }
 
     /** Set radar block margin*/
-    void radarBlockMargin(int radarBlockMargin) { _radarBlockMargin = radarBlockMargin; }
+    void radarBlockMargin(int radarBlockMargin)
+    {
+        _radarBlockMargin = radarBlockMargin;
+    }
 
     /** Set interpolator */
-    void interpolator(isce3::core::Interpolator<T> * interp) { _interp = interp; }
+    void interpolator(isce3::core::Interpolator<T>* interp)
+    {
+        _interp = interp;
+    }
 
 private:
-    void _correctRTC(std::valarray<std::complex<float>> & rdrDataBlock,
-                     std::valarray<float> & rtcDataBlock);
+    void _correctRTC(std::valarray<std::complex<float>>& rdrDataBlock,
+            std::valarray<float>& rtcDataBlock);
 
-    void _correctRTC(std::valarray<std::complex<double>> & rdrDataBlock,
-                     std::valarray<float> & rtcDataBlock);
+    void _correctRTC(std::valarray<std::complex<double>>& rdrDataBlock,
+            std::valarray<float>& rtcDataBlock);
 
-    void _computeRangeAzimuthBoundingBox(
-            int lineStart, int blockLength, int blockWidth, int margin,
-            isce3::geometry::DEMInterpolator & demInterp, int & azimuthFirstLine,
-            int & azimuthLastLine, int & rangeFirstPixel, int & rangeLastPixel);
+    void _computeRangeAzimuthBoundingBox(int lineStart, int blockLength,
+            int blockWidth, int margin,
+            isce3::geometry::DEMInterpolator& demInterp, int& azimuthFirstLine,
+            int& azimuthLastLine, int& rangeFirstPixel, int& rangeLastPixel);
 
     void _loadDEM(isce3::io::Raster demRaster,
-                  isce3::geometry::DEMInterpolator & demInterp,
-                  isce3::core::ProjectionBase * _proj, int lineStart,
-                  int blockLength, int blockWidth, double demMargin);
+            isce3::geometry::DEMInterpolator& demInterp,
+            isce3::core::ProjectionBase* _proj, int lineStart, int blockLength,
+            int blockWidth, double demMargin);
 
-    void _geo2rdr(double x, double y, double & azimuthTime, double & slantRange,
-                  isce3::geometry::DEMInterpolator & demInterp);
+    void _geo2rdr(double x, double y, double& azimuthTime, double& slantRange,
+            isce3::geometry::DEMInterpolator& demInterp);
 
-    void _interpolate(std::valarray<T> & rdrDataBlock,
-                      std::valarray<T> & geoDataBlock,
-                      std::valarray<double> & radarX,
-                      std::valarray<double> & radarY, size_t radarBlockWidth,
-                      size_t radarBlockLength, size_t width, size_t length);
+    void _interpolate(std::valarray<T>& rdrDataBlock,
+            std::valarray<T>& geoDataBlock, std::valarray<double>& radarX,
+            std::valarray<double>& radarY, size_t radarBlockWidth,
+            size_t radarBlockLength, size_t width, size_t length);
 
-    void _faradayRotationAngle(std::valarray<T> & Shh, std::valarray<T> & Shv,
-                               std::valarray<T> & Svh, std::valarray<T> & Svv,
-                               std::valarray<float> & faradayRotation,
-                               size_t width, size_t length, size_t rngLooks,
-                               size_t azLooks);
+    void _faradayRotationAngle(std::valarray<T>& Shh, std::valarray<T>& Shv,
+            std::valarray<T>& Svh, std::valarray<T>& Svv,
+            std::valarray<float>& faradayRotation, size_t width, size_t length,
+            size_t rngLooks, size_t azLooks);
 
-    void _correctFaradayRotation(isce3::core::LUT2d<double> & faradayAngle,
-                                 std::valarray<std::complex<float>> & Shh,
-                                 std::valarray<std::complex<float>> & Shv,
-                                 std::valarray<std::complex<float>> & Svh,
-                                 std::valarray<std::complex<float>> & Svv,
-                                 size_t length, size_t width, size_t lineStart);
+    void _correctFaradayRotation(isce3::core::LUT2d<double>& faradayAngle,
+            std::valarray<std::complex<float>>& Shh,
+            std::valarray<std::complex<float>>& Shv,
+            std::valarray<std::complex<float>>& Svh,
+            std::valarray<std::complex<float>>& Svv, size_t length,
+            size_t width, size_t lineStart);
 
-    void _orientationAngle(std::valarray<float> & azimuthSlope,
-                           std::valarray<float> & rangeSlope,
-                           std::valarray<float> & lookAngle,
-                           std::valarray<float> & tau);
+    void _orientationAngle(std::valarray<float>& azimuthSlope,
+            std::valarray<float>& rangeSlope, std::valarray<float>& lookAngle,
+            std::valarray<float>& tau);
 
-    void _correctOrientation(std::valarray<float> & tau,
-                             std::valarray<std::complex<float>> & C11,
-                             std::valarray<std::complex<float>> & C12,
-                             std::valarray<std::complex<float>> & C13,
-                             std::valarray<std::complex<float>> & C21,
-                             std::valarray<std::complex<float>> & C22,
-                             std::valarray<std::complex<float>> & C23,
-                             std::valarray<std::complex<float>> & C31,
-                             std::valarray<std::complex<float>> & C32,
-                             std::valarray<std::complex<float>> & C33);
+    void _correctOrientation(std::valarray<float>& tau,
+            std::valarray<std::complex<float>>& C11,
+            std::valarray<std::complex<float>>& C12,
+            std::valarray<std::complex<float>>& C13,
+            std::valarray<std::complex<float>>& C21,
+            std::valarray<std::complex<float>>& C22,
+            std::valarray<std::complex<float>>& C23,
+            std::valarray<std::complex<float>>& C31,
+            std::valarray<std::complex<float>>& C32,
+            std::valarray<std::complex<float>>& C33);
 
     // pulse repetition frequency
     double _prf;
@@ -329,13 +338,13 @@ private:
     size_t _geoGridLength;
 
     // geoTransform array (gdal style)
-    double * _geoTrans;
+    double* _geoTrans;
 
     // epsg code for the output geocoded grid
     int _epsgOut;
 
     // projection object
-    isce3::core::ProjectionBase * _proj = nullptr;
+    isce3::core::ProjectionBase* _proj = nullptr;
 
     // margin around a computed bounding box for DEM (in degrees)
     double _demBlockMargin;
@@ -345,7 +354,7 @@ private:
     int _radarBlockMargin;
 
     // interpolator
-    isce3::core::Interpolator<T> * _interp = nullptr;
+    isce3::core::Interpolator<T>* _interp = nullptr;
 
     // RTC correction flag for geocoded covariance
     bool _correctRtcFlag = true;

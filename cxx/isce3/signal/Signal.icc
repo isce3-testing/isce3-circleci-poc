@@ -303,4 +303,3 @@ _rev_configure(int rank, int* n, int howmany,
     _rev_ostride = ostride;
     _rev_odist = odist;
 }
-

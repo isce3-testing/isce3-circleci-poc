@@ -5,8 +5,9 @@
 // Copyright 2018
 //
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+
 #include <gtest/gtest.h>
 
 // isce3::core
@@ -21,7 +22,8 @@
 // isce3::product
 #include <isce3/product/Serialization.h>
 
-TEST(MetadataTest, FromHDF5) {
+TEST(MetadataTest, FromHDF5)
+{
 
     // Open the file
     std::string h5file(TESTDATA_DIR "envisat.h5");
@@ -37,7 +39,7 @@ TEST(MetadataTest, FromHDF5) {
     isce3::product::loadFromH5(metaGroup, meta);
 
     // Get the orbit
-    const isce3::core::Orbit & orbit = meta.orbit();
+    const isce3::core::Orbit& orbit = meta.orbit();
 
     // Copy isce3::core::Orbit unit test code here
     // Check we have the right number of state vectors
@@ -68,16 +70,17 @@ TEST(MetadataTest, FromHDF5) {
     EXPECT_DOUBLE_EQ(q.z(), expected.z());
 
     // Check date of middle vector
-    isce3::core::DateTime dtime = attitude.referenceEpoch() + attitude.time()[5];
+    isce3::core::DateTime dtime =
+            attitude.referenceEpoch() + attitude.time()[5];
     ASSERT_EQ(dtime.isoformat(), "2003-02-26T17:55:28.000000000");
 
     // Check the ProcessingInformation
-    const isce3::product::ProcessingInformation & proc = meta.procInfo();
+    const isce3::product::ProcessingInformation& proc = meta.procInfo();
     ASSERT_NEAR(proc.slantRange()[0], 826000.0, 1.0e-10);
     ASSERT_NEAR(proc.zeroDopplerTime()[0], 237321.0, 1.0e-10);
 
     // Check effective velocity LUT
-    const isce3::core::LUT2d<double> & veff = proc.effectiveVelocity();
+    const isce3::core::LUT2d<double>& veff = proc.effectiveVelocity();
     ASSERT_EQ(veff.width(), 240);
     ASSERT_EQ(veff.length(), 80);
     ASSERT_NEAR(veff.xStart(), 826000.0, 1.0e-10);
@@ -87,15 +90,16 @@ TEST(MetadataTest, FromHDF5) {
     ASSERT_NEAR(veff.data()(10, 35), 7112.3142687909785, 1.0e-6);
 
     // Check Doppler centroid
-    const isce3::core::LUT2d<double> & dopp = proc.dopplerCentroid('A');
+    const isce3::core::LUT2d<double>& dopp = proc.dopplerCentroid('A');
     ASSERT_NEAR(dopp.data()(10, 35), 302.0284944801832, 1.0e-6);
 
     // Check azimuth FM rate
-    const isce3::core::LUT2d<double> & fmrate = proc.azimuthFMRate('A');
+    const isce3::core::LUT2d<double>& fmrate = proc.azimuthFMRate('A');
     ASSERT_NEAR(fmrate.data()(10, 35), 2175.7067054603435, 1.0e-6);
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

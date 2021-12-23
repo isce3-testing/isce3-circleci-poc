@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
+
 #include <isce3/core/Kernels.h>
 #include <isce3/focus/Presum.h>
-
 
 TEST(Presum, Domain)
 {
@@ -58,7 +58,6 @@ TEST(Presum, Values)
     // TODO more general example?
 }
 
-
 TEST(Presum, NoData)
 {
     // Check behavior for a gap too large.
@@ -75,8 +74,7 @@ TEST(Presum, NoData)
     EXPECT_LT(offset, t.size());
 }
 
-
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

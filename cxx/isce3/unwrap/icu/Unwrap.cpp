@@ -1,23 +1,18 @@
-#include <complex> // std::complex, std::arg
-#include <cstring> // std::memcpy
+#include <complex>   // std::complex, std::arg
+#include <cstring>   // std::memcpy
 #include <exception> // std::domain_error
 
 #include "ICU.h" // ICU, isce3::io::Raster, size_t, uint8_t
 
-namespace isce3::unwrap::icu
-{
+namespace isce3::unwrap::icu {
 
-void ICU::unwrap(
-    isce3::io::Raster & unw,
-    isce3::io::Raster & ccl,
-    isce3::io::Raster & intf,
-    isce3::io::Raster & corr,
-    unsigned int seed)
+void ICU::unwrap(isce3::io::Raster& unw, isce3::io::Raster& ccl,
+        isce3::io::Raster& intf, isce3::io::Raster& corr, unsigned int seed)
 {
     // Raster dims
     const size_t length = intf.length();
     const size_t width = intf.width();
-    
+
     // Buffers for single tile from each input, output Raster
     const size_t bufsize = _NumBufLines * width;
     auto intftile = new std::complex<float>[bufsize];
@@ -51,19 +46,19 @@ void ICU::unwrap(
 
     // Number of tiles
     int ntiles = 1;
-    if (length > _NumBufLines)
-    {
-        if (step <= 0)
-        {
-            throw std::domain_error("number of overlap lines must be less than number of buffer lines");
+    if (length > _NumBufLines) {
+        if (step <= 0) {
+            throw std::domain_error("number of overlap lines must be less than "
+                                    "number of buffer lines");
         }
-        ntiles = (length + step-1) / step;
-        if (length % step <= _NumOverlapLines) { --ntiles; }
+        ntiles = (length + step - 1) / step;
+        if (length % step <= _NumOverlapLines) {
+            --ntiles;
+        }
     }
 
     // Loop over tiles.
-    for (int t = 0; t < ntiles; ++t)
-    {
+    for (int t = 0; t < ntiles; ++t) {
         // Read interferogram, correlation lines.
         size_t startline = t * step;
         size_t tilelen = std::min(_NumBufLines, length - startline);
@@ -72,7 +67,9 @@ void ICU::unwrap(
 
         // Compute wrapped phase.
         size_t tilesize = tilelen * width;
-        for (size_t i = 0; i < tilesize; ++i) { phase[i] = std::arg(intftile[i]); }
+        for (size_t i = 0; i < tilesize; ++i) {
+            phase[i] = std::arg(intftile[i]);
+        }
 
         // Get residue charges.
         getResidues(charge, phase, tilelen, width);
@@ -83,30 +80,29 @@ void ICU::unwrap(
         // Grow trees (make branch cuts).
         growTrees(tree, charge, neut, tilelen, width, seed);
 
-        // Grow grass (find connected components and unwrap phase). If not first 
+        // Grow grass (find connected components and unwrap phase). If not first
         // tile, bootstrap phase from previous tile.
-        if (t == 0)
-        {
-            growGrass<false>(
-                unwtile, ccltile, currcc, bsunw, bslabels, labelmap, phase, 
-                tree, corrtile, _InitCorrThr, tilelen, width);
-        }
-        else
-        {
-            growGrass<true>(
-                unwtile, ccltile, currcc, bsunw, bslabels, labelmap, phase, 
-                tree, corrtile, _InitCorrThr, tilelen, width);
+        if (t == 0) {
+            growGrass<false>(unwtile, ccltile, currcc, bsunw, bslabels,
+                    labelmap, phase, tree, corrtile, _InitCorrThr, tilelen,
+                    width);
+        } else {
+            growGrass<true>(unwtile, ccltile, currcc, bsunw, bslabels, labelmap,
+                    phase, tree, corrtile, _InitCorrThr, tilelen, width);
         }
 
         // If not last tile, get bootstrap data for processing next tile.
-        if (t < ntiles-1)
-        {
+        if (t < ntiles - 1) {
             // Offset to first bootstrap line from start of tile
-            size_t bsoff = (_NumBufLines -_NumOverlapLines/2 - _NumBsLines/2) * width;
+            size_t bsoff =
+                    (_NumBufLines - _NumOverlapLines / 2 - _NumBsLines / 2) *
+                    width;
 
             // Copy bootstrap lines.
-            std::memcpy(bsunw, &unwtile[bsoff], _NumBsLines * width * sizeof(float));
-            std::memcpy(bslabels, &ccltile[bsoff], _NumBsLines * width * sizeof(uint8_t));
+            std::memcpy(bsunw, &unwtile[bsoff],
+                    _NumBsLines * width * sizeof(float));
+            std::memcpy(bslabels, &ccltile[bsoff],
+                    _NumBsLines * width * sizeof(uint8_t));
         }
 
         // Write out unwrapped phase, connected component labels.
@@ -114,24 +110,20 @@ void ICU::unwrap(
         ccl.setBlock(ccltile, 0, startline, width, tilelen);
     }
 
-    // If all label mappings are identity, then each connected component is 
-    // labelled properly and we are finished. Otherwise, go back and merge 
+    // If all label mappings are identity, then each connected component is
+    // labelled properly and we are finished. Otherwise, go back and merge
     // redundant labels.
     bool doUpdateLabels = false;
-    for (uint8_t l = 1; l < labelmap.size(); ++l)
-    {
-        if (labelmap.getlabel(l) != l) 
-        { 
-            doUpdateLabels = true; 
+    for (uint8_t l = 1; l < labelmap.size(); ++l) {
+        if (labelmap.getlabel(l) != l) {
+            doUpdateLabels = true;
             break;
         }
     }
 
-    if (doUpdateLabels)
-    {
+    if (doUpdateLabels) {
         // Loop over tiles.
-        for (int t = 0; t < ntiles; ++t)
-        {
+        for (int t = 0; t < ntiles; ++t) {
             // Read connected component labels.
             size_t startline = t * step;
             size_t tilelen = std::min(_NumBufLines, length - startline);
@@ -139,10 +131,8 @@ void ICU::unwrap(
 
             // Update labels.
             size_t tilesize = tilelen * width;
-            for (size_t i = 0; i < tilesize; ++i)
-            {
-                if (ccltile[i] != 0)
-                {
+            for (size_t i = 0; i < tilesize; ++i) {
+                if (ccltile[i] != 0) {
                     ccltile[i] = labelmap.getlabel(ccltile[i]);
                 }
             }
@@ -164,5 +154,4 @@ void ICU::unwrap(
     delete[] bslabels;
 }
 
-}
-
+} // namespace isce3::unwrap::icu

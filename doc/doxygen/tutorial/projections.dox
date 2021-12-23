@@ -2,17 +2,17 @@
 
 \tableofcontents
 
-ISCE can currently handle a bunch of map projections defined on the WGS84 Ellipsoid 
+ISCE can currently handle a bunch of map projections defined on the WGS84 Ellipsoid
 (See <a href="file:///Users/agram/tools/isce_git/cmake/build/doc/html/overview_raster.html#multi_row">Raster overview</a>).
 
 The projections interface design is very similar to the one in the <a href="https://proj4.org/">PROJ</a> library.
 We have a separate implementation of the library for easier interaction with similar CUDA-side objects. Since, a
-CUDA version of <a href="https://proj4.org/">PROJ</a> is not available, we wrote our own for the subset of 
+CUDA version of <a href="https://proj4.org/">PROJ</a> is not available, we wrote our own for the subset of
 projections required by NISAR.
 
 \section projinclude Include headers
 
-In general, one only needs to include the isce3::core::Projections headerfile. 
+In general, one only needs to include the isce3::core::Projections headerfile.
 \code{.cpp}
 #include "isce3/core/Projections.h"
 \endcode
@@ -56,7 +56,7 @@ isce3::core::ProjectionBase *spolar = isce3::core::createProj(3031);
 //Pick a point to transform - say south pole
 isce3::core::cartesian_t spole = {0., -M_PI/2.0, 0.};
 
-//Transform the point 
+//Transform the point
 isce3::core::cartesian_t xyz;
 spolar->fwd(llh, xyz);
 
@@ -75,7 +75,7 @@ isce3::core::ProjectionBase *spolar = isce3::core::createProj(3031);
 //Pick a point to transform - say south pole
 isce3::core::cartesian_t origin = {0., 0., 0.};
 
-//Transform the point 
+//Transform the point
 isce3::core::cartesian_t llh;
 spolar->inv(origin, llh);
 

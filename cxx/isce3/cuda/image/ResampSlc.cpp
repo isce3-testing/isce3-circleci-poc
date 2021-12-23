@@ -8,30 +8,30 @@
 #include "ResampSlc.h"
 
 #include <algorithm>
-#include <iostream>
 #include <chrono>
 #include <cmath>
+#include <iostream>
 
 // isce3::core
 #include <isce3/core/Constants.h>
 #include <isce3/core/LUT1d.h>
-
-#include <isce3/image/Tile.h>
-
 #include <isce3/cuda/core/gpuInterpolator.h>
+#include <isce3/image/Tile.h>
 
 #include "gpuResampSlc.h"
 
 using isce3::io::Raster;
 
-// Alternative generic resamp entry point: use filenames to internally create rasters
-void isce3::cuda::image::ResampSlc::
-resamp(const std::string & inputFilename,          // filename of input SLC
-       const std::string & outputFilename,         // filename of output resampled SLC
-       const std::string & rgOffsetFilename,       // filename of range offsets
-       const std::string & azOffsetFilename,       // filename of azimuth offsets
-       int inputBand, bool flatten, bool isComplex, int rowBuffer,
-       int chipSize) {
+// Alternative generic resamp entry point: use filenames to internally create
+// rasters
+void isce3::cuda::image::ResampSlc::resamp(
+        const std::string& inputFilename,    // filename of input SLC
+        const std::string& outputFilename,   // filename of output resampled SLC
+        const std::string& rgOffsetFilename, // filename of range offsets
+        const std::string& azOffsetFilename, // filename of azimuth offsets
+        int inputBand, bool flatten, bool isComplex, int rowBuffer,
+        int chipSize)
+{
 
     // Make input rasters
     Raster inputSlc(inputFilename, GA_ReadOnly);
@@ -41,19 +41,20 @@ resamp(const std::string & inputFilename,          // filename of input SLC
     // Make output raster; geometry defined by offset rasters
     const int outLength = rgOffsetRaster.length();
     const int outWidth = rgOffsetRaster.width();
-    Raster outputSlc(outputFilename, outWidth, outLength, 1, GDT_CFloat32, "ISCE");
+    Raster outputSlc(
+            outputFilename, outWidth, outLength, 1, GDT_CFloat32, "ISCE");
 
     // Call generic resamp
-    resamp(inputSlc, outputSlc, rgOffsetRaster, azOffsetRaster, inputBand, flatten,
-           isComplex, rowBuffer, chipSize);
+    resamp(inputSlc, outputSlc, rgOffsetRaster, azOffsetRaster, inputBand,
+            flatten, isComplex, rowBuffer, chipSize);
 }
 
 // Generic resamp entry point from externally created rasters
-void isce3::cuda::image::ResampSlc::
-resamp(isce3::io::Raster & inputSlc, isce3::io::Raster & outputSlc,
-       isce3::io::Raster & rgOffsetRaster, isce3::io::Raster & azOffsetRaster,
-       int inputBand, bool flatten, bool isComplex, int rowBuffer,
-       int chipSize) {
+void isce3::cuda::image::ResampSlc::resamp(isce3::io::Raster& inputSlc,
+        isce3::io::Raster& outputSlc, isce3::io::Raster& rgOffsetRaster,
+        isce3::io::Raster& azOffsetRaster, int inputBand, bool flatten,
+        bool isComplex, int rowBuffer, int chipSize)
+{
 
     // Check if data are not complex
     if (!isComplex) {
@@ -75,13 +76,13 @@ resamp(isce3::io::Raster & inputSlc, isce3::io::Raster & outputSlc,
     }
 
     // initialize interpolator
-    isce3::cuda::core::gpuSinc2dInterpolator<thrust::complex<float>> interp(chipSize-1, isce3::core::SINC_SUB);
+    isce3::cuda::core::gpuSinc2dInterpolator<thrust::complex<float>> interp(
+            chipSize - 1, isce3::core::SINC_SUB);
 
     // Determine number of tiles needed to process image
     const int nTiles = _computeNumberOfTiles(outLength, _linesPerTile);
-    std::cout << 
-        "GPU resampling using " << nTiles << " tiles of " << _linesPerTile 
-        << " lines per tile\n";
+    std::cout << "GPU resampling using " << nTiles << " tiles of "
+              << _linesPerTile << " lines per tile\n";
     // Start timer
     auto timerStart = std::chrono::steady_clock::now();
 
@@ -101,28 +102,33 @@ resamp(isce3::io::Raster & inputSlc, isce3::io::Raster & outputSlc,
 
         // Initialize offsets tiles
         isce3::image::Tile<float> azOffTile, rgOffTile;
-        _initializeOffsetTiles(tile, azOffsetRaster, rgOffsetRaster,
-                               azOffTile, rgOffTile, outWidth);
+        _initializeOffsetTiles(tile, azOffsetRaster, rgOffsetRaster, azOffTile,
+                rgOffTile, outWidth);
 
         // Get corresponding image indices
-        std::cout << "Reading in image data for tile " << tileCount << std::endl;
-        _initializeTile(tile, inputSlc, azOffTile, outLength, rowBuffer, chipSize/2); 
+        std::cout << "Reading in image data for tile " << tileCount
+                  << std::endl;
+        _initializeTile(
+                tile, inputSlc, azOffTile, outLength, rowBuffer, chipSize / 2);
 
         // Perform interpolation
         std::cout << "Interpolating tile " << tileCount << std::endl;
-        gpuTransformTile(tile, outputSlc, rgOffTile, azOffTile, _rgCarrier, _azCarrier, 
-                isce3::core::avgLUT2dToLUT1d<double>(_dopplerLUT), interp, inWidth, inLength, this->startingRange(),
+        gpuTransformTile(tile, outputSlc, rgOffTile, azOffTile, _rgCarrier,
+                _azCarrier, isce3::core::avgLUT2dToLUT1d<double>(_dopplerLUT),
+                interp, inWidth, inLength, this->startingRange(),
                 this->rangePixelSpacing(), this->prf(), this->wavelength(),
                 this->refStartingRange(), this->refRangePixelSpacing(),
                 this->refWavelength(), flatten, chipSize);
-
     }
 
     // Print out timing information and reset
     auto timerEnd = std::chrono::steady_clock::now();
-    const double elapsed = 1.0e-3 * std::chrono::duration_cast<std::chrono::milliseconds>(
-        timerEnd - timerStart).count();
-    std::cout << "Elapsed processing time: " << elapsed << " sec" << "\n";
+    const double elapsed =
+            1.0e-3 * std::chrono::duration_cast<std::chrono::milliseconds>(
+                             timerEnd - timerStart)
+                             .count();
+    std::cout << "Elapsed processing time: " << elapsed << " sec"
+              << "\n";
 }
 
 // end of file

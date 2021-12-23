@@ -19,10 +19,10 @@ packages installed by different package managers as this typically leads to libr
 
 \section osxpack Installing packages using Macports
 
-We write the instructions assuming that we are using clang-8.0 and python37.<br> 
+We write the instructions assuming that we are using clang-8.0 and python37.<br>
 Changes these to appropriate version numbers for your installation. <br>
 If you decide to use gcc (say gcc7) on your mac - note that you may have to make additional changes <br>
-to your macports commands to force it to use libstdc++ instead of libc++. 
+to your macports commands to force it to use libstdc++ instead of libc++.
 
 We present instructions with clang here to ensure compatibility with most binaries that are distributed for osx.
 
@@ -42,9 +42,9 @@ We present instructions with clang here to ensure compatibility with most binari
 <li>sudo port install cmake gawk coreutils gsed
 <li>sudo port install wget +ssl
 <li>sudo port install fftw-3
-<li>sudo port install fftw-3-single 
+<li>sudo port install fftw-3-single
 <li>sudo port install hdf5
-<li>sudo port install py37-numpy 
+<li>sudo port install py37-numpy
 <li>sudo port install py37-scipy
 <li>sudo port install py37-pytest
 <li>sudo port install py37-h5py
@@ -104,7 +104,7 @@ Note that ${ISCEHOME} can point to any directory on your machine.
 </ol>
 
 
-\subsubsection osxtar Option 2: Get the latest tarball 
+\subsubsection osxtar Option 2: Get the latest tarball
 
 <ol>
 <li> Ensure that you are in the source folder
@@ -137,7 +137,7 @@ Other optional arguments can be added to the cmake line
 <table>
     <caption id="cmake_flags">Additional cmake options</caption>
     <tr><th>Option<th>Description
-    <tr><td rowspan="3">-DMEMORY_CHECK_COMMAND=PATH_TO_VALGRIND_EXECUTABLE -DMEMORYCHECK_COMMAND_OPTIONS="--trace-children=yes --leak-check=full --dsymutil=yes --track-origins=yes" -DCMAKE_BUILD_TYPE=Debug<td>  
+    <tr><td rowspan="3">-DMEMORY_CHECK_COMMAND=PATH_TO_VALGRIND_EXECUTABLE -DMEMORYCHECK_COMMAND_OPTIONS="--trace-children=yes --leak-check=full --dsymutil=yes --track-origins=yes" -DCMAKE_BUILD_TYPE=Debug<td>
     <tr><td>Run tests with "-T memcheck" to check for memory leaks.
     <tr><td>valgrind needs to be installed.
     <tr><td>-DCMAKE_BUILD_TYPE=RelWithDebInfo<td>Build with optimization flags with release. Default is to build in debug mode
@@ -160,7 +160,7 @@ Other optional arguments can be added to the cmake line
 <li> Ensure that you are in the build folder
 \code{.sh}
 > cd ${ISCEHOME}/tools/isce/build
-\endcode 
+\endcode
 
 <li> Install the software
 \code{.sh}

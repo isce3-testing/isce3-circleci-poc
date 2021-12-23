@@ -4,4 +4,4 @@
 
 namespace py = pybind11;
 
-void addsubmodule_gdal(py::module &);
+void addsubmodule_gdal(py::module&);

@@ -18,7 +18,7 @@ RUN set -ex \
  && source /home/conda/.rvm/scripts/rvm \
  && sudo /home/conda/.rvm/bin/rvm install 2.3.0 \
  && export PATH=/home/conda/.rvm/gems/ruby-2.3.0/bin:/home/conda/.rvm/gems/ruby-2.3.0@global/wrappers/:$PATH \
- && sudo gem install --no-ri --no-rdoc fpm 
+ && sudo gem install --no-ri --no-rdoc fpm
 
 # install doxygen and sphinx for doc generation;
 # install valgrind for memory leak check

@@ -36,7 +36,7 @@ DATADIR=${WORKSPACE}/test_gcov
 CONTAINERTAG=container-${TAG}
 CONTAINER_DATADIR=/tmp/data
 
-# download test data from artifactory 
+# download test data from artifactory
 if [ -d ${DATADIR} ]; then
   rm -rf ${DATADIR}
 fi
@@ -61,9 +61,9 @@ docker run \
   -w ${CONTAINER_DATADIR} \
   --name ${CONTAINERTAG} ${IMAGE}:${TAG} \
   /bin/bash -c "source /opt/docker/bin/entrypoint_source &&
-                echo ${CONTAINER_DATADIR}: && 
-                ls -al ${CONTAINER_DATADIR} && 
-                cd ${CONTAINER_DATADIR} && 
+                echo ${CONTAINER_DATADIR}: &&
+                ls -al ${CONTAINER_DATADIR} &&
+                cd ${CONTAINER_DATADIR} &&
                 mkdir output_gslc scratch_gslc qa_gslc &&
                 time python3 /opt/isce/packages/nisar/workflows/rslc2gslc.py run_config_gslc.yaml &&
                 time python3 /opt/QualityAssurance/verify_gslc.py  --fpdf qa_gslc/graphs.pdf --fhdf qa_gslc/stats.h5 --flog qa_gslc/qa.log --validate --quality output_gslc/gslc.h5
@@ -77,4 +77,4 @@ for file in output_gslc/gslc.h5 qa_gslc/graphs.pdf qa_gslc/stats.h5 qa_gslc/qa.l
   fi
 done
 cat ${DATADIR}/qa_gslc/qa.log
-# TODO: check for correct file size, run time, CF convention, 
+# TODO: check for correct file size, run time, CF convention,

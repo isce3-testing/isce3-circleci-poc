@@ -44,4 +44,3 @@ foreach(script ${list_of_exe})
     RENAME      ${script}
     )
 endforeach()
-

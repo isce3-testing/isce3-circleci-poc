@@ -1,5 +1,6 @@
-#include <gtest/gtest.h>
 #include <string>
+
+#include <gtest/gtest.h>
 
 #include <isce3/except/Error.h>
 #include <isce3/io/gdal/Dataset.h>
@@ -21,12 +22,12 @@ TEST_P(DatasetTest, Create)
 
     Dataset dataset(path, width, length, bands, datatype, driver);
 
-    EXPECT_EQ( dataset.access(), GA_Update );
-    EXPECT_EQ( dataset.width(), width );
-    EXPECT_EQ( dataset.length(), length );
-    EXPECT_EQ( dataset.bands(), bands );
-    EXPECT_EQ( dataset.driver(), driver );
-    EXPECT_EQ( dataset.getRaster(1).datatype(), datatype );
+    EXPECT_EQ(dataset.access(), GA_Update);
+    EXPECT_EQ(dataset.width(), width);
+    EXPECT_EQ(dataset.length(), length);
+    EXPECT_EQ(dataset.bands(), bands);
+    EXPECT_EQ(dataset.driver(), driver);
+    EXPECT_EQ(dataset.getRaster(1).datatype(), datatype);
 }
 
 TEST_P(DatasetTest, Copy)
@@ -42,11 +43,11 @@ TEST_P(DatasetTest, Copy)
     Dataset src(src_path, width, length, bands, datatype, driver);
     Dataset copy(copy_path, src);
 
-    EXPECT_EQ( copy.width(), src.width() );
-    EXPECT_EQ( copy.length(), src.length() );
-    EXPECT_EQ( copy.bands(), src.bands() );
-    EXPECT_EQ( copy.driver(), src.driver() );
-    EXPECT_EQ( copy.getRaster(1).datatype(), src.getRaster(1).datatype() );
+    EXPECT_EQ(copy.width(), src.width());
+    EXPECT_EQ(copy.length(), src.length());
+    EXPECT_EQ(copy.bands(), src.bands());
+    EXPECT_EQ(copy.driver(), src.driver());
+    EXPECT_EQ(copy.getRaster(1).datatype(), src.getRaster(1).datatype());
 }
 
 TEST_P(DatasetTest, GetRaster)
@@ -64,18 +65,18 @@ TEST_P(DatasetTest, GetRaster)
 
         Raster raster = dataset.getRaster(band);
 
-        EXPECT_EQ( raster.band(), band );
-        EXPECT_EQ( raster.datatype(), datatype );
-        EXPECT_EQ( raster.width(), dataset.width() );
-        EXPECT_EQ( raster.length(), dataset.length() );
-        EXPECT_EQ( raster.driver(), dataset.driver() );
-        EXPECT_EQ( raster.getGeoTransform(), dataset.getGeoTransform() );
+        EXPECT_EQ(raster.band(), band);
+        EXPECT_EQ(raster.datatype(), datatype);
+        EXPECT_EQ(raster.width(), dataset.width());
+        EXPECT_EQ(raster.length(), dataset.length());
+        EXPECT_EQ(raster.driver(), dataset.driver());
+        EXPECT_EQ(raster.getGeoTransform(), dataset.getGeoTransform());
     }
 
     // attempting to fetch invalid raster band should throw
     {
         int band = bands + 1;
-        EXPECT_THROW( { dataset.getRaster(band); }, isce3::except::OutOfRange );
+        EXPECT_THROW({ dataset.getRaster(band); }, isce3::except::OutOfRange);
     }
 }
 
@@ -83,7 +84,7 @@ TEST_P(DatasetTest, GetRaster)
 INSTANTIATE_TEST_SUITE_P(ENVIDataset, DatasetTest, testing::Values("ENVI"));
 INSTANTIATE_TEST_SUITE_P(GeoTiffDataset, DatasetTest, testing::Values("GTiff"));
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

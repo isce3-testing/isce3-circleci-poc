@@ -32,40 +32,40 @@ struct ComputeCapability {
         return os << std::string(cc);
     }
 
-    friend constexpr bool operator==(ComputeCapability lhs,
-                                     ComputeCapability rhs) noexcept
+    friend constexpr bool operator==(
+            ComputeCapability lhs, ComputeCapability rhs) noexcept
     {
         return lhs.major == rhs.major and lhs.minor == rhs.minor;
     }
 
-    friend constexpr bool operator!=(ComputeCapability lhs,
-                                     ComputeCapability rhs) noexcept
+    friend constexpr bool operator!=(
+            ComputeCapability lhs, ComputeCapability rhs) noexcept
     {
         return not(lhs == rhs);
     }
 
-    friend constexpr bool operator<(ComputeCapability lhs,
-                                    ComputeCapability rhs) noexcept
+    friend constexpr bool operator<(
+            ComputeCapability lhs, ComputeCapability rhs) noexcept
     {
         return lhs.major < rhs.major or
                (lhs.major == rhs.major and lhs.minor < rhs.minor);
     }
 
-    friend constexpr bool operator>(ComputeCapability lhs,
-                                    ComputeCapability rhs) noexcept
+    friend constexpr bool operator>(
+            ComputeCapability lhs, ComputeCapability rhs) noexcept
     {
         return lhs.major > rhs.major or
                (lhs.major == rhs.major and lhs.minor > rhs.minor);
     }
 
-    friend constexpr bool operator<=(ComputeCapability lhs,
-                                     ComputeCapability rhs) noexcept
+    friend constexpr bool operator<=(
+            ComputeCapability lhs, ComputeCapability rhs) noexcept
     {
         return not(lhs > rhs);
     }
 
-    friend constexpr bool operator>=(ComputeCapability lhs,
-                                     ComputeCapability rhs) noexcept
+    friend constexpr bool operator>=(
+            ComputeCapability lhs, ComputeCapability rhs) noexcept
     {
         return not(lhs < rhs);
     }

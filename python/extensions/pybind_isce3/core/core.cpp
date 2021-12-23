@@ -8,22 +8,22 @@
 #include "EulerAngles.h"
 #include "Interp1d.h"
 #include "Kernels.h"
-#include "Linspace.h"
-#include "LookSide.h"
 #include "LUT1d.h"
 #include "LUT2d.h"
-#include "avgLUT2dToLUT1d.h"
+#include "Linspace.h"
+#include "LookSide.h"
 #include "Orbit.h"
+#include "Poly1d.h"
+#include "Poly2d.h"
 #include "Projections.h"
 #include "Quaternion.h"
 #include "StateVector.h"
 #include "TimeDelta.h"
-#include "Poly1d.h"
-#include "Poly2d.h"
+#include "avgLUT2dToLUT1d.h"
 
 namespace py = pybind11;
 
-void addsubmodule_core(py::module & m)
+void addsubmodule_core(py::module& m)
 {
     py::module m_core = m.def_submodule("core");
 
@@ -46,34 +46,36 @@ void addsubmodule_core(py::module & m)
     // Default to double for kernels
     using namespace isce3::core;
     py::class_<Kernel<double>, PyKernel<double>> pyKernel(m_core, "Kernel");
-    py::class_<BartlettKernel<double>, Kernel<double>>
-        pyBartlettKernel(m_core, "BartlettKernel");
-    py::class_<LinearKernel<double>, Kernel<double>>
-        pyLinearKernel(m_core, "LinearKernel");
-    py::class_<KnabKernel<double>, Kernel<double>>
-        pyKnabKernel(m_core, "KnabKernel");
-    py::class_<NFFTKernel<double>, Kernel<double>>
-        pyNFFTKernel(m_core, "NFFTKernel");
-    py::class_<AzimuthKernel<double>, Kernel<double>>
-        pyAzimuthKernel(m_core, "AzimuthKernel");
-    py::class_<TabulatedKernel<double>, Kernel<double>>
-        pyTabulatedKernel(m_core, "TabulatedKernel");
-    py::class_<ChebyKernel<double>, Kernel<double>>
-        pyChebyKernel(m_core, "ChebyKernel");
+    py::class_<BartlettKernel<double>, Kernel<double>> pyBartlettKernel(
+            m_core, "BartlettKernel");
+    py::class_<LinearKernel<double>, Kernel<double>> pyLinearKernel(
+            m_core, "LinearKernel");
+    py::class_<KnabKernel<double>, Kernel<double>> pyKnabKernel(
+            m_core, "KnabKernel");
+    py::class_<NFFTKernel<double>, Kernel<double>> pyNFFTKernel(
+            m_core, "NFFTKernel");
+    py::class_<AzimuthKernel<double>, Kernel<double>> pyAzimuthKernel(
+            m_core, "AzimuthKernel");
+    py::class_<TabulatedKernel<double>, Kernel<double>> pyTabulatedKernel(
+            m_core, "TabulatedKernel");
+    py::class_<ChebyKernel<double>, Kernel<double>> pyChebyKernel(
+            m_core, "ChebyKernel");
 
     // Need Kernel<float> for stuff like rangecomp.
     // Just provide metakernels, with conversions from Kernel<double>.
     py::class_<Kernel<float>, PyKernel<float>> pyKernelF32(m_core, "KernelF32");
-    py::class_<TabulatedKernel<float>, Kernel<float>>
-        pyTabulatedKernelF32(m_core, "TabulatedKernelF32");
-    py::class_<ChebyKernel<float>, Kernel<float>>
-        pyChebyKernelF32(m_core, "ChebyKernelF32");
+    py::class_<TabulatedKernel<float>, Kernel<float>> pyTabulatedKernelF32(
+            m_core, "TabulatedKernelF32");
+    py::class_<ChebyKernel<float>, Kernel<float>> pyChebyKernelF32(
+            m_core, "ChebyKernelF32");
 
-    py::class_<ProjectionBase, PyProjectionBase> pyProjectionBase(m_core, "ProjectionBase");
+    py::class_<ProjectionBase, PyProjectionBase> pyProjectionBase(
+            m_core, "ProjectionBase");
     py::class_<LonLat> pyLonLat(m_core, "LonLat", pyProjectionBase);
     py::class_<Geocent> pyGeocent(m_core, "Geocent", pyProjectionBase);
     py::class_<UTM> pyUTM(m_core, "UTM", pyProjectionBase);
-    py::class_<PolarStereo> pyPolarStereo(m_core, "PolarStereo", pyProjectionBase);
+    py::class_<PolarStereo> pyPolarStereo(
+            m_core, "PolarStereo", pyProjectionBase);
     py::class_<CEA> pyCEA(m_core, "CEA", pyProjectionBase);
 
     // forward declare bound enums

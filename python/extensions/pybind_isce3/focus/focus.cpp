@@ -8,12 +8,13 @@
 
 namespace py = pybind11;
 
-void addsubmodule_focus(py::module & m)
+void addsubmodule_focus(py::module& m)
 {
     py::module m_focus = m.def_submodule("focus");
 
     // forward declare bound enums
-    py::enum_<isce3::focus::DryTroposphereModel> pyDryTropoModel(m_focus, "DryTroposphereModel");
+    py::enum_<isce3::focus::DryTroposphereModel> pyDryTropoModel(
+            m_focus, "DryTroposphereModel");
 
     py::class_<isce3::focus::RangeComp> pyRangeComp(m_focus, "RangeComp");
     py::enum_<isce3::focus::RangeComp::Mode> pyMode(pyRangeComp, "Mode");

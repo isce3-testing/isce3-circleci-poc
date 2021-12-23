@@ -26,7 +26,7 @@ public:
      * @param[in] epoch         Reference epoch (UTC) for time tags.
      */
     Attitude(const std::vector<double>& time,
-             const std::vector<Quaternion>& quaternions, const DateTime& epoch);
+            const std::vector<Quaternion>& quaternions, const DateTime& epoch);
 
     Attitude() = default;
 

@@ -23,7 +23,7 @@ Dockerfile recipes for NISAR
 > docker-machine create dev --driver virtualbox
 ```
 
-This will take a while to run and will build a small VM. Once, you have this - you are ready to start. You can verify that your "dev" instance is running with 
+This will take a while to run and will build a small VM. Once, you have this - you are ready to start. You can verify that your "dev" instance is running with
 
 ```bash
 > docker-machine ls
@@ -45,9 +45,9 @@ Every time you login / restart, you will need set appropriate environment variab
 > eval "$(docker-machine env dev)"
 ```
 
-Add this to your modules or a startup script for docker. 
+Add this to your modules or a startup script for docker.
 
-You can test that docker is properly setup now by testing 
+You can test that docker is properly setup now by testing
 
 ```bash
 docker run hello-world
@@ -67,7 +67,7 @@ The following command will build a container tagged "centosbase:v0" from the rec
 
 Confirm that this got created with
 ```bash
->docker image ls 
+>docker image ls
 ```
 
 ## How to connect to a container
@@ -87,7 +87,7 @@ After closing the shell, dont forget to clean up the instance that was created f
 > docker ps -a
 ```
 
-2. Remove the instance 
+2. Remove the instance
 
 ```bash
 > docker rm idfromprevcmd
@@ -96,7 +96,7 @@ After closing the shell, dont forget to clean up the instance that was created f
 ## Shutting down docker
 ------------
 
-To shut down the VM running docker 
+To shut down the VM running docker
 
 ```bash
 > docker-machine stop dev

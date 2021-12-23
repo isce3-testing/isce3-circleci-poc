@@ -4,32 +4,31 @@
 // Author: Piyush Agram
 // Copyright 2019
 
-#include <isce3/core/Poly1d.h>
 #include "Bessel.h"
+
 #include <cmath>
 
-namespace isce3{
-    namespace math{
+#include <isce3/core/Poly1d.h>
 
-//Sourced from:
-//https://github.com/boostorg/math/blob/master/include/boost/math/special_functions/detail/bessel_i0.hpp
+namespace isce3 { namespace math {
+
+// Sourced from:
+// https://github.com/boostorg/math/blob/master/include/boost/math/special_functions/detail/bessel_i0.hpp
 double bessel_i0(double x)
 {
-    if (x == 0)
-    {
+    if (x == 0) {
         return 1;
     }
 
-    if (x < 0)
-    {
+    if (x < 0) {
         return bessel_i0(-x);
     }
 
-    if (x < 7.75)
-    {
+    if (x < 7.75) {
         // Bessel I0 over[10 ^ -16, 7.75]
         // Max error in interpolated form : 3.042e-18
-        // Max Error found at double precision = Poly : 5.106609e-16 Cheb : 5.239199e-16
+        // Max Error found at double precision = Poly : 5.106609e-16 Cheb
+        // : 5.239199e-16
         isce3::core::Poly1d bessel_i0_P0(14, 0.0, 1.0);
         bessel_i0_P0.coeffs[0] = 1.00000000000000000e+00;
         bessel_i0_P0.coeffs[1] = 2.49999999999999909e-01;
@@ -46,12 +45,10 @@ double bessel_i0(double x)
         bessel_i0_P0.coeffs[12] = 2.63417742690109154e-20;
         bessel_i0_P0.coeffs[13] = 1.13943037744822825e-22;
         bessel_i0_P0.coeffs[14] = 9.07926920085624812e-25;
-        
+
         double a = x * x / 4;
         return a * bessel_i0_P0.eval(a) + 1;
-    }
-    else if(x < 500)
-    {
+    } else if (x < 500) {
         isce3::core::Poly1d bessel_i0_P1(21, 0.0, 1.0);
         bessel_i0_P1.coeffs[0] = 3.98942280401425088e-01;
         bessel_i0_P1.coeffs[1] = 4.98677850604961985e-02;
@@ -75,11 +72,9 @@ double bessel_i0(double x)
         bessel_i0_P1.coeffs[19] = 2.02391097391687777e+15;
         bessel_i0_P1.coeffs[20] = -3.08675715295370878e+15;
         bessel_i0_P1.coeffs[21] = 2.17587543863819074e+15;
-        
+
         return std::exp(x) * bessel_i0_P1.eval(1.0 / x) / std::sqrt(x);
-    }
-    else
-    {
+    } else {
         // Max error in interpolated form : 2.437e-18
         // Max Error found at double precision = Poly : 1.216719e-16
         isce3::core::Poly1d bessel_i0_P2(4, 0.0, 1.0);
@@ -96,6 +91,4 @@ double bessel_i0(double x)
     }
 }
 
-}
-}
-
+}} // namespace isce3::math

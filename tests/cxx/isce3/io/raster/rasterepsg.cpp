@@ -10,57 +10,57 @@
 #include "isce3/io/Raster.h"
 
 // Support function to check if file exists
-inline bool exists(const std::string& name) {
-  struct stat buffer;
-  return (stat (name.c_str(), &buffer) == 0);
+inline bool exists(const std::string& name)
+{
+    struct stat buffer;
+    return (stat(name.c_str(), &buffer) == 0);
 }
-
 
 // Global variables
 struct ProjTest : public ::testing::Test {
-  const uint nc = 10;    // number of columns
-  const uint nl = 15;    // number of lines
-  const double x0 = -24000.; //x origin
-  const double y0 = 10000.;  //y origin
-  const double dx = 30.0;    //xspacing
-  const double dy = -50.0;   //yspacing
-  const std::string rawFilename = "test";
-  const std::string projFilename = "test.vrt";
+    const uint nc = 10;        // number of columns
+    const uint nl = 15;        // number of lines
+    const double x0 = -24000.; // x origin
+    const double y0 = 10000.;  // y origin
+    const double dx = 30.0;    // xspacing
+    const double dy = -50.0;   // yspacing
+    const std::string rawFilename = "test";
+    const std::string projFilename = "test.vrt";
 };
 
-
-#define projTest(code, name) \
-    TEST_F(ProjTest, name) { \
-        std::remove(rawFilename.c_str()); \
-        std::remove(projFilename.c_str()); \
-        double trans[] = {x0, dx, 0., y0, 0., dy}; \
-        std::valarray<double> transval(trans, 6); \
-        std::vector<double> transvec(trans, trans+6); \
-        int incode = code; \
-        isce3::io::Raster img = isce3::io::Raster( projFilename, nc, nl, 1, GDT_Float32, "VRT" ); \
-        img.setEPSG(incode); \
-        img.setGeoTransform(trans); \
-        img.setGeoTransform(transval); \
-        img.setGeoTransform(transvec); \
-        std::valarray<double> otransval(6); \
-        std::vector<double> otransvec(6); \
-        double otransarr[6]; \
-        img.getGeoTransform(otransval); \
-        img.getGeoTransform(otransvec); \
-        img.getGeoTransform(otransarr); \
-        ASSERT_EQ( img.x0(), x0 ); \
-        ASSERT_EQ( img.y0(), y0 ); \
-        ASSERT_EQ( img.dx(), dx ); \
-        ASSERT_EQ( img.dy(), dy ); \
-        ASSERT_EQ( img.getEPSG(), incode); \
+#define projTest(code, name)                                                   \
+    TEST_F(ProjTest, name)                                                     \
+    {                                                                          \
+        std::remove(rawFilename.c_str());                                      \
+        std::remove(projFilename.c_str());                                     \
+        double trans[] = {x0, dx, 0., y0, 0., dy};                             \
+        std::valarray<double> transval(trans, 6);                              \
+        std::vector<double> transvec(trans, trans + 6);                        \
+        int incode = code;                                                     \
+        isce3::io::Raster img = isce3::io::Raster(                             \
+                projFilename, nc, nl, 1, GDT_Float32, "VRT");                  \
+        img.setEPSG(incode);                                                   \
+        img.setGeoTransform(trans);                                            \
+        img.setGeoTransform(transval);                                         \
+        img.setGeoTransform(transvec);                                         \
+        std::valarray<double> otransval(6);                                    \
+        std::vector<double> otransvec(6);                                      \
+        double otransarr[6];                                                   \
+        img.getGeoTransform(otransval);                                        \
+        img.getGeoTransform(otransvec);                                        \
+        img.getGeoTransform(otransarr);                                        \
+        ASSERT_EQ(img.x0(), x0);                                               \
+        ASSERT_EQ(img.y0(), y0);                                               \
+        ASSERT_EQ(img.dx(), dx);                                               \
+        ASSERT_EQ(img.dy(), dy);                                               \
+        ASSERT_EQ(img.getEPSG(), incode);                                      \
     }
 
-//Macro for name of the test
-#define epsgTestName(ind) ind ## _EPSG
-#define epsgTest(x) \
-    projTest(x, epsgTestName(x)) struct consume_semicolon
+// Macro for name of the test
+#define epsgTestName(ind) ind##_EPSG
+#define epsgTest(x) projTest(x, epsgTestName(x)) struct consume_semicolon
 
-//Test each of the UTM north zones
+// Test each of the UTM north zones
 epsgTest(32601);
 epsgTest(32602);
 epsgTest(32603);
@@ -122,8 +122,7 @@ epsgTest(32658);
 epsgTest(32659);
 epsgTest(32660);
 
-
-//Test each of the UTM south zones
+// Test each of the UTM south zones
 epsgTest(32701);
 epsgTest(32702);
 epsgTest(32703);
@@ -185,21 +184,21 @@ epsgTest(32758);
 epsgTest(32759);
 epsgTest(32760);
 
-//Test for polar stereographic zones
+// Test for polar stereographic zones
 epsgTest(3031);
 epsgTest(3413);
 
-//Test for EASE grid
+// Test for EASE grid
 epsgTest(6933);
 
-//Test for lat/lon
+// Test for lat/lon
 epsgTest(4326);
 
 // Main
-int main( int argc, char * argv[] ) {
-    testing::InitGoogleTest( &argc, argv );
+int main(int argc, char* argv[])
+{
+    testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
-
 
 // end of file

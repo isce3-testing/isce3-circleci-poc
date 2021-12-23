@@ -1,20 +1,20 @@
 #pragma once
 
 #include <H5Cpp.h>
+#include <array>
 #include <complex>
 #include <iostream>
-#include <isce3/core/Constants.h>
-#include <isce3/except/Error.h>
 #include <regex>
 #include <string>
 #include <type_traits>
 #include <typeindex>
 #include <valarray>
-#include <array>
 #include <vector>
 
-namespace isce3 {
-namespace io {
+#include <isce3/core/Constants.h>
+#include <isce3/except/Error.h>
+
+namespace isce3 { namespace io {
 
 // Dataset chunking size
 const hsize_t chunkSizeX = 128;
@@ -82,13 +82,15 @@ public:
     // Dataset reading queries
 
     /** Reading scalar (non string) dataset or attributes */
-    template<typename T> inline void read(T& v, const std::string& att = "");
+    template<typename T>
+    inline void read(T& v, const std::string& att = "");
 
     /** Reading scalar string dataset or attributes */
     void read(std::string& v, const std::string& att = "");
 
     /** Reading multi-dimensional attribute in raw pointer */
-    template<typename T> inline void read(T* buf, const std::string& att);
+    template<typename T>
+    inline void read(T* buf, const std::string& att);
 
     /** Reading multi-dimensional attribute in vector */
     template<typename T>
@@ -126,8 +128,7 @@ public:
     /** Reading multi-dimensional dataset in raw pointer */
     template<typename T>
     inline void read(T* buf, const int* startIn = nullptr,
-                     const int* countIn = nullptr,
-                     const int* strideIn = nullptr);
+            const int* countIn = nullptr, const int* strideIn = nullptr);
 
     /** Reading multi-dimensional dataset in raw pointer with std:slice
      * subsetting */
@@ -136,21 +137,22 @@ public:
 
     /** Reading multi-dimensional dataset in raw pointer with std:gslice
      * subsetting */
-    template<typename T> inline void read(T* buf, const std::gslice* gsliceIn);
+    template<typename T>
+    inline void read(T* buf, const std::gslice* gsliceIn);
 
     /** Reading multi-dimensional dataset in std::vector */
-    template<typename T> inline void read(std::vector<T>& buf);
+    template<typename T>
+    inline void read(std::vector<T>& buf);
 
     /** Reading multi-dimensional dataset in vector */
     template<typename T>
     inline void read(std::vector<T>& buf, const std::vector<int>* startIn,
-                     const std::vector<int>* countIn,
-                     const std::vector<int>* strideIn);
+            const std::vector<int>* countIn, const std::vector<int>* strideIn);
 
     /** Reading multi-dimensional dataset in vector with std:slice subsetting */
     template<typename T>
-    inline void read(std::vector<T>& buf,
-                     const std::vector<std::slice>* slicesIn);
+    inline void read(
+            std::vector<T>& buf, const std::vector<std::slice>* slicesIn);
 
     /** Reading multi-dimensional dataset in vector with std:gslice subsetting
      */
@@ -158,19 +160,20 @@ public:
     inline void read(std::vector<T>& buf, const std::gslice* gsliceIn);
 
     /** Reading multi-dimensional dataset in valarray */
-    template<typename T> inline void read(std::valarray<T>& buf);
+    template<typename T>
+    inline void read(std::valarray<T>& buf);
 
     /** Reading multi-dimensional dataset in valarray */
     template<typename T>
     inline void read(std::valarray<T>& buf, const std::valarray<int>* startIn,
-                     const std::valarray<int>* countIn,
-                     const std::valarray<int>* strideIn);
+            const std::valarray<int>* countIn,
+            const std::valarray<int>* strideIn);
 
     /** Reading multi-dimensional dataset in valarray with std:slice subsetting
      */
     template<typename T>
-    inline void read(std::valarray<T>& buf,
-                     const std::vector<std::slice>* slicesIn);
+    inline void read(
+            std::valarray<T>& buf, const std::vector<std::slice>* slicesIn);
 
     /** Reading multi-dimensional dataset in valarray with std:slice subsetting
      */
@@ -180,21 +183,22 @@ public:
     // Dataset writing queries
 
     /** Writing std::vector data into a dataset */
-    template<typename T> inline void write(const std::vector<T>& buf);
+    template<typename T>
+    inline void write(const std::vector<T>& buf);
 
     /** Writing std::vector data into a multi-dimensional dataset using
      * std::array for subsetting */
     template<typename T, size_t S>
     inline void write(const std::vector<T>& buf,
-                      const std::array<int, S>& startIn,
-                      const std::array<int, S>& countIn,
-                      const std::array<int, S>& strideIn);
+            const std::array<int, S>& startIn,
+            const std::array<int, S>& countIn,
+            const std::array<int, S>& strideIn);
 
     /** Writing std::vector data into a multi-dimensional dataset using
      * std::slice for subsetting */
     template<typename T>
-    inline void write(const std::vector<T>& buf,
-                      const std::vector<std::slice>* slicesIn);
+    inline void write(
+            const std::vector<T>& buf, const std::vector<std::slice>* slicesIn);
 
     /** Writing std::vector data into a multi-dimensional dataset using
      * std::gslice for subsetting */
@@ -202,21 +206,22 @@ public:
     inline void write(const std::vector<T>& buf, const std::gslice* gsliceIn);
 
     /** Writing std::valarray data into a dataset */
-    template<typename T> inline void write(const std::valarray<T>& buf);
+    template<typename T>
+    inline void write(const std::valarray<T>& buf);
 
     /** Writing std::valarray data into a multi-dimensional dataset using
      * std::array for subsetting */
     template<typename T, size_t S>
     inline void write(const std::valarray<T>& buf,
-                      const std::array<int, S>& startIn,
-                      const std::array<int, S>& countIn,
-                      const std::array<int, S>& strideIn);
+            const std::array<int, S>& startIn,
+            const std::array<int, S>& countIn,
+            const std::array<int, S>& strideIn);
 
     /** Writing std::valarray data into a multi-dimensional dataset using
      * std::slice for subsetting */
     template<typename T>
     inline void write(const std::valarray<T>& buf,
-                      const std::vector<std::slice>* slicesIn);
+            const std::vector<std::slice>* slicesIn);
 
     /** Writing std::valarray data into a multi-dimensional dataset using
      * std::gslice for subsetting */
@@ -224,14 +229,15 @@ public:
     inline void write(const std::valarray<T>& buf, const std::gslice* gsliceIn);
 
     /** Writing a raw pointer buffer into a dataset */
-    template<typename T> inline void write(const T* buf, const size_t sz);
+    template<typename T>
+    inline void write(const T* buf, const size_t sz);
 
     /** Writing a raw pointer into a multi-dimensional dataset using std::array
      * for subsetting */
     template<typename T, size_t S>
     inline void write(const T* buf, const std::array<int, S>& startIn,
-                      const std::array<int, S>& countIn,
-                      const std::array<int, S>& strideIn);
+            const std::array<int, S>& countIn,
+            const std::array<int, S>& strideIn);
 
     /** Writing a buffer into a multi-dimensional dataset using std::slice for
      * subsetting */
@@ -249,38 +255,36 @@ public:
 
     /** Creating and writing a std::vector data as a 1D-array attribute */
     template<typename T>
-    inline void createAttribute(const std::string& name,
-                                const std::vector<T>& values);
+    inline void createAttribute(
+            const std::string& name, const std::vector<T>& values);
 
     /** Creating and writing a std::valarray data as a 1D-array attribute */
     template<typename T>
-    inline void createAttribute(const std::string& name,
-                                const std::valarray<T>& values);
+    inline void createAttribute(
+            const std::string& name, const std::valarray<T>& values);
 
     /** Creating and writing a std::vector data with dimensions (std::array)  as
      * an attribute */
     template<typename T, typename T2, size_t S>
     inline void createAttribute(const std::string& name,
-                                const std::array<T2, S>& dims,
-                                const std::vector<T>& values);
+            const std::array<T2, S>& dims, const std::vector<T>& values);
 
     /** Creating and writing a std::valarray data with dimensions (std::array)
      * as an attribute */
     template<typename T, typename T2, size_t S>
     inline void createAttribute(const std::string& name,
-                                const std::array<T2, S>& dims,
-                                const std::valarray<T>& values);
+            const std::array<T2, S>& dims, const std::valarray<T>& values);
 
     /** Creating and writing a raw pointer with dimensions (std::array) to data
      * as an attribute */
     template<typename T, typename T2, size_t S>
     inline void createAttribute(const std::string& name,
-                                const std::array<T2, S>& dims, const T* buffer);
+            const std::array<T2, S>& dims, const T* buffer);
 
     /** Get DataSpace corresponding to slice defined by start, count and stride
      */
-    H5::DataSpace getDataSpace(const int* startIn, const int* countIn,
-                               const int* strideIn);
+    H5::DataSpace getDataSpace(
+            const int* startIn, const int* countIn, const int* strideIn);
 
     /** Get DataSpace corresponding to slice defined by a vector of slices */
     H5::DataSpace getDataSpace(const std::vector<std::slice>* sliceIn);
@@ -290,18 +294,18 @@ public:
 
     /** Get DataSpace with a GDAL RasterIO-like interface */
     H5::DataSpace getDataSpace(const size_t xidx, const size_t yidx,
-                               const size_t iowidth, const size_t iolength,
-                               const size_t band);
+            const size_t iowidth, const size_t iolength, const size_t band);
 
 private:
-    template<typename T> void read(T* buffer, const H5::DataSpace& dspace);
+    template<typename T>
+    void read(T* buffer, const H5::DataSpace& dspace);
 
     void read(std::string* buffer, const H5::DataSpace& dspace);
     void read(std::string* buf, const std::string& att);
 
     template<typename T>
     void createAttribute(const std::string& name, const H5::DataType& datatype,
-                         const H5::DataSpace& dataspace, const T* buffer);
+            const H5::DataSpace& dataspace, const T* buffer);
 
     template<typename T>
     void write(const T* buf, const H5::DataSpace& filespace);
@@ -312,9 +316,8 @@ template<>
 void IDataSet::write(const std::string* buf, const H5::DataSpace& dspace);
 template<>
 void IDataSet::createAttribute(const std::string& name,
-                               const H5::DataType& datatype,
-                               const H5::DataSpace& dataspace,
-                               const std::string* buffer);
+        const H5::DataType& datatype, const H5::DataSpace& dataspace,
+        const std::string* buffer);
 
 class IGroup : public H5::Group {
 
@@ -327,9 +330,8 @@ public:
 
     /** Search function for given name in the group */
     std::vector<std::string> find(const std::string name,
-                                  const std::string start = ".",
-                                  const std::string type = "BOTH",
-                                  const std::string path = "FULL");
+            const std::string start = ".", const std::string type = "BOTH",
+            const std::string path = "FULL");
 
     /** Return the path of the group from the file root */
     std::string getPathname();
@@ -341,13 +343,15 @@ public:
     int getNumElements(const std::string& name);
 
     /** Reading scalar attribute given by name */
-    template<typename T> inline void read(T& v, const std::string& att);
+    template<typename T>
+    inline void read(T& v, const std::string& att);
 
     /** Reading scalar string attribute given by name  */
     void read(std::string& v, const std::string& att);
 
     /** Reading multi-dimensional attribute in raw pointer */
-    template<typename T> inline void read(T* buf, const std::string& att);
+    template<typename T>
+    inline void read(T* buf, const std::string& att);
 
     /** Reading multi-dimensional string attribute in raw pointer */
     void read(std::string* buf, const std::string& att);
@@ -378,41 +382,39 @@ public:
 
     /** Create a dataset (1D) and write the data from a vector container*/
     template<typename T>
-    inline IDataSet createDataSet(const std::string& name,
-                                  const std::vector<T>& data);
+    inline IDataSet createDataSet(
+            const std::string& name, const std::vector<T>& data);
 
     /** Create a dataset (1D) and write the data from a valarray container*/
     template<typename T>
-    inline IDataSet createDataSet(const std::string& name,
-                                  const std::valarray<T>& data);
+    inline IDataSet createDataSet(
+            const std::string& name, const std::valarray<T>& data);
 
     /** Create a dataset (1D) and write a buffer's data*/
     template<typename T>
-    inline IDataSet createDataSet(const std::string& name, const T* buffer,
-                                  const size_t size);
+    inline IDataSet createDataSet(
+            const std::string& name, const T* buffer, const size_t size);
 
     /** Create a dataset (nD) and write the data from a vector container*/
     template<typename T, typename T2, size_t S>
     inline IDataSet createDataSet(const std::string& name,
-                                  const std::vector<T>& data,
-                                  const std::array<T2, S>& dims);
+            const std::vector<T>& data, const std::array<T2, S>& dims);
 
     /** Create a dataset (nD) and write the data from a valarray container*/
     template<typename T, typename T2, size_t S>
     inline IDataSet createDataSet(const std::string& name,
-                                  const std::valarray<T>& data,
-                                  const std::array<T2, S>& dims);
+            const std::valarray<T>& data, const std::array<T2, S>& dims);
 
     /** Create a dataset (nD) and write the data from a buffer*/
     template<typename T, typename T2, size_t S>
     inline IDataSet createDataSet(const std::string& name, const T* data,
-                                  const std::array<T2, S>& dims);
+            const std::array<T2, S>& dims);
 
     /** Create a datatset with compression options*/
     template<typename T, typename T2, size_t S>
     IDataSet createDataSet(const std::string& name,
-                           const std::array<T2, S>& dims, const int chunk = 0,
-                           const int shuffle = 0, const int deflate = 0);
+            const std::array<T2, S>& dims, const int chunk = 0,
+            const int shuffle = 0, const int deflate = 0);
 
     /** Creating and writing a scalar as an attribute */
     template<typename T>
@@ -420,45 +422,42 @@ public:
 
     /** Creating and writing a std::vector data as a 1D-array attribute */
     template<typename T>
-    inline void createAttribute(const std::string& name,
-                                const std::vector<T>& values);
+    inline void createAttribute(
+            const std::string& name, const std::vector<T>& values);
 
     /** Creating and writing a std::valarray data as a 1D-array attribute */
     template<typename T>
-    inline void createAttribute(const std::string& name,
-                                const std::valarray<T>& values);
+    inline void createAttribute(
+            const std::string& name, const std::valarray<T>& values);
 
     /** Creating and writing a std::vector data with dimensions (std::array) as
      * an attribute */
     template<typename T, typename T2, size_t S>
     inline void createAttribute(const std::string& name,
-                                const std::array<T2, S>& dims,
-                                const std::vector<T>& values);
+            const std::array<T2, S>& dims, const std::vector<T>& values);
 
     /** Creating and writing a std::valarray data with dimensions (std::array)
      * as an attribute */
     template<typename T, typename T2, size_t S>
     inline void createAttribute(const std::string& name,
-                                const std::array<T2, S>& dims,
-                                const std::valarray<T>& values);
+            const std::array<T2, S>& dims, const std::valarray<T>& values);
 
     /** Creating and writing a raw pointer to data with dimensions (std::array)
      * as an attribute */
     template<typename T, typename T2, size_t S>
     inline void createAttribute(const std::string& name,
-                                const std::array<T2, S>& dims, const T* buffer);
+            const std::array<T2, S>& dims, const T* buffer);
 
 private:
     template<typename T>
     void createAttribute(const std::string& name, const H5::DataType& datatype,
-                         const H5::DataSpace& dataspace, const T* buffer);
+            const H5::DataSpace& dataspace, const T* buffer);
 };
 
 template<>
 void IGroup::createAttribute(const std::string& name,
-                             const H5::DataType& datatype,
-                             const H5::DataSpace& dataspace,
-                             const std::string* buffer);
+        const H5::DataType& datatype, const H5::DataSpace& dataspace,
+        const std::string* buffer);
 
 class IH5File : public H5::H5File {
 public:
@@ -483,9 +482,8 @@ public:
 
     /** Searching for given name in file */
     std::vector<std::string> find(const std::string name,
-                                  const std::string start = "/",
-                                  const std::string type = "BOTH",
-                                  const std::string path = "FULL");
+            const std::string start = "/", const std::string type = "BOTH",
+            const std::string path = "FULL");
 
     /** Get filename of HDF5 file. */
     inline std::string filename() const { return getFileName(); }
@@ -493,8 +491,7 @@ public:
     /** Create a group */
     IGroup createGroup(const H5std_string& name);
 };
-} // namespace io
-} // namespace isce3
+}} // namespace isce3::io
 
 // Get inline implementations for IH5
 #define ISCE_IO_IH5_ICC

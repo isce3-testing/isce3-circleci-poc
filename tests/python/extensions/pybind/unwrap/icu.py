@@ -1,12 +1,12 @@
-'''
+"""
 Unit tests for CPU pybind ICU
-'''
-import numpy.testing as npt
-import numpy as np
-import pybind_isce3 as isce3
-from osgeo import gdal
-from osgeo import gdal_array
+"""
 import os
+
+import numpy as np
+import numpy.testing as npt
+import pybind_isce3 as isce3
+from osgeo import gdal, gdal_array
 
 width = 256
 length = 1100
@@ -87,16 +87,16 @@ def create_datasets():
     x, y = np.meshgrid(xx, yy)
     igram = np.exp(1j * (x + y))
 
-    to_gdal_dataset('igram.int', igram)
+    to_gdal_dataset("igram.int", igram)
 
-    # Generate coherence 
+    # Generate coherence
     corr = np.zeros((length, width), dtype=np.float32)
     corr[100:900, 50:100] = 1.0
     corr[100:900, 150:200] = 1.0
     corr[900:950, 50:200] = 1.0
     corr[1000:1050, 50:200] = 1.0
 
-    to_gdal_dataset('coherence.coh', corr)
+    to_gdal_dataset("coherence.coh", corr)
 
 
 def read_raster(infile):
@@ -111,14 +111,16 @@ def test_run_icu():
     create_datasets()
 
     # Open datasets as ISCE3 rasters
-    igram = isce3.io.Raster('igram.int')
-    corr = isce3.io.Raster('coherence.coh')
+    igram = isce3.io.Raster("igram.int")
+    corr = isce3.io.Raster("coherence.coh")
 
     # Generate output rasters
-    unwRaster = isce3.io.Raster('unw.int', igram.width,
-                                igram.length, 1, gdal.GDT_Float32, "GTiff")
-    cclRaster = isce3.io.Raster('ccl.cc', igram.width,
-                                igram.length, 1, gdal.GDT_Byte, "GTiff")
+    unwRaster = isce3.io.Raster(
+        "unw.int", igram.width, igram.length, 1, gdal.GDT_Float32, "GTiff"
+    )
+    cclRaster = isce3.io.Raster(
+        "ccl.cc", igram.width, igram.length, 1, gdal.GDT_Byte, "GTiff"
+    )
 
     # Configure and run ICU
     icu = isce3.unwrap.ICU()
@@ -128,8 +130,8 @@ def test_run_icu():
 
 def test_check_unwrapped_phase():
     # Read interferograms and ccl
-    ccl = read_raster('ccl.cc')
-    unw = read_raster('unw.int')
+    ccl = read_raster("ccl.cc")
+    unw = read_raster("unw.int")
 
     # Generate reference interferogram
     xx = np.linspace(0.0, 50.0, width)
@@ -140,18 +142,20 @@ def test_check_unwrapped_phase():
 
     # Reference each CC differently
     labels = np.unique(ccl)
-    diff = (ref_unw[np.where(ccl == labels[1])] - ref_unw[102, 52]) - \
-           (unw[np.where(ccl == labels[1])] - unw[102, 52])
+    diff = (ref_unw[np.where(ccl == labels[1])] - ref_unw[102, 52]) - (
+        unw[np.where(ccl == labels[1])] - unw[102, 52]
+    )
     npt.assert_array_less(diff.max(), 1e-5)
 
-    diff = (ref_unw[np.where(ccl == labels[2])] - ref_unw[1002, 52]) - \
-           (unw[np.where(ccl == labels[2])] - unw[1002, 52])
+    diff = (ref_unw[np.where(ccl == labels[2])] - ref_unw[1002, 52]) - (
+        unw[np.where(ccl == labels[2])] - unw[1002, 52]
+    )
     npt.assert_array_less(diff.max(), 1e-5)
 
 
 def test_check_connected_components():
     # Open Connected components
-    ccl = read_raster('ccl.cc')
+    ccl = read_raster("ccl.cc")
     l, w = ccl.shape
 
     npt.assert_equal(w, width)
@@ -164,13 +168,17 @@ def test_check_connected_components():
     npt.assert_equal(np.all(ccl[900:950, 50:200] == ccl[900, 50]), True)
     npt.assert_equal(np.all(ccl[1000:1050, 50:200] == ccl[1000, 50]), True)
 
-    # Check that different connected components 
+    # Check that different connected components
     # have different labels
-    npt.assert_raises(AssertionError, npt.assert_array_equal, ccl[100, 50], ccl[1000, 50])
-    npt.assert_raises(AssertionError, npt.assert_array_equal, ccl[900, 50], ccl[1000, 50])
+    npt.assert_raises(
+        AssertionError, npt.assert_array_equal, ccl[100, 50], ccl[1000, 50]
+    )
+    npt.assert_raises(
+        AssertionError, npt.assert_array_equal, ccl[900, 50], ccl[1000, 50]
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_getter_setter()
     test_run_icu()
     test_check_unwrapped_phase()

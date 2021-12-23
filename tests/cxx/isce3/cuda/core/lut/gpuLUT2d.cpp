@@ -1,20 +1,23 @@
-#include <iostream>
 #include <cmath>
-#include <vector>
-#include <valarray>
-#include <string>
 #include <fstream>
+#include <iostream>
 #include <sstream>
-#include <isce3/core/Matrix.h>
-#include <isce3/core/LUT2d.h>
-#include <isce3/core/Utilities.h>
-#include <isce3/cuda/core/gpuLUT2d.h>
+#include <string>
+#include <valarray>
+#include <vector>
+
 #include "gtest/gtest.h"
 
-void loadInterpData(isce3::core::Matrix<double> & M);
+#include <isce3/core/LUT2d.h>
+#include <isce3/core/Matrix.h>
+#include <isce3/core/Utilities.h>
+#include <isce3/cuda/core/gpuLUT2d.h>
+
+void loadInterpData(isce3::core::Matrix<double>& M);
 
 // Test biquintic LUT evaluation
-TEST(LUT2dTest, Evaluation) {
+TEST(LUT2dTest, Evaluation)
+{
 
     // Create indices
     std::vector<double> xvec = isce3::core::arange(-5.01, 5.01, 0.25);
@@ -38,12 +41,13 @@ TEST(LUT2dTest, Evaluation) {
     // Fill matrix values with function z = sin(x**2 + y**2)
     for (size_t i = 0; i < ny; ++i) {
         for (size_t j = 0; j < nx; ++j) {
-            M(i,j) = std::sin(yindex[i]*yindex[i] + xindex[j]*xindex[j]);
+            M(i, j) = std::sin(yindex[i] * yindex[i] + xindex[j] * xindex[j]);
         }
     }
 
     // Create LUT2d
-    isce3::core::LUT2d<double> lut(xindex, yindex, M, isce3::core::BIQUINTIC_METHOD);
+    isce3::core::LUT2d<double> lut(
+            xindex, yindex, M, isce3::core::BIQUINTIC_METHOD);
 
     // Create gpuLUT2d
     isce3::cuda::core::gpuLUT2d<double> gpuLUT(lut);
@@ -52,31 +56,35 @@ TEST(LUT2dTest, Evaluation) {
     double error = 0.0;
     for (size_t i = 0; i < N_pts; ++i) {
         // Perform evaluation
-        const double z = gpuLUT.eval_h(ref_values(i,1), ref_values(i,0));
+        const double z = gpuLUT.eval_h(ref_values(i, 1), ref_values(i, 0));
         // Accumulate error
-        error += std::pow(z - ref_values(i,5), 2);
+        error += std::pow(z - ref_values(i, 5), 2);
     }
     ASSERT_TRUE((error / N_pts) < 0.058);
 }
 
-void loadInterpData(isce3::core::Matrix<double> & M) {
+void loadInterpData(isce3::core::Matrix<double>& M)
+{
     /*
     Load ground truth interpolation data. The test data is the function:
 
     z = sqrt(x^2 + y^2)
 
     The columns of the data are:
-    x_index    y_index    bilinear_interp    bicubic_interp    5thorder_spline    truth
+    x_index    y_index    bilinear_interp    bicubic_interp    5thorder_spline
+    truth
     */
 
     // Open file for reading
     std::ifstream fid(TESTDATA_DIR "interpolator/data.txt");
     // Check if file open was successful
     if (fid.fail()) {
-        std::cout << "Error: Failed to open data file for interpolator test." << std::endl;
+        std::cout << "Error: Failed to open data file for interpolator test."
+                  << std::endl;
     }
 
-    std::vector<double> xvec, yvec, zlinear_vec, zcubic_vec, zquintic_vec, ztrue_vec;
+    std::vector<double> xvec, yvec, zlinear_vec, zcubic_vec, zquintic_vec,
+            ztrue_vec;
 
     // Loop over interpolation data
     while (fid) {
@@ -108,12 +116,12 @@ void loadInterpData(isce3::core::Matrix<double> & M) {
     const size_t N = xvec.size();
     M.resize(N, 6);
     for (size_t i = 0; i < N; ++i) {
-        M(i,0) = xvec[i];
-        M(i,1) = yvec[i];
-        M(i,2) = zlinear_vec[i];
-        M(i,3) = zcubic_vec[i];
-        M(i,4) = zquintic_vec[i];
-        M(i,5) = ztrue_vec[i];
+        M(i, 0) = xvec[i];
+        M(i, 1) = yvec[i];
+        M(i, 2) = zlinear_vec[i];
+        M(i, 3) = zcubic_vec[i];
+        M(i, 4) = zquintic_vec[i];
+        M(i, 5) = ztrue_vec[i];
     }
 }
 
@@ -153,7 +161,8 @@ TEST(LUT2dTest, Contains)
     }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

@@ -14,7 +14,7 @@ void addbinding_symmetrize(pybind11::module& m)
             py::arg("output_raster_band") = 1,
             R"(Symmetrize cross-polarimetric channels.
 
-           The current implementation considers that the cross-polarimetric 
+           The current implementation considers that the cross-polarimetric
            channels (HV and VH) are already calibrated so the polarimetric
            symmetrization is represented by the simple arithmetic average.
 
@@ -35,7 +35,7 @@ void addbinding_symmetrize(pybind11::module& m)
               Band (starting from 1) containing the VH polarization channel
               within `hv_raster`
           output_raster_band : int
-              Band (starting from 1) that will contain the symmetrized 
+              Band (starting from 1) that will contain the symmetrized
               cross-polarimetric channel
           )");
 }

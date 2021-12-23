@@ -4,14 +4,13 @@
 
 using isce3::except::InvalidArgument;
 
-namespace isce3 {
-namespace focus {
+namespace isce3 { namespace focus {
 
 std::string toString(DryTroposphereModel m)
 {
     switch (m) {
-        case DryTroposphereModel::NoDelay : return "nodelay";
-        case DryTroposphereModel::TSX     : return "tsx";
+    case DryTroposphereModel::NoDelay: return "nodelay";
+    case DryTroposphereModel::TSX: return "tsx";
     }
 
     throw InvalidArgument(ISCE_SRCINFO(), "unexpected dry troposphere model");
@@ -26,10 +25,9 @@ DryTroposphereModel parseDryTropoModel(const std::string& s)
         return DryTroposphereModel::TSX;
     }
 
-    std::string errmsg = "expected one of {'nodelay', 'tsx'}, instead got '"
-        + s + "'";
+    std::string errmsg =
+            "expected one of {'nodelay', 'tsx'}, instead got '" + s + "'";
     throw InvalidArgument(ISCE_SRCINFO(), errmsg);
 }
 
-} // namespace focus
-} // namespace isce3
+}} // namespace isce3::focus

@@ -13,18 +13,15 @@ struct StateVector {
     Vec3 velocity;
 };
 
-inline
-bool operator==(const StateVector & lhs, const StateVector & rhs)
+inline bool operator==(const StateVector& lhs, const StateVector& rhs)
 {
-    return lhs.datetime == rhs.datetime &&
-           lhs.position == rhs.position &&
+    return lhs.datetime == rhs.datetime && lhs.position == rhs.position &&
            lhs.velocity == rhs.velocity;
 }
 
-inline
-bool operator!=(const StateVector & lhs, const StateVector & rhs)
+inline bool operator!=(const StateVector& lhs, const StateVector& rhs)
 {
     return !(lhs == rhs);
 }
 
-}}
+}} // namespace isce3::core

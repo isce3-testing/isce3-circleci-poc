@@ -14,25 +14,57 @@ from shapely.geometry import LinearRing, Point, Polygon, box
 
 def cmdLineParse():
     """
-     Command line parser
+    Command line parser
     """
-    parser = argparse.ArgumentParser(description="""
+    parser = argparse.ArgumentParser(
+        description="""
                                      Stage and verify DEM for processing. """,
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument('-p', '--product', type=str, action='store',
-                        help='Input reference RSLC HDF5 product')
-    parser.add_argument('-o', '--output', type=str, action='store',
-                        default='dem.vrt', dest='outfile',
-                        help='Output DEM filepath (VRT format).')
-    parser.add_argument('-f', '--path', type=str, action='store',
-                        dest='filepath', default='file',
-                        help='Filepath to user DEM.')
-    parser.add_argument('-m', '--margin', type=int, action='store',
-                        default=5, help='Margin for DEM bounding box (km)')
-    parser.add_argument('-b', '--bbox', type=float, action='store',
-                        dest='bbox', default=None, nargs='+',
-                        help='Spatial bounding box in latitude/longitude (WSEN, decimal degrees)')
+    parser.add_argument(
+        "-p",
+        "--product",
+        type=str,
+        action="store",
+        help="Input reference RSLC HDF5 product",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        action="store",
+        default="dem.vrt",
+        dest="outfile",
+        help="Output DEM filepath (VRT format).",
+    )
+    parser.add_argument(
+        "-f",
+        "--path",
+        type=str,
+        action="store",
+        dest="filepath",
+        default="file",
+        help="Filepath to user DEM.",
+    )
+    parser.add_argument(
+        "-m",
+        "--margin",
+        type=int,
+        action="store",
+        default=5,
+        help="Margin for DEM bounding box (km)",
+    )
+    parser.add_argument(
+        "-b",
+        "--bbox",
+        type=float,
+        action="store",
+        dest="bbox",
+        default=None,
+        nargs="+",
+        help="Spatial bounding box in latitude/longitude (WSEN, decimal degrees)",
+    )
     return parser.parse_args()
 
 
@@ -55,11 +87,11 @@ def check_dateline(poly):
     xmin, _, xmax, _ = poly.bounds
     # Check dateline crossing
     if (xmax - xmin) > 180.0:
-        dateline = shapely.wkt.loads('LINESTRING( 180.0 -90.0, 180.0 90.0)')
+        dateline = shapely.wkt.loads("LINESTRING( 180.0 -90.0, 180.0 90.0)")
 
         # build new polygon with all longitudes between 0 and 360
         x, y = poly.exterior.coords.xy
-        new_x = (k + (k <= 0.) * 360 for k in x)
+        new_x = (k + (k <= 0.0) * 360 for k in x)
         new_ring = LinearRing(zip(new_x, y))
 
         # Split input polygon
@@ -69,7 +101,7 @@ def check_dateline(poly):
         decomp = shapely.ops.polygonize(border_lines)
 
         polys = list(decomp)
-        assert (len(polys) == 2)
+        assert len(polys) == 2
     else:
         # If dateline is not crossed, treat input poly as list
         polys = [poly]
@@ -96,10 +128,10 @@ def determine_polygon(ref_slc, bbox=None):
         or bbox shape on the ground
     """
     if bbox is not None:
-        print('Determine polygon from bounding box')
+        print("Determine polygon from bounding box")
         poly = box(bbox[0], bbox[1], bbox[2], bbox[3])
     else:
-        print('Determine polygon from RSLC radar grid and orbit')
+        print("Determine polygon from RSLC radar grid and orbit")
         poly = get_geo_polygon(ref_slc)
 
     return poly
@@ -130,12 +162,10 @@ def point2epsg(lon, lat):
     elif lat < 0:
         return 32701 + int(np.round((lon + 177) / 6.0))
     else:
-        raise ValueError(
-            'Could not determine projection for {0},{1}'.format(lat, lon))
+        raise ValueError("Could not determine projection for {0},{1}".format(lat, lon))
 
 
-def get_geo_polygon(ref_slc, min_height=-500.,
-                    max_height=9000., pts_per_edge=5):
+def get_geo_polygon(ref_slc, min_height=-500.0, max_height=9000.0, pts_per_edge=5):
     """Create polygon (EPSG:4326) using RSLC radar grid and orbits
 
     Parameters:
@@ -163,7 +193,7 @@ def get_geo_polygon(ref_slc, min_height=-500.,
 
     # Extract orbits, radar grid, and doppler for frequency A
     orbit = productSlc.getOrbit()
-    radar_grid = productSlc.getRadarGrid(frequency='A')
+    radar_grid = productSlc.getRadarGrid(frequency="A")
     doppler = LUT2d()
 
     # Get min and max global height DEM interpolators
@@ -171,10 +201,8 @@ def get_geo_polygon(ref_slc, min_height=-500.,
     dem_max = DEMInterpolator(height=max_height)
 
     # Get min and max bounding boxes
-    box_min = get_geo_perimeter_wkt(radar_grid, orbit, doppler,
-                                    dem_min, pts_per_edge)
-    box_max = get_geo_perimeter_wkt(radar_grid, orbit, doppler,
-                                    dem_max, pts_per_edge)
+    box_min = get_geo_perimeter_wkt(radar_grid, orbit, doppler, dem_min, pts_per_edge)
+    box_max = get_geo_perimeter_wkt(radar_grid, orbit, doppler, dem_max, pts_per_edge)
 
     # Determine minimum and maximum polygons
     poly_min = shapely.wkt.loads(box_min)
@@ -206,8 +234,7 @@ def determine_projection(polys):
     # Make a regular grid based on polys min/max latitude longitude
     for p in polys:
         xmin, ymin, xmax, ymax = p.bounds
-        xx, yy = np.meshgrid(np.linspace(xmin, xmax, 250),
-                             np.linspace(ymin, ymax, 250))
+        xx, yy = np.meshgrid(np.linspace(xmin, xmax, 250), np.linspace(ymin, ymax, 250))
         x = xx.flatten()
         y = yy.flatten()
 
@@ -265,14 +292,13 @@ def download_dem(polys, epsgs, margin, outfile):
     file_prefix = os.path.splitext(outfile)[0]
     dem_list = []
     for n, (epsg, poly) in enumerate(zip(epsgs, polys)):
-        vrt_filename = f'/vsis3/nisar-dem/EPSG{epsg}/EPSG{epsg}.vrt'
+        vrt_filename = f"/vsis3/nisar-dem/EPSG{epsg}/EPSG{epsg}.vrt"
         poly.buffer(margin)
-        outpath = f'{file_prefix}_{n}.tiff'
+        outpath = f"{file_prefix}_{n}.tiff"
         dem_list.append(outpath)
         xmin, ymin, xmax, ymax = poly.bounds
         ds = gdal.Open(vrt_filename, gdal.GA_ReadOnly)
-        gdal.Translate(outpath, ds, format='GTiff',
-                       projWin=[xmin, ymax, xmax, ymin])
+        gdal.Translate(outpath, ds, format="GTiff", projWin=[xmin, ymax, xmax, ymin])
 
     # Build vrt with downloaded DEMs
     gdal.BuildVRT(outfile, dem_list)
@@ -292,7 +318,7 @@ def transform_polygon_coords(polys, epsgs):
     """
 
     # Assert validity of inputs
-    assert(len(polys) == len(epsgs))
+    assert len(polys) == len(epsgs)
 
     # Transform each point of the perimeter in target EPSG coordinates
     llh = osr.SpatialReference()
@@ -314,8 +340,16 @@ def transform_polygon_coords(polys, epsgs):
         xmax.append(max(tgt_x))
         ymax.append(max(tgt_y))
     # return a polygon
-    poly = [Polygon([(min(xmin), min(ymin)), (min(xmin), max(ymax)),
-                     (max(xmax), max(ymax)), (max(xmax), min(ymin))])]
+    poly = [
+        Polygon(
+            [
+                (min(xmin), min(ymin)),
+                (min(xmin), max(ymax)),
+                (max(xmax), max(ymax)),
+                (max(xmax), min(ymin)),
+            ]
+        )
+    ]
 
     return poly
 
@@ -361,16 +395,19 @@ def check_dem_overlap(DEMFilepath, polys):
 
 def check_aws_connection():
     """Check connection to AWS s3://nisar-dem bucket
-       Throw exception if no connection is established
+    Throw exception if no connection is established
     """
     import boto3
-    s3 = boto3.resource('s3')
-    obj = s3.Object('nisar-dem', 'EPSG3031/EPSG3031.vrt')
+
+    s3 = boto3.resource("s3")
+    obj = s3.Object("nisar-dem", "EPSG3031/EPSG3031.vrt")
     try:
-        body = obj.get()['Body'].read()
+        body = obj.get()["Body"].read()
     except:
-        errmsg = 'No access to nisar-dem s3 bucket. Check your AWS credentials' \
-                 'and re-run the code'
+        errmsg = (
+            "No access to nisar-dem s3 bucket. Check your AWS credentials"
+            "and re-run the code"
+        )
         raise ValueError(errmsg)
 
 
@@ -385,12 +422,14 @@ def main(opts):
 
     # Check if RSLC or bbox are provided
     if (opts.product is None) & (opts.bbox is None):
-        errmsg = "Need to provide reference RSLC HDF5 or bounding box. " \
-                 "Cannot download DEM"
+        errmsg = (
+            "Need to provide reference RSLC HDF5 or bounding box. "
+            "Cannot download DEM"
+        )
         raise ValueError(errmsg)
 
     # Make sure that output file has VRT extension
-    if not opts.outfile.lower().endswith('.vrt'):
+    if not opts.outfile.lower().endswith(".vrt"):
         err_msg = "DEM output filename extension is not .vrt"
         raise ValueError(err_msg)
 
@@ -401,26 +440,29 @@ def main(opts):
     polys = check_dateline(poly)
 
     if os.path.isfile(opts.filepath):
-        print('Check overlap with user-provided DEM')
+        print("Check overlap with user-provided DEM")
         overlap = check_dem_overlap(opts.filepath, polys)
-        if overlap < 75.:
-            print('Insufficient DEM coverage. Errors might occur')
-        print(f'DEM coverage is {overlap} %')
+        if overlap < 75.0:
+            print("Insufficient DEM coverage. Errors might occur")
+        print(f"DEM coverage is {overlap} %")
     else:
         # Check connection to AWS s3 nisar-dem bucket
         try:
             check_aws_connection()
         except ImportError:
             import warnings
-            warnings.warn('boto3 is require to verify AWS connection'
-                          'proceeding without verifying connection')
+
+            warnings.warn(
+                "boto3 is require to verify AWS connection"
+                "proceeding without verifying connection"
+            )
         # Determine EPSG code
         epsg = determine_projection(polys)
         # Download DEM
         download_dem(polys, epsg, opts.margin, opts.outfile)
-        print('Done, DEM store locally')
+        print("Done, DEM store locally")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     opts = cmdLineParse()
     main(opts)

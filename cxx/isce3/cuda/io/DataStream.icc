@@ -312,4 +312,3 @@ void RasterDataStream::store(const T * src,
 }
 
 }}}
-

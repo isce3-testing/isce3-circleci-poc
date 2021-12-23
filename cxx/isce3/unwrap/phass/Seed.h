@@ -10,11 +10,11 @@
 using namespace std;
 
 struct Seed {
-  int x;
-  int y;
-  int nr_2pi;
-  int pc; // pixel count
+    int x;
+    int y;
+    int nr_2pi;
+    int pc; // pixel count
 };
 
-void read_seed_file(char *seed_file, int & nr_seeds, Seed **seeds);
-void write_seeds(char *seed_file, int nr_seeds, Seed *seeds, double cp = 0);
+void read_seed_file(char* seed_file, int& nr_seeds, Seed** seeds);
+void write_seeds(char* seed_file, int nr_seeds, Seed* seeds, double cp = 0);

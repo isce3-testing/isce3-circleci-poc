@@ -1,6 +1,6 @@
 # Structure inherited from L0 PGEs covers inputs, outputs, and identification.
 runconfig:
-    name: NISAR_L1-L-RSLC_RUNCONFIG    
+    name: NISAR_L1-L-RSLC_RUNCONFIG
 
     groups:
         PGENameGroup:

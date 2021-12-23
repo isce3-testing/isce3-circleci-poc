@@ -6,17 +6,12 @@
 // (c) 1998-2019 all rights reserved
 //
 
-
 // configuration
 //#include <portinfo>
 // declarations
 #include "dom.h"
 
-
 // meta-methods
-ampcor::dom::Raster::
-~Raster()
-{}
-
+ampcor::dom::Raster::~Raster() {}
 
 // end of file

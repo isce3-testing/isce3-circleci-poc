@@ -5,30 +5,32 @@
 // Copyright 2018
 //
 
+#include "isce3/cuda/core/gpuInterpolator.h"
+
 #include <cmath>
 #include <cstdio>
-#include <string>
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <vector>
+
 #include "gtest/gtest.h"
 
 #include "isce3/core/Constants.h"
 #include "isce3/core/Interpolator.h"
-#include "isce3/cuda/core/gpuInterpolator.h"
 
 using isce3::core::Matrix;
-using isce3::core::Matrix;
-using isce3::cuda::core::gpuInterpolator;
-using isce3::cuda::core::gpuBilinearInterpolator;
 using isce3::cuda::core::gpuBicubicInterpolator;
+using isce3::cuda::core::gpuBilinearInterpolator;
+using isce3::cuda::core::gpuInterpolator;
 using isce3::cuda::core::gpuSpline2dInterpolator;
 
-void loadInterpData(Matrix<double> &);
+void loadInterpData(Matrix<double>&);
 
 // Function to return a Python style arange vector
-std::vector<double> arange(double low, double high, double increment) {
+std::vector<double> arange(double low, double high, double increment)
+{
     // Instantiate the vector
     std::vector<double> data;
     // Set the first value
@@ -54,42 +56,45 @@ struct gpuInterpolatorTest : public ::testing::Test {
 
     double start, delta;
 
-    protected:
-        // Constructor
-        gpuInterpolatorTest() {
+protected:
+    // Constructor
+    gpuInterpolatorTest()
+    {
 
-            // Create indices
-            xindex = arange(-5.01, 5.01, 0.25);
-            yindex = arange(-5.01, 5.01, 0.25);
-            size_t nx = xindex.size();
-            size_t ny = yindex.size();
+        // Create indices
+        xindex = arange(-5.01, 5.01, 0.25);
+        yindex = arange(-5.01, 5.01, 0.25);
+        size_t nx = xindex.size();
+        size_t ny = yindex.size();
 
-            // Allocate the matrix
-            M.resize(ny, nx);
+        // Allocate the matrix
+        M.resize(ny, nx);
 
-            // Fill matrix values with function z = sin(x**2 + y**2)
-            for (size_t i = 0; i < ny; ++i) {
-                for (size_t j = 0; j < nx; ++j) {
-                    M(i,j) = std::sin(yindex[i]*yindex[i] + xindex[j]*xindex[j]);
-                }
+        // Fill matrix values with function z = sin(x**2 + y**2)
+        for (size_t i = 0; i < ny; ++i) {
+            for (size_t j = 0; j < nx; ++j) {
+                M(i, j) =
+                        std::sin(yindex[i] * yindex[i] + xindex[j] * xindex[j]);
             }
-
-            // Read the truth data
-            loadInterpData(true_values);
-
-            // Starting coordinate and spacing of data
-            start = -5.01;
-            delta = 0.25;
         }
+
+        // Read the truth data
+        loadInterpData(true_values);
+
+        // Starting coordinate and spacing of data
+        start = -5.01;
+        delta = 0.25;
+    }
 };
 
 // Test bilinear interpolation
-TEST_F(gpuInterpolatorTest, BilinearDouble) {
+TEST_F(gpuInterpolatorTest, BilinearDouble)
+{
     size_t N_pts = true_values.length();
     double error = 0.0;
     std::vector<double> v_z(true_values.length());
-    double *z = v_z.data();
-    
+    double* z = v_z.data();
+
     // instantiate parent and derived class
     gpuBilinearInterpolator<double> gpu_bilinear;
 
@@ -98,22 +103,23 @@ TEST_F(gpuInterpolatorTest, BilinearDouble) {
 
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack reference value
-        const double zref = true_values(i,2);
+        const double zref = true_values(i, 2);
         // Check
         ASSERT_NEAR(z[i], zref, 1.0e-8);
         // Accumulate error
-        error += std::pow(z[i] - true_values(i,5), 2);
+        error += std::pow(z[i] - true_values(i, 5), 2);
     }
     ASSERT_TRUE((error / N_pts) < 0.07);
 }
 
 // Test bicubic interpolation
-TEST_F(gpuInterpolatorTest, BicubicDouble) {
+TEST_F(gpuInterpolatorTest, BicubicDouble)
+{
     size_t N_pts = true_values.length();
     double error = 0.0;
     std::vector<double> v_z(true_values.length());
-    double *z = v_z.data();
-    
+    double* z = v_z.data();
+
     // instantiate parent and derived class
     gpuBicubicInterpolator<double> gpu_bicubic;
 
@@ -122,7 +128,7 @@ TEST_F(gpuInterpolatorTest, BicubicDouble) {
 
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack reference value
-        const double zref = true_values(i,5);
+        const double zref = true_values(i, 5);
         // Accumulate error
         error += std::pow(z[i] - zref, 2);
     }
@@ -130,12 +136,13 @@ TEST_F(gpuInterpolatorTest, BicubicDouble) {
 }
 
 // Test spline interpolation
-TEST_F(gpuInterpolatorTest, Spline2dDouble) {
+TEST_F(gpuInterpolatorTest, Spline2dDouble)
+{
     size_t N_pts = true_values.length();
     double error = 0.0;
     std::vector<double> v_z(true_values.length());
-    double *z = v_z.data();
-    
+    double* z = v_z.data();
+
     // instantiate parent and derived class
     gpuSpline2dInterpolator<double> gpu_spline2d(6);
 
@@ -144,7 +151,7 @@ TEST_F(gpuInterpolatorTest, Spline2dDouble) {
 
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack reference value
-        const double zref = true_values(i,5);
+        const double zref = true_values(i, 5);
         // Accumulate error
         error += std::pow(z[i] - zref, 2);
     }
@@ -173,30 +180,34 @@ TEST_F(gpuInterpolatorTest, Biquintic) {
 }
 */
 
-
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
 
-void loadInterpData(Matrix<double> & M) {
+void loadInterpData(Matrix<double>& M)
+{
     /*
     Load ground truth interpolation data. The test data is the function:
 
     z = sqrt(x^2 + y^2)
 
     The columns of the data are:
-    x_index    y_index    bilinear_interp    bicubic_interp    5thorder_spline    truth
+    x_index    y_index    bilinear_interp    bicubic_interp    5thorder_spline
+    truth
     */
 
     // Open file for reading
     std::ifstream fid(TESTDATA_DIR "interpolator/data.txt");
     // Check if file open was successful
     if (fid.fail()) {
-        std::cout << "Error: Failed to open data file for interpolator test." << std::endl;
+        std::cout << "Error: Failed to open data file for interpolator test."
+                  << std::endl;
     }
 
-    std::vector<double> xvec, yvec, zlinear_vec, zcubic_vec, zquintic_vec, ztrue_vec;
+    std::vector<double> xvec, yvec, zlinear_vec, zcubic_vec, zquintic_vec,
+            ztrue_vec;
 
     // Loop over interpolation data
     while (fid) {
@@ -228,12 +239,12 @@ void loadInterpData(Matrix<double> & M) {
     const size_t N = xvec.size();
     M.resize(N, 6);
     for (size_t i = 0; i < N; ++i) {
-        M(i,0) = xvec[i];
-        M(i,1) = yvec[i];
-        M(i,2) = zlinear_vec[i];
-        M(i,3) = zcubic_vec[i];
-        M(i,4) = zquintic_vec[i];
-        M(i,5) = ztrue_vec[i];
+        M(i, 0) = xvec[i];
+        M(i, 1) = yvec[i];
+        M(i, 2) = zlinear_vec[i];
+        M(i, 3) = zcubic_vec[i];
+        M(i, 4) = zquintic_vec[i];
+        M(i, 5) = ztrue_vec[i];
     }
 }
 

@@ -9,13 +9,11 @@
 
 namespace isce3 { namespace core { namespace detail {
 
-Linspace<double>
-getOrbitTime(const std::vector<StateVector> & statevecs, const DateTime & reference_epoch);
+Linspace<double> getOrbitTime(const std::vector<StateVector>& statevecs,
+        const DateTime& reference_epoch);
 
-std::vector<Vec3>
-getOrbitPosition(const std::vector<StateVector> & statevecs);
+std::vector<Vec3> getOrbitPosition(const std::vector<StateVector>& statevecs);
 
-std::vector<Vec3>
-getOrbitVelocity(const std::vector<StateVector> & statevecs);
+std::vector<Vec3> getOrbitVelocity(const std::vector<StateVector>& statevecs);
 
-}}}
+}}} // namespace isce3::core::detail

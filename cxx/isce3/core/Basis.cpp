@@ -32,15 +32,15 @@ static EulerAngles ypr_helper(const Basis& tcn2xyz, const Quaternion& q)
 }
 
 EulerAngles factoredYawPitchRoll(const Quaternion& q, const Vec3& x,
-                                 const Vec3& v, const Ellipsoid& ellipsoid)
+        const Vec3& v, const Ellipsoid& ellipsoid)
 {
     auto velECI = velocityECI(x, v);
     auto geodetic_tcn = geodeticTCN(x, velECI, ellipsoid);
     return ypr_helper(geodetic_tcn, q);
 }
 
-EulerAngles factoredYawPitchRoll(const Quaternion& q, const Vec3& x,
-                                 const Vec3& v)
+EulerAngles factoredYawPitchRoll(
+        const Quaternion& q, const Vec3& x, const Vec3& v)
 {
     auto velECI = velocityECI(x, v);
     auto geocentric_tcn = Basis(x, velECI);

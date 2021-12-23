@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // -*- coding: utf-8 -*-
-// 
+//
 // Author: Heresh Fattahi
 // Copyright 2019-
 
@@ -11,19 +11,19 @@
 namespace isce3::unwrap::phass
 {
     /** @param[in] corrThr correlation threshold*/
-    inline void Phass::correlationThreshold(const double corrThr) 
+    inline void Phass::correlationThreshold(const double corrThr)
     {
         _correlationThreshold = corrThr;
     }
-    
-    inline double Phass::correlationThreshold() const { 
+
+    inline double Phass::correlationThreshold() const {
         return _correlationThreshold;
     }
 
     /** @param[in] goodCor good correlation threshold. */
     inline void Phass::goodCorrelation(const double goodCor)
     {
-        _goodCorrelation = goodCor;        
+        _goodCorrelation = goodCor;
     }
 
     inline double Phass::goodCorrelation() const {
@@ -33,11 +33,10 @@ namespace isce3::unwrap::phass
     /** @param[in] minPixelsPerRegion minimum pixels per region to unwrap*/
     inline void Phass::minPixelsPerRegion(const int minPixelsPerRegion)
     {
-        _minPixelsPerRegion = minPixelsPerRegion; 
+        _minPixelsPerRegion = minPixelsPerRegion;
     }
 
     inline int Phass::minPixelsPerRegion() const {
         return _minPixelsPerRegion;
     }
 }
-

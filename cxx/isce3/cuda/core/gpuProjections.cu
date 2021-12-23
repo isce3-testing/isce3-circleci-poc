@@ -327,7 +327,7 @@ CUDA_DEV int UTM::inverse(const Vec3& utm, Vec3& llh) const {
     } else {
         return 1;
     }
-} 
+}
 
 CUDA_HOSTDEV double pj_tsfn(double phi, double sinphi, double e) {
     /*

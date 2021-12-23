@@ -1,11 +1,11 @@
 #include "RTC.h"
 
-#include <isce3/io/Raster.h>
+#include <limits>
+
 #include <isce3/core/LUT2d.h>
 #include <isce3/core/Orbit.h>
+#include <isce3/io/Raster.h>
 #include <isce3/product/RadarGridParameters.h>
-
-#include <limits>
 
 namespace py = pybind11;
 
@@ -29,7 +29,7 @@ void addbinding(
             .value("GAMMA_NAUGHT", rtcOutputTerrainRadiometry::GAMMA_NAUGHT);
 }
 
-void addbinding(py::enum_<rtcAlgorithm> & pyAlgorithm)
+void addbinding(py::enum_<rtcAlgorithm>& pyAlgorithm)
 {
     pyAlgorithm
             .value("RTC_BILINEAR_DISTRIBUTION",
@@ -37,12 +37,10 @@ void addbinding(py::enum_<rtcAlgorithm> & pyAlgorithm)
             .value("RTC_AREA_PROJECTION", rtcAlgorithm::RTC_AREA_PROJECTION);
 }
 
-void addbinding(py::enum_<rtcAreaMode> & pyAreaMode)
+void addbinding(py::enum_<rtcAreaMode>& pyAreaMode)
 {
-    pyAreaMode
-        .value("AREA", rtcAreaMode::AREA)
-        .value("AREA_FACTOR", rtcAreaMode::AREA_FACTOR)
-        ;
+    pyAreaMode.value("AREA", rtcAreaMode::AREA)
+            .value("AREA_FACTOR", rtcAreaMode::AREA_FACTOR);
 }
 
 void addbinding_apply_rtc(pybind11::module& m)
@@ -96,9 +94,9 @@ void addbinding_apply_rtc(pybind11::module& m)
                data type of the input raster (1 for real and 2 for complex
                rasters).
               rtc_area_mode : isce3.geometry.RtcAreaMode, optional
-                  RTC area mode 
+                  RTC area mode
               rtc_algorithm : isce3.geometry.RtcAlgorithm, optional
-                  RTC algorithm 
+                  RTC algorithm
               geogrid_upsampling : double, optional
                   Geogrid upsampling (in each direction)
               rtc_min_value_db : float, optional
@@ -179,7 +177,7 @@ void addbinding_compute_rtc(pybind11::module& m)
              rtc_area_mode : isce3.geometry.RtcAreaMode, optional
                  RTC area mode
              rtc_algorithm : isce3.geometry.RtcAlgorithm, optional
-                 RTC algorithm 
+                 RTC algorithm
              geogrid_upsampling : double, optional
                 Geogrid upsampling (in each direction)
              rtc_min_value_db : float, optional

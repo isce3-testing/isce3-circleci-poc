@@ -151,11 +151,11 @@ std::ostream& operator<<(std::ostream&, const DateTime&);
 const DateTime MIN_DATE_TIME = DateTime(1970, 1, 1);
 const std::string UNINITIALIZED_STRING = "uninitialized";
 
-static const int DaysInMonths[] = {31, 28, 31, 30, 31, 30,
-                                   31, 31, 30, 31, 30, 31};
+static const int DaysInMonths[] = {
+        31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-static const int DaysBeforeMonths[] = {0,   31,  59,  90,  120, 151,
-                                       181, 212, 243, 273, 304, 334};
+static const int DaysBeforeMonths[] = {
+        0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 static const int DAY_TO_YEAR = 365;
 static const int DAYSPER100 = 36524;
 static const int DAYSPER400 = 146097;

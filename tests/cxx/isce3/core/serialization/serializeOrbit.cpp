@@ -5,18 +5,18 @@
 // Copyright 2018
 //
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+
 #include <gtest/gtest.h>
 
 // isce3::core
 #include <isce3/core/Orbit.h>
 #include <isce3/core/Serialization.h>
-
 #include <isce3/io/IH5.h>
 
-
-TEST(OrbitTest, CheckArchive) {
+TEST(OrbitTest, CheckArchive)
+{
     // Make an orbit
     isce3::core::Orbit orbit;
 
@@ -25,7 +25,8 @@ TEST(OrbitTest, CheckArchive) {
     isce3::io::IH5File file(h5file);
 
     // Open group containing orbit
-    isce3::io::IGroup group = file.openGroup("/science/LSAR/SLC/metadata/orbit");
+    isce3::io::IGroup group =
+            file.openGroup("/science/LSAR/SLC/metadata/orbit");
 
     // Deserialize the orbit
     isce3::core::loadFromH5(group, orbit);
@@ -48,7 +49,8 @@ TEST(OrbitTest, CheckArchive) {
     ASSERT_EQ(dtime.isoformat(), "2003-02-26T17:55:28.000000000");
 }
 
-TEST(OrbitTest, CheckWrite) {
+TEST(OrbitTest, CheckWrite)
+{
     // Make an orbit
     isce3::core::Orbit orbit;
 
@@ -59,7 +61,8 @@ TEST(OrbitTest, CheckWrite) {
         isce3::io::IH5File file(h5file);
 
         // Open group containing orbit
-        isce3::io::IGroup group = file.openGroup("/science/LSAR/SLC/metadata/orbit");
+        isce3::io::IGroup group =
+                file.openGroup("/science/LSAR/SLC/metadata/orbit");
 
         // Deserialize the orbit
         isce3::core::loadFromH5(group, orbit);
@@ -88,7 +91,8 @@ TEST(OrbitTest, CheckWrite) {
     ASSERT_EQ(orbit, newOrb);
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

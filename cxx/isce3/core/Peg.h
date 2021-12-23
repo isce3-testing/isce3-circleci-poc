@@ -12,14 +12,13 @@
  * Peg points are used for SCH coordinate system representation for UAVSAR*/
 class isce3::core::Peg {
 public:
-
-    //peg latitude in radians
+    // peg latitude in radians
     double lat;
 
-    //peg longiture in radians
+    // peg longiture in radians
     double lon;
 
-    //peg heading in radians
+    // peg heading in radians
     double hdg;
 
     /** Simple peg point constructor
@@ -30,17 +29,17 @@ public:
     Peg(double lt, double ln, double hd) : lat(lt), lon(ln), hdg(hd) {}
 
     /** Empty constructor */
-    Peg() : Peg(0.,0.,0.) {}
+    Peg() : Peg(0., 0., 0.) {}
 
     /** Copy constructor */
-    Peg(const Peg &p) : lat(p.lat), lon(p.lon), hdg(p.hdg) {}
+    Peg(const Peg& p) : lat(p.lat), lon(p.lon), hdg(p.hdg) {}
 
     /** Assignment operator */
     inline Peg& operator=(const Peg&);
 };
 
-isce3::core::Peg & isce3::core::Peg::
-operator=(const Peg &rhs) {
+isce3::core::Peg& isce3::core::Peg::operator=(const Peg& rhs)
+{
     lat = rhs.lat;
     lon = rhs.lon;
     hdg = rhs.hdg;

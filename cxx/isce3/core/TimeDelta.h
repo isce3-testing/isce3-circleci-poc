@@ -15,7 +15,6 @@
  * computation and vice-versa*/
 class isce3::core::TimeDelta {
 public:
-
     /** Integer days */
     int days;
     /** Integer hours */
@@ -54,18 +53,18 @@ public:
     void _normalize();
 
     // Comparison operators
-    bool operator<( const TimeDelta &ts) const;
-    bool operator<( double ts) const;
-    bool operator>( const TimeDelta &ts) const;
-    bool operator>( double ts) const;
-    bool operator<=( const TimeDelta &ts) const;
-    bool operator<=( double ts) const;
-    bool operator>=( const TimeDelta &ts) const;
-    bool operator>=( double ts) const;
-    bool operator==( const TimeDelta &ts) const;
-    bool operator==( double ts) const;
-    bool operator!=( const TimeDelta &ts) const;
-    bool operator!=( double ts) const;
+    bool operator<(const TimeDelta& ts) const;
+    bool operator<(double ts) const;
+    bool operator>(const TimeDelta& ts) const;
+    bool operator>(double ts) const;
+    bool operator<=(const TimeDelta& ts) const;
+    bool operator<=(double ts) const;
+    bool operator>=(const TimeDelta& ts) const;
+    bool operator>=(double ts) const;
+    bool operator==(const TimeDelta& ts) const;
+    bool operator==(double ts) const;
+    bool operator!=(const TimeDelta& ts) const;
+    bool operator!=(double ts) const;
 
     // Math operators
     TimeDelta& operator=(const TimeDelta& ts);
@@ -97,16 +96,14 @@ public:
 };
 
 // Some constants
-namespace isce3 {
-    namespace core {
+namespace isce3 { namespace core {
 
-        TimeDelta operator*(double, const TimeDelta &);
+TimeDelta operator*(double, const TimeDelta&);
 
-        const int MIN_TO_SEC=60;
-        const int HOUR_TO_SEC=3600;
-        const int HOUR_TO_MIN=60;
-        const int DAY_TO_SEC=86400;
-        const int DAY_TO_MIN=1440;
-        const int DAY_TO_HOUR=24;
-    }
-}
+const int MIN_TO_SEC = 60;
+const int HOUR_TO_SEC = 3600;
+const int HOUR_TO_MIN = 60;
+const int DAY_TO_SEC = 86400;
+const int DAY_TO_MIN = 1440;
+const int DAY_TO_HOUR = 24;
+}} // namespace isce3::core

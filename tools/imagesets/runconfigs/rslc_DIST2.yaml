@@ -1,6 +1,6 @@
-runconfig: 
+runconfig:
     name: NISAR_L1-L-RSLC_RUNCONFIG
-    
+
     groups:
         PGENameGroup:
             PGEName: RSLC_L_PGE
@@ -152,17 +152,17 @@ runconfig:
             # FIXME: dem fields (null or blank) in the runconfig file cause rslc workflow to crash
             #dem:
             #    # Height (in meters) to use if DEM unavailable.
-            #    reference_height: 
+            #    reference_height:
             #    # How to interpolate the digital elevation model.  One of
             #    # nearest, bilinear, bicubic, biquintic, or sinc
-            #    interp_method: 
+            #    interp_method:
             # Nominal antenna dimensions to use for BLU, EAP, etc. when no
             # antenna pattern input file is provided or its contents are
             # unsuitable. Each dimension has units of meters and is assumed
             # 12.0 m if unspecified.
             nominal_antenna_size:
-                range: 
-                azimuth: 
+                range:
+                azimuth:
             # Scale factor to apply to data before float16 encoding, optional.
             # Default is 1.0.
             # The largest representable float16 value is 65504.

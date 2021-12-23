@@ -51,4 +51,3 @@ bool query(Event event)
 }
 
 }}}
-

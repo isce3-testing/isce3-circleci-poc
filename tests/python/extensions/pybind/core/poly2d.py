@@ -5,13 +5,13 @@ import numpy.testing as npt
 
 
 def test_constant():
-    '''
+    """
     Test constant value of poly2D
     (adapted from Poly2d C++ unit test)
-    '''
+    """
 
     ref_value = 10.0
-    coeffs = np.full((1,1), fill_value=ref_value)
+    coeffs = np.full((1, 1), fill_value=ref_value)
 
     # Interpolate N values in x and y
     for k in range(1, 5):
@@ -21,10 +21,10 @@ def test_constant():
 
 
 def test_mean_shift():
-    '''
+    """
     Test Poly2d range mean shift
     (adapted from C++ unit test)
-    '''
+    """
 
     # Create and initialize poly2D object
     coeffs = np.array([[0.0, 1.0, 0.0]])
@@ -42,10 +42,10 @@ def test_mean_shift():
 
 
 def test_norm_shift():
-    '''
+    """
     Test Poly2d range std shift
     (Adapted from Poly2d C++ unit test)
-    '''
+    """
 
     # Create and initialize Poly2d object
     coeffs = np.array([[0.0, 0.0, 1.0]])
@@ -60,6 +60,7 @@ def test_norm_shift():
 
         npt.assert_almost_equal(ref_val, new_val)
 
+
 class common_params:
     # Prepare input values
     n_x = 5
@@ -70,17 +71,17 @@ class common_params:
     rg_order = 2
 
     # Prepare coefficients for poly2d
-    az_mesh, rg_mesh = np.meshgrid(np.arange(az_order + 1),
-                                   np.arange(rg_order + 1))
+    az_mesh, rg_mesh = np.meshgrid(np.arange(az_order + 1), np.arange(rg_order + 1))
     coeffs = np.array(az_mesh + rg_mesh, dtype=np.double)
 
     # Poly2d obj
     poly2d = isce3.core.Poly2d(coeffs)
 
+
 def test_grid_eval():
-    '''
+    """
     Test poly2D with mesh input
-    '''
+    """
 
     common = common_params()
 
@@ -89,15 +90,18 @@ def test_grid_eval():
 
     # Perform numpy poly eval over same grid
     # Transpose coeffs to account for numpy reversed indexing
-    npp_out = npp.polynomial.polygrid2d(common.x_vec, common.y_vec, common.coeffs.transpose())
+    npp_out = npp.polynomial.polygrid2d(
+        common.x_vec, common.y_vec, common.coeffs.transpose()
+    )
 
     # Check values of mesh eval againt point eval to ensure pybind ordering correct
     npt.assert_array_almost_equal(npp_out, grid_eval_vals)
 
+
 def test_1d_eval():
-    '''
+    """
     Test Poly2D.eval() with 1-D array input
-    '''
+    """
 
     common = common_params()
 
@@ -117,10 +121,11 @@ def test_1d_eval():
     # Check values of mesh eval againt point eval to ensure pybind ordering correct
     npt.assert_array_almost_equal(out, ref)
 
+
 def test_2d_eval():
-    '''
+    """
     Test poly2D with mesh input
-    '''
+    """
 
     common = common_params()
 
@@ -137,9 +142,10 @@ def test_2d_eval():
     # Check values of mesh eval againt point eval to ensure pybind ordering correct
     npt.assert_array_almost_equal(npp_out, mesh_eval_vals)
 
+
 def test_coeffs():
-    '''
+    """
     Ensure coeffs match
-    '''
+    """
     common = common_params()
     npt.assert_array_equal(common.poly2d.coeffs, common.coeffs)

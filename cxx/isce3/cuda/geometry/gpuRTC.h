@@ -5,5 +5,5 @@
 
 namespace isce3 { namespace cuda { namespace geometry {
 void computeRtc(isce3::product::Product& product, isce3::io::Raster& dem,
-                isce3::io::Raster& out_raster, char frequency = 'A');
-}}}
+        isce3::io::Raster& out_raster, char frequency = 'A');
+}}} // namespace isce3::cuda::geometry

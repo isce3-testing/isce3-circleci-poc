@@ -3,26 +3,23 @@
 #include <iostream>
 
 #include <isce3/core/DenseMatrix.h>
-#include <isce3/core/Matrix.h>
-#include <isce3/core/Projections.h>
 #include <isce3/core/LUT2d.h>
+#include <isce3/core/Matrix.h>
 #include <isce3/core/Orbit.h>
-#include <isce3/io/Raster.h>
+#include <isce3/core/Projections.h>
 #include <isce3/error/ErrorCode.h>
-#include <isce3/geometry/geometry.h>
 #include <isce3/geometry/DEMInterpolator.h>
+#include <isce3/geometry/geometry.h>
+#include <isce3/geometry/metadataCubes.h>
+#include <isce3/io/Raster.h>
 #include <isce3/product/GeoGridParameters.h>
 #include <isce3/product/RadarGridParameters.h>
-#include <isce3/geometry/metadataCubes.h>
 
-namespace isce3 {
-namespace geometry {
-
+namespace isce3 { namespace geometry {
 
 template<class T>
-static isce3::core::Matrix<T>
-getNanArray(isce3::io::Raster* raster,
-            const isce3::product::GeoGridParameters& geogrid)
+static isce3::core::Matrix<T> getNanArray(isce3::io::Raster* raster,
+        const isce3::product::GeoGridParameters& geogrid)
 {
     isce3::core::Matrix<T> data_array;
     if (raster != nullptr) {
@@ -33,14 +30,13 @@ getNanArray(isce3::io::Raster* raster,
 }
 
 template<class T>
-static isce3::core::Matrix<T>
-getNanArrayRadarGrid(isce3::io::Raster* raster,
-              const isce3::product::RadarGridParameters& radar_grid)
+static isce3::core::Matrix<T> getNanArrayRadarGrid(isce3::io::Raster* raster,
+        const isce3::product::RadarGridParameters& radar_grid)
 {
     isce3::core::Matrix<T> data_array;
-        if (raster != nullptr) {            
-            data_array.resize(radar_grid.length(), radar_grid.width());
-        }
+    if (raster != nullptr) {
+        data_array.resize(radar_grid.length(), radar_grid.width());
+    }
     data_array.fill(std::numeric_limits<T>::quiet_NaN());
     return data_array;
 }
@@ -55,7 +51,7 @@ static void writeArray(isce3::io::Raster* raster,
 #pragma omp critical
     {
         raster->setBlock(data_array.data(), 0, 0, data_array.width(),
-                         data_array.length(), height_count + 1);
+                data_array.length(), height_count + 1);
     }
 }
 
@@ -89,9 +85,8 @@ inline void writeVectorDerivedCubes(const int array_pos_i,
     and velocity vectors in ECEF.
     */
     isce3::core::cartesian_t sat_xyz, vel_xyz;
-    isce3::error::ErrorCode status =
-            orbit.interpolate(&sat_xyz, &vel_xyz, native_azimuth_time,
-                              isce3::core::OrbitInterpBorderMode::FillNaN);
+    isce3::error::ErrorCode status = orbit.interpolate(&sat_xyz, &vel_xyz,
+            native_azimuth_time, isce3::core::OrbitInterpBorderMode::FillNaN);
 
     // If interpolation fails, skip
     if (status != isce3::error::ErrorCode::Success) {
@@ -104,7 +99,7 @@ inline void writeVectorDerivedCubes(const int array_pos_i,
     // Ground-track velocity
     if (ground_track_velocity_raster != nullptr) {
         const double ground_velocity =
-            target_xyz.norm() * vel_xyz.norm() / sat_xyz.norm();
+                target_xyz.norm() * vel_xyz.norm() / sat_xyz.norm();
         ground_track_velocity_array(i, j) = ground_velocity;
     }
 
@@ -125,7 +120,6 @@ inline void writeVectorDerivedCubes(const int array_pos_i,
                 xyz2enu_sat.dot(look_vector_xyz).normalized();
         const double cos_elevation = look_vector_enu_sat[2];
         elevation_angle_array(i, j) = std::acos(cos_elevation) * 180.0 / M_PI;
-
     }
 
     // Get target-to-sat vector in ENU around the target
@@ -155,7 +149,7 @@ inline void writeVectorDerivedCubes(const int array_pos_i,
 
         // If along_track_unit_vector is not needed, skip
         if (along_track_unit_vector_x_raster == nullptr &&
-            along_track_unit_vector_y_raster == nullptr) {
+                along_track_unit_vector_y_raster == nullptr) {
             return;
         }
 
@@ -176,10 +170,10 @@ inline void writeVectorDerivedCubes(const int array_pos_i,
     } else {
 
         // Compute target-to-sat vector (proj) around the target
-        const isce3::core::Vec3 target_to_sat_next_xyz = 
-            target_xyz + look_vector_xyz;
-        const isce3::core::Vec3 target_to_sat_next_llh = 
-            ellipsoid.xyzToLonLat(target_to_sat_next_xyz);
+        const isce3::core::Vec3 target_to_sat_next_xyz =
+                target_xyz + look_vector_xyz;
+        const isce3::core::Vec3 target_to_sat_next_llh =
+                ellipsoid.xyzToLonLat(target_to_sat_next_xyz);
         isce3::core::Vec3 target_to_sat_next_proj =
                 proj_los_and_along_track_vectors->forward(
                         target_to_sat_next_llh);
@@ -198,20 +192,20 @@ inline void writeVectorDerivedCubes(const int array_pos_i,
 
         // If along_track_unit_vector is not needed, skip
         if (along_track_unit_vector_x_raster == nullptr &&
-            along_track_unit_vector_y_raster == nullptr) {
+                along_track_unit_vector_y_raster == nullptr) {
             return;
         }
 
-        double delta_t = 1e-6;  // 1us
+        double delta_t = 1e-6; // 1us
         /*
         Use finite differences to compute the along-track unit vector.
 
-        The along-track unit vector is derived from the 
-        normalized difference between the projected (e.g. UTM) 
+        The along-track unit vector is derived from the
+        normalized difference between the projected (e.g. UTM)
         next and current/previous position vectors.
 
         The original calculation,
-        
+
             const isce3::core::Vec3 sat_next_xyz =
                     sat_xyz + vel_xyz.normalized() * delta_t;
 
@@ -219,7 +213,7 @@ inline void writeVectorDerivedCubes(const int array_pos_i,
         the orbit interpolation to determine
         the "next" and "previous" position vectors.
         */
-                
+
         isce3::core::cartesian_t sat_next_xyz, sat_xyz_previous;
         status = orbit.interpolate(&sat_next_xyz, &vel_xyz,
                 native_azimuth_time + delta_t / 2,
@@ -230,8 +224,8 @@ inline void writeVectorDerivedCubes(const int array_pos_i,
             return;
         }
 
-        status = orbit.interpolate(&sat_xyz_previous,
-                &vel_xyz, native_azimuth_time - delta_t / 2,
+        status = orbit.interpolate(&sat_xyz_previous, &vel_xyz,
+                native_azimuth_time - delta_t / 2,
                 isce3::core::OrbitInterpBorderMode::FillNaN);
 
         // If interpolation fails, skip
@@ -343,11 +337,10 @@ void makeRadarGridCubes(const isce3::product::RadarGridParameters& radar_grid,
                 const isce3::core::Vec3 target_llh = proj->inverse(target_proj);
 
                 // Get grid Doppler azimuth and slant-range position
-                int converged = isce3::geometry::geo2rdr(
-                        target_llh, ellipsoid, orbit, grid_doppler,
-                        azimuth_time, slant_range, radar_grid.wavelength(),
-                        radar_grid.lookSide(), threshold_geo2rdr,
-                        numiter_geo2rdr, delta_range);
+                int converged = isce3::geometry::geo2rdr(target_llh, ellipsoid,
+                        orbit, grid_doppler, azimuth_time, slant_range,
+                        radar_grid.wavelength(), radar_grid.lookSide(),
+                        threshold_geo2rdr, numiter_geo2rdr, delta_range);
 
                 // Check convergence
                 if (!converged) {
@@ -368,12 +361,12 @@ void makeRadarGridCubes(const isce3::product::RadarGridParameters& radar_grid,
 
                 // If nothing else to save, skip
                 if (incidence_angle_raster == nullptr &&
-                    los_unit_vector_x_raster == nullptr &&
-                    los_unit_vector_y_raster == nullptr &&
-                    along_track_unit_vector_x_raster == nullptr &&
-                    along_track_unit_vector_y_raster == nullptr &&
-                    elevation_angle_raster == nullptr &&
-                    ground_track_velocity_raster == nullptr) {
+                        los_unit_vector_x_raster == nullptr &&
+                        los_unit_vector_y_raster == nullptr &&
+                        along_track_unit_vector_x_raster == nullptr &&
+                        along_track_unit_vector_y_raster == nullptr &&
+                        elevation_angle_raster == nullptr &&
+                        ground_track_velocity_raster == nullptr) {
                     continue;
                 }
 
@@ -381,11 +374,11 @@ void makeRadarGridCubes(const isce3::product::RadarGridParameters& radar_grid,
                 To retrieve platform position (considering
                 native Doppler), estimate native_azimuth_time
                 */
-                converged = isce3::geometry::geo2rdr(
-                        target_llh, ellipsoid, orbit, native_doppler,
-                        native_azimuth_time, native_slant_range,
-                        radar_grid.wavelength(), radar_grid.lookSide(),
-                        threshold_geo2rdr, numiter_geo2rdr, delta_range);
+                converged = isce3::geometry::geo2rdr(target_llh, ellipsoid,
+                        orbit, native_doppler, native_azimuth_time,
+                        native_slant_range, radar_grid.wavelength(),
+                        radar_grid.lookSide(), threshold_geo2rdr,
+                        numiter_geo2rdr, delta_range);
 
                 // Check convergence
                 if (!converged) {
@@ -403,10 +396,8 @@ void makeRadarGridCubes(const isce3::product::RadarGridParameters& radar_grid,
                         along_track_unit_vector_x_raster,
                         along_track_unit_vector_x_array,
                         along_track_unit_vector_y_raster,
-                        along_track_unit_vector_y_array, 
-                        elevation_angle_raster,
-                        elevation_angle_array,
-                        ground_track_velocity_raster,
+                        along_track_unit_vector_y_array, elevation_angle_raster,
+                        elevation_angle_array, ground_track_velocity_raster,
                         ground_track_velocity_array);
             }
         }
@@ -415,21 +406,20 @@ void makeRadarGridCubes(const isce3::product::RadarGridParameters& radar_grid,
         writeArray(azimuth_time_raster, azimuth_time_array, height_count);
         writeArray(incidence_angle_raster, incidence_angle_array, height_count);
         writeArray(los_unit_vector_x_raster, los_unit_vector_x_array,
-                   height_count);
+                height_count);
         writeArray(los_unit_vector_y_raster, los_unit_vector_y_array,
-                   height_count);
+                height_count);
         writeArray(along_track_unit_vector_x_raster,
-                   along_track_unit_vector_x_array, height_count);
+                along_track_unit_vector_x_array, height_count);
         writeArray(along_track_unit_vector_y_raster,
-                   along_track_unit_vector_y_array, height_count);
+                along_track_unit_vector_y_array, height_count);
         writeArray(elevation_angle_raster, elevation_angle_array, height_count);
         writeArray(ground_track_velocity_raster, ground_track_velocity_array,
-                   height_count);
+                height_count);
     }
 
-    double geotransform[] = {
-            geogrid.startX(),  geogrid.spacingX(), 0, geogrid.startY(), 0,
-            geogrid.spacingY()};
+    double geotransform[] = {geogrid.startX(), geogrid.spacingX(), 0,
+            geogrid.startY(), 0, geogrid.spacingY()};
 
     if (slant_range_raster != nullptr) {
         slant_range_raster->setGeoTransform(geotransform);
@@ -495,7 +485,7 @@ void makeGeolocationGridCubes(
     info << "cube width: " << radar_grid.width() << pyre::journal::endl;
     info << "EPSG: " << epsg << pyre::journal::endl;
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int height_count = 0; height_count < heights.size(); ++height_count) {
 
         auto proj = isce3::core::makeProjection(epsg);
@@ -508,24 +498,24 @@ void makeGeolocationGridCubes(
                         : isce3::core::makeProjection(
                                   epsg_los_and_along_track_vectors);
 
-        auto coordinate_x_array = 
+        auto coordinate_x_array =
                 getNanArrayRadarGrid<double>(coordinate_x_raster, radar_grid);
         auto coordinate_y_array =
                 getNanArrayRadarGrid<double>(coordinate_y_raster, radar_grid);
         auto incidence_angle_array =
                 getNanArrayRadarGrid<float>(incidence_angle_raster, radar_grid);
-        auto los_unit_vector_x_array =
-                getNanArrayRadarGrid<float>(los_unit_vector_x_raster, radar_grid);
-        auto los_unit_vector_y_array =
-                getNanArrayRadarGrid<float>(los_unit_vector_y_raster, radar_grid);
-        auto along_track_unit_vector_x_array =
-                getNanArrayRadarGrid<float>(along_track_unit_vector_x_raster, radar_grid);
-        auto along_track_unit_vector_y_array =
-                getNanArrayRadarGrid<float>(along_track_unit_vector_y_raster, radar_grid);
+        auto los_unit_vector_x_array = getNanArrayRadarGrid<float>(
+                los_unit_vector_x_raster, radar_grid);
+        auto los_unit_vector_y_array = getNanArrayRadarGrid<float>(
+                los_unit_vector_y_raster, radar_grid);
+        auto along_track_unit_vector_x_array = getNanArrayRadarGrid<float>(
+                along_track_unit_vector_x_raster, radar_grid);
+        auto along_track_unit_vector_y_array = getNanArrayRadarGrid<float>(
+                along_track_unit_vector_y_raster, radar_grid);
         auto elevation_angle_array =
                 getNanArrayRadarGrid<float>(elevation_angle_raster, radar_grid);
-        auto ground_track_velocity_array =
-                getNanArrayRadarGrid<double>(ground_track_velocity_raster, radar_grid);
+        auto ground_track_velocity_array = getNanArrayRadarGrid<double>(
+                ground_track_velocity_raster, radar_grid);
 
         auto height = heights[height_count];
         double native_azimuth_time = radar_grid.sensingMid();
@@ -547,12 +537,10 @@ void makeGeolocationGridCubes(
                 double fd = grid_doppler.eval(az_time, slant_range);
                 target_llh[2] = height;
 
-                auto converged =
-                        rdr2geo(az_time, slant_range, fd, orbit, ellipsoid,
-                                dem_interpolator, target_llh,
-                                radar_grid.wavelength(),
-                                radar_grid.lookSide(), threshold_geo2rdr,
-                                numiter_geo2rdr, delta_range);
+                auto converged = rdr2geo(az_time, slant_range, fd, orbit,
+                        ellipsoid, dem_interpolator, target_llh,
+                        radar_grid.wavelength(), radar_grid.lookSide(),
+                        threshold_geo2rdr, numiter_geo2rdr, delta_range);
 
                 // Check convergence
                 if (!converged) {
@@ -571,21 +559,21 @@ void makeGeolocationGridCubes(
 
                 // If nothing else to save, skip
                 if (incidence_angle_raster == nullptr &&
-                    los_unit_vector_x_raster == nullptr &&
-                    los_unit_vector_y_raster == nullptr &&
-                    along_track_unit_vector_x_raster == nullptr &&
-                    along_track_unit_vector_y_raster == nullptr &&
-                    elevation_angle_raster == nullptr &&
-                    ground_track_velocity_raster == nullptr) {
+                        los_unit_vector_x_raster == nullptr &&
+                        los_unit_vector_y_raster == nullptr &&
+                        along_track_unit_vector_x_raster == nullptr &&
+                        along_track_unit_vector_y_raster == nullptr &&
+                        elevation_angle_raster == nullptr &&
+                        ground_track_velocity_raster == nullptr) {
                     continue;
                 }
 
                 /*
                 To retrieve platform position (considering
-                native Doppler), estimate native_azimuth_time 
+                native Doppler), estimate native_azimuth_time
                 */
-                converged = geo2rdr(target_llh, ellipsoid, orbit, native_doppler,
-                        native_azimuth_time, native_slant_range,
+                converged = geo2rdr(target_llh, ellipsoid, orbit,
+                        native_doppler, native_azimuth_time, native_slant_range,
                         radar_grid.wavelength(), radar_grid.lookSide(),
                         threshold_geo2rdr, numiter_geo2rdr, delta_range);
 
@@ -605,10 +593,8 @@ void makeGeolocationGridCubes(
                         along_track_unit_vector_x_raster,
                         along_track_unit_vector_x_array,
                         along_track_unit_vector_y_raster,
-                        along_track_unit_vector_y_array, 
-                        elevation_angle_raster,
-                        elevation_angle_array,
-                        ground_track_velocity_raster,
+                        along_track_unit_vector_y_array, elevation_angle_raster,
+                        elevation_angle_array, ground_track_velocity_raster,
                         ground_track_velocity_array);
             }
         }
@@ -616,17 +602,16 @@ void makeGeolocationGridCubes(
         writeArray(coordinate_y_raster, coordinate_y_array, height_count);
         writeArray(incidence_angle_raster, incidence_angle_array, height_count);
         writeArray(los_unit_vector_x_raster, los_unit_vector_x_array,
-                   height_count);
+                height_count);
         writeArray(los_unit_vector_y_raster, los_unit_vector_y_array,
-                   height_count);
+                height_count);
         writeArray(along_track_unit_vector_x_raster,
-                   along_track_unit_vector_x_array, height_count);
+                along_track_unit_vector_x_array, height_count);
         writeArray(along_track_unit_vector_y_raster,
-                   along_track_unit_vector_y_array, height_count);
+                along_track_unit_vector_y_array, height_count);
         writeArray(elevation_angle_raster, elevation_angle_array, height_count);
-        writeArray(ground_track_velocity_raster, ground_track_velocity_array, 
-                   height_count);
+        writeArray(ground_track_velocity_raster, ground_track_velocity_array,
+                height_count);
     }
 }
-}
-}
+}} // namespace isce3::geometry

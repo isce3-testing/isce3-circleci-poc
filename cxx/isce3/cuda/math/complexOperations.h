@@ -6,7 +6,10 @@
 #include <isce3/math/complexOperations.h>
 
 /** Promotion rules so T * complex<U> works for {T,U} in {float,double}. */
-namespace isce3 { namespace cuda { namespace math { namespace complex_operations {
+namespace isce3 {
+    namespace cuda {
+        namespace math {
+            namespace complex_operations {
 
 template<typename T1, typename T2>
 CUDA_HOSTDEV inline auto operator*(T1 t, thrust::complex<T2> u)

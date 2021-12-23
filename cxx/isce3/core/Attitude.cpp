@@ -22,8 +22,7 @@ static bool isStrictlyIncreasing(const std::vector<double>& time)
 namespace isce3 { namespace core {
 
 Attitude::Attitude(const std::vector<double>& time,
-                   const std::vector<Quaternion>& quaternions,
-                   const DateTime& epoch)
+        const std::vector<Quaternion>& quaternions, const DateTime& epoch)
     : _reference_epoch(epoch), _time(time), _quaternions(quaternions)
 {
     pyre::journal::error_t errorChannel("isce.core.Attitude");

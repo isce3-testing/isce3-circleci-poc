@@ -21,10 +21,8 @@ using isce3::core::Vec3;
  * vector and the downward normal at the imaging platform .
  */
 void isce3::core::Ellipsoid::getImagingAnglesAtPlatform(const cartesian_t& pos,
-                                                        const cartesian_t& vel,
-                                                        const cartesian_t& los,
-                                                        double& azi,
-                                                        double& look) const
+        const cartesian_t& vel, const cartesian_t& los, double& azi,
+        double& look) const
 {
     /*
      * Computes the look vector given the look angle, azimuth angle, and

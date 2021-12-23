@@ -10,13 +10,13 @@
 #include "forward.h"
 
 #include <iosfwd>
+
 #include "DateTime.h"
 #include "LookSide.h"
 
 /** Data structure for storing basic radar geometry image metadata */
 class isce3::core::Metadata {
 public:
-
     // Acquisition related parameters
     double radarWavelength;
     double prf;
@@ -36,8 +36,7 @@ public:
     // Geometry parameters
     int width;
     int length;
-
 };
 
 // Define std::cout interaction for debugging
-std::ostream& operator<<(std::ostream &os, const isce3::core::Metadata &radar);
+std::ostream& operator<<(std::ostream& os, const isce3::core::Metadata& radar);

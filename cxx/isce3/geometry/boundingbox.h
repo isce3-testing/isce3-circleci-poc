@@ -8,16 +8,15 @@
 
 #include <isce3/core/LUT2d.h>
 
-//isce3::product
+// isce3::product
 #include <isce3/product/RadarGridParameters.h>
 
-//isce3::geometry
-#include "Shapes.h"
+// isce3::geometry
 #include "DEMInterpolator.h"
+#include "Shapes.h"
 
-//Declaration
-namespace isce3{
-    namespace geometry{
+// Declaration
+namespace isce3 { namespace geometry {
 
 /** Compute the perimeter of a radar grid in map coordinates.
  *
@@ -107,6 +106,5 @@ BoundingBox getGeoBoundingBoxHeightSearch(
         const double margin = 0.0, const int pointsPerEdge = 11,
         const double threshold = 1.0e-8, const int numiter = 15,
         const double height_threshold = 100);
-}
-}
-//end of file
+}} // namespace isce3::geometry
+// end of file

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <isce3/error/ErrorCode.h>
 #include <vector>
+
+#include <isce3/error/ErrorCode.h>
 
 #include "DateTime.h"
 #include "Linspace.h"
@@ -24,9 +25,9 @@ enum class OrbitInterpMethod {
 
 /** Mode determining how interpolation outside of orbit domain is handled */
 enum class OrbitInterpBorderMode {
-    Error,       /**< Raise error if interpolation attempted outside orbit domain */
+    Error, /**< Raise error if interpolation attempted outside orbit domain */
     Extrapolate, /**< Allow extrapolation to points outside orbit domain */
-    FillNaN,     /**< Output NaN for interpolation points outside orbit domain */
+    FillNaN, /**< Output NaN for interpolation points outside orbit domain */
 };
 
 /**
@@ -42,7 +43,6 @@ enum class OrbitInterpBorderMode {
  */
 class Orbit {
 public:
-
     Orbit() = default;
 
     /**
@@ -53,8 +53,8 @@ public:
      * \param[in] statevecs State vectors
      * \param[in] interp_method Interpolation method
      */
-    Orbit(const std::vector<StateVector> & statevecs,
-          OrbitInterpMethod interp_method = OrbitInterpMethod::Hermite);
+    Orbit(const std::vector<StateVector>& statevecs,
+            OrbitInterpMethod interp_method = OrbitInterpMethod::Hermite);
 
     /**
      * Construct from list of state vectors and reference epoch
@@ -63,45 +63,60 @@ public:
      * \param[in] reference_epoch Reference epoch
      * \param[in] interp_method Interpolation method
      */
-    Orbit(const std::vector<StateVector> & statevecs,
-          const DateTime & reference_epoch,
-          OrbitInterpMethod interp_method = OrbitInterpMethod::Hermite);
+    Orbit(const std::vector<StateVector>& statevecs,
+            const DateTime& reference_epoch,
+            OrbitInterpMethod interp_method = OrbitInterpMethod::Hermite);
 
     /** Export list of state vectors */
     std::vector<StateVector> getStateVectors() const;
 
     /** Set orbit state vectors */
-    void setStateVectors(const std::vector<StateVector> &);
+    void setStateVectors(const std::vector<StateVector>&);
 
     /** Reference epoch (UTC) */
-    const DateTime & referenceEpoch() const { return _reference_epoch; }
+    const DateTime& referenceEpoch() const { return _reference_epoch; }
 
     /** Set reference epoch (UTC) */
-    void referenceEpoch(const DateTime &);
+    void referenceEpoch(const DateTime&);
 
     /** Interpolation method */
     OrbitInterpMethod interpMethod() const { return _interp_method; }
 
     /** Set interpolation method */
-    void interpMethod(OrbitInterpMethod interp_method) { _interp_method = interp_method; }
+    void interpMethod(OrbitInterpMethod interp_method)
+    {
+        _interp_method = interp_method;
+    }
 
     /** Time of first state vector relative to reference epoch (s) */
     double startTime() const { return _time[0]; }
 
     /** Time of center of orbit relative to reference epoch (s) */
-    double midTime() const { return startTime() + 0.5 * (size() - 1) * spacing(); }
+    double midTime() const
+    {
+        return startTime() + 0.5 * (size() - 1) * spacing();
+    }
 
     /** Time of last state vector relative to reference epoch (s) */
-    double endTime() const { return _time[size()-1]; }
+    double endTime() const { return _time[size() - 1]; }
 
     /** UTC time of first state vector */
-    DateTime startDateTime() const { return _reference_epoch + TimeDelta(startTime()); }
+    DateTime startDateTime() const
+    {
+        return _reference_epoch + TimeDelta(startTime());
+    }
 
     /** UTC time of center of orbit */
-    DateTime midDateTime() const { return _reference_epoch + TimeDelta(midTime()); }
+    DateTime midDateTime() const
+    {
+        return _reference_epoch + TimeDelta(midTime());
+    }
 
     /** UTC time of last state vector */
-    DateTime endDateTime() const { return _reference_epoch + TimeDelta(endTime()); }
+    DateTime endDateTime() const
+    {
+        return _reference_epoch + TimeDelta(endTime());
+    }
 
     /** Time interval between state vectors (s) */
     double spacing() const { return _time.spacing(); }
@@ -110,22 +125,22 @@ public:
     int size() const { return _time.size(); }
 
     /** Get state vector times relative to reference epoch (s) */
-    const Linspace<double> & time() const { return _time; }
+    const Linspace<double>& time() const { return _time; }
 
     /** Get state vector positions in ECEF coordinates (m) */
-    const std::vector<Vec3> & position() const { return _position; }
+    const std::vector<Vec3>& position() const { return _position; }
 
     /** Get state vector velocities in ECEF coordinates (m/s) */
-    const std::vector<Vec3> & velocity() const { return _velocity; }
+    const std::vector<Vec3>& velocity() const { return _velocity; }
 
     /** Get the specified state vector time relative to reference epoch (s) */
     double time(int idx) const { return _time[idx]; }
 
     /** Get the specified state vector position in ECEF coordinates (m) */
-    const Vec3 & position(int idx) const { return _position[idx]; }
+    const Vec3& position(int idx) const { return _position[idx]; }
 
     /** Get the specified state vector velocity in ECEF coordinates (m/s) */
-    const Vec3 & velocity(int idx) const { return _velocity[idx]; }
+    const Vec3& velocity(int idx) const { return _velocity[idx]; }
 
     /**
      * Interpolate platform position and/or velocity
@@ -141,10 +156,10 @@ public:
      * domain
      * \return Error code indicating exit status
      */
-    isce3::error::ErrorCode
-    interpolate(Vec3* position, Vec3* velocity, double t,
-                   OrbitInterpBorderMode border_mode =
-                           OrbitInterpBorderMode::Error) const;
+    isce3::error::ErrorCode interpolate(Vec3* position, Vec3* velocity,
+            double t,
+            OrbitInterpBorderMode border_mode =
+                    OrbitInterpBorderMode::Error) const;
 
 private:
     DateTime _reference_epoch;
@@ -154,22 +169,21 @@ private:
     OrbitInterpMethod _interp_method = OrbitInterpMethod::Hermite;
 };
 
-bool operator==(const Orbit &, const Orbit &);
-bool operator!=(const Orbit &, const Orbit &);
+bool operator==(const Orbit&, const Orbit&);
+bool operator!=(const Orbit&, const Orbit&);
 
 /**
  * Get minimum number of orbit state vectors required for interpolation with
  * specified method
  */
-constexpr
-int minStateVecs(OrbitInterpMethod method)
+constexpr int minStateVecs(OrbitInterpMethod method)
 {
     switch (method) {
-        case OrbitInterpMethod::Hermite  : return 4;
-        case OrbitInterpMethod::Legendre : return 9;
+    case OrbitInterpMethod::Hermite: return 4;
+    case OrbitInterpMethod::Legendre: return 9;
     }
 
     return -1;
 }
 
-}}
+}} // namespace isce3::core

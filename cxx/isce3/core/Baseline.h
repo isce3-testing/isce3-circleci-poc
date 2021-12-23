@@ -19,7 +19,6 @@ namespace isce3 { namespace core {
 /** Data structure for computing interferometric baselines */
 class Baseline {
 public:
-
     /** Get horizontal baseline */
     double horizontalBaseline() const { return _bh; }
 
@@ -27,13 +26,16 @@ public:
     double verticalBaseline() const { return _bv; }
 
     /** Get perpendicular baseline */
-    double perpendicularBaseline() const { return (-1. * _bh * _coslook) + (_bv * _sinlook); }
+    double perpendicularBaseline() const
+    {
+        return (-1. * _bh * _coslook) + (_bv * _sinlook);
+    }
 
     /** Get sin of look angle */
-    double sinLook() const { return _sinlook;}
+    double sinLook() const { return _sinlook; }
 
     /** Get cos of look angle */
-    double cosLook() const { return _coslook;}
+    double cosLook() const { return _coslook; }
 
     /** Reference ECEF position for baseline */
     Vec3 refXyz() const { return _refxyz; }
@@ -69,16 +71,16 @@ public:
     void init();
 
     /**
-     * For a given time, calculate an orthogonal basis for cross-track and velocity directions for
-     * orbit1.
+     * For a given time, calculate an orthogonal basis for cross-track and
+     * velocity directions for orbit1.
      */
     void initBasis(double);
 
     /**
-     * Given a position vector, calculate offset between reference position and that vector,
-     * projected in the reference basis.
+     * Given a position vector, calculate offset between reference position and
+     * that vector, projected in the reference basis.
      */
-    Vec3 calculateBasisOffset(const Vec3 &) const;
+    Vec3 calculateBasisOffset(const Vec3&) const;
 
     /** Compute horizontal and vertical baselines. */
     void computeBaselines();
@@ -103,4 +105,4 @@ private:
     double _velocityMagnitude;
 };
 
-}}
+}} // namespace isce3::core

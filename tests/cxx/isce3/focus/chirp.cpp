@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+
 #include <gtest/gtest.h>
 
 #include <isce3/focus/Chirp.h>
@@ -24,7 +25,7 @@ TEST(FormLinearChirpTest, FormLinearChirp)
             chirprate, duration, samplerate, centerfreq, amplitude, phi);
 
     // check number of samples
-    EXPECT_EQ( chirp.size(), samples );
+    EXPECT_EQ(chirp.size(), samples);
 
     // check amplitudes
     {
@@ -38,7 +39,7 @@ TEST(FormLinearChirpTest, FormLinearChirp)
 
     // check phase at center sample
     std::complex<float> z = chirp[chirp.size() / 2];
-    EXPECT_FLOAT_EQ( std::arg(z), phi );
+    EXPECT_FLOAT_EQ(std::arg(z), phi);
 
     // check phase difference between each adjacent pair of samples
     {
@@ -59,7 +60,7 @@ TEST(FormLinearChirpTest, FormLinearChirp)
     }
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

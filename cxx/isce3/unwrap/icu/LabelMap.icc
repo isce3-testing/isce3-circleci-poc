@@ -11,7 +11,7 @@ namespace isce3::unwrap::icu
 inline
 LabelMap::LabelMap()
 {
-    // Init with a single unused element so the first label used is 1 (0 is not 
+    // Init with a single unused element so the first label used is 1 (0 is not
     // a valid label).
     _labels.resize(1);
 }
@@ -43,4 +43,3 @@ void LabelMap::setlabel(const uint8_t oldlabel, const uint8_t newlabel)
 inline size_t LabelMap::size() const { return _labels.size(); }
 
 }
-

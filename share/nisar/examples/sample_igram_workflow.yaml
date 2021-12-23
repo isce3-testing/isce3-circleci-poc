@@ -8,7 +8,7 @@ frequency: A
 polarization: HH
 # path to SLC in HDF5. used by profiler
 slcpath: 'science/LSAR/SLC/swaths/frequencyA/HH'
-# path to DEM 
+# path to DEM
 dem: /home/lyu/projects/test_workflow/test.dem
 # multilook in azimuth
 #alks: 12 #1

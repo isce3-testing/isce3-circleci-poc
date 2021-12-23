@@ -1,22 +1,25 @@
 import logging
-from nisar.types import complex32
+
 import numpy as np
+from nisar.types import complex32
 
 # TODO some CSV logger
 log = logging.getLogger("Raw")
+
 
 class DataDecoder(object):
     """Handle the various data types floating around for raw data, currently
     complex32, complex64, and lookup table.  Indexing operatations always return
     data converted to complex64.
     """
+
     def __getitem__(self, key):
         return self.decoder(key)
 
     def _decode_lut(self, key):
         z = self.dataset[key]
         assert self.table is not None
-        return self.table[z['r']] + 1j * self.table[z['i']]
+        return self.table[z["r"]] + 1j * self.table[z["i"]]
 
     def _decode_complex32(self, key):
         with self.dataset.astype(np.complex64):

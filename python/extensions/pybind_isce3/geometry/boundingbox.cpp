@@ -22,12 +22,11 @@ void addbinding_boundingbox(py::module& m)
     m.def(
             "get_geo_perimeter_wkt",
             [](const RadarGridParameters& grid, const Orbit& orbit,
-               const LUT2d<double>& doppler, const DEMInterpolator& dem,
-               int pointsPerEdge, double threshold, int numiter) {
+                    const LUT2d<double>& doppler, const DEMInterpolator& dem,
+                    int pointsPerEdge, double threshold, int numiter) {
                 auto proj = LonLat();
-                auto perimeter =
-                        getGeoPerimeter(grid, orbit, &proj, doppler, dem,
-                                        pointsPerEdge, threshold, numiter);
+                auto perimeter = getGeoPerimeter(grid, orbit, &proj, doppler,
+                        dem, pointsPerEdge, threshold, numiter);
                 // convert ring to polygon
                 auto poly = OGRPolygon();
                 poly.addRing(&perimeter);

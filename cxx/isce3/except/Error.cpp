@@ -3,24 +3,26 @@
 using namespace isce3::except;
 
 // generic error message
-std::string errmsg(const SrcInfo& info) {
-    return "Error in file " + std::string(info.file) +
-           ", line " + std::to_string(info.line) +
-           ", function " + info.func;
+std::string errmsg(const SrcInfo& info)
+{
+    return "Error in file " + std::string(info.file) + ", line " +
+           std::to_string(info.line) + ", function " + info.func;
 }
 
 // message with generic prefix
-std::string errmsg(const SrcInfo& info, std::string msg) {
+std::string errmsg(const SrcInfo& info, std::string msg)
+{
     return errmsg(info) + ": " + msg;
 }
 
 template<typename T>
-Error<T>::Error(const SrcInfo& info) :
-    T(errmsg(info)), info(info) {}
+Error<T>::Error(const SrcInfo& info) : T(errmsg(info)), info(info)
+{}
 
 template<typename T>
-Error<T>::Error(const SrcInfo& info, std::string msg) :
-    T(errmsg(info, msg)), info(info) {}
+Error<T>::Error(const SrcInfo& info, std::string msg)
+    : T(errmsg(info, msg)), info(info)
+{}
 
 template class isce3::except::Error<std::domain_error>;
 template class isce3::except::Error<std::invalid_argument>;

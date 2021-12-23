@@ -1,7 +1,8 @@
 #include <algorithm>
 #include <cmath>
-#include <gtest/gtest.h>
 #include <stdexcept>
+
+#include <gtest/gtest.h>
 
 #include <isce3/focus/Chirp.h>
 #include <isce3/focus/RangeComp.h>
@@ -33,7 +34,8 @@ TEST(RangeCompTest, Constructor)
     double chirprate = 1e12;
     double duration = 20e-6;
     double samplerate = 24e6;
-    std::vector<std::complex<float>> chirp = formLinearChirp(chirprate, duration, samplerate);
+    std::vector<std::complex<float>> chirp =
+            formLinearChirp(chirprate, duration, samplerate);
 
     int inputsize = 1000;
     int maxbatch = 8;
@@ -85,17 +87,18 @@ TEST(RangeCompTest, Constructor)
 
 TEST(RangeCompTest, RangeCompress)
 {
-    // This test performs range compression on a signal which is an exact replica
-    // of the template chirp and compares the output to the analytical result.
-    // There's some discrepancy between the results for discrete and continuous
-    // signals, which, for purposes of testing, are minimized by highly oversampling
-    // the chirp and comparing the results only around the first few central lobes,
-    // where the error is smallest.
+    // This test performs range compression on a signal which is an exact
+    // replica of the template chirp and compares the output to the analytical
+    // result. There's some discrepancy between the results for discrete and
+    // continuous signals, which, for purposes of testing, are minimized by
+    // highly oversampling the chirp and comparing the results only around the
+    // first few central lobes, where the error is smallest.
 
     double chirprate = 100.;
     double duration = 2.;
     double samplerate = 2400.;
-    std::vector<std::complex<float>> chirp = formLinearChirp(chirprate, duration, samplerate);
+    std::vector<std::complex<float>> chirp =
+            formLinearChirp(chirprate, duration, samplerate);
 
     // signal is an exact replica of chirp waveform
     RangeComp rcproc(chirp, static_cast<int>(chirp.size()));
@@ -105,7 +108,9 @@ TEST(RangeCompTest, RangeCompress)
     // in order to be consistent with the result for a continuous signal, we
     // need to multiply by the sample spacing
     double spacing = 1. / samplerate;
-    for (auto & z : output) { z *= spacing; }
+    for (auto& z : output) {
+        z *= spacing;
+    }
 
     // compute the analytical result
     // Ref: Cumming, Wong, ‘Digital Processing of Synthetic Aperture Radar
@@ -115,14 +120,17 @@ TEST(RangeCompTest, RangeCompress)
     double t0 = 0.5 * (expected.size() - 1) / samplerate;
     for (std::size_t i = 0; i < expected.size(); ++i) {
         double t = i / samplerate - t0;
-        expected[i] = (T - std::abs(t)) * sinc(chirprate * t * (T - std::abs(t)));
+        expected[i] =
+                (T - std::abs(t)) * sinc(chirprate * t * (T - std::abs(t)));
     }
 
     // take a centered slice of the results and compare their values
     int n = rcproc.outputSize();
     int k = 200;
-    std::vector<std::complex<float>> output_slice(&output[n/2 - k], &output[n/2 + k+1]);
-    std::vector<std::complex<float>> expected_slice(&expected[n/2 - k], &expected[n/2 + k+1]);
+    std::vector<std::complex<float>> output_slice(
+            &output[n / 2 - k], &output[n / 2 + k + 1]);
+    std::vector<std::complex<float>> expected_slice(
+            &expected[n / 2 - k], &expected[n / 2 + k + 1]);
     float mae = maxAbsError(output_slice, expected_slice);
     float errtol = 1e-6;
     EXPECT_LT(mae, errtol);
@@ -145,7 +153,8 @@ TEST(RangeCompTest, ConvolveMode)
         std::vector<std::complex<float>> output(rcproc.outputSize());
         rcproc.rangecompress(output.data(), input.data());
 
-        std::vector<std::complex<float>> expected = {1., 2., 3., 4., 5., 5., 5., 5., 5., 4., 3., 2., 1.};
+        std::vector<std::complex<float>> expected = {
+                1., 2., 3., 4., 5., 5., 5., 5., 5., 4., 3., 2., 1.};
         float mae = maxAbsError(output, expected);
         EXPECT_LT(mae, errtol);
 
@@ -175,7 +184,8 @@ TEST(RangeCompTest, ConvolveMode)
         std::vector<std::complex<float>> output(rcproc.outputSize());
         rcproc.rangecompress(output.data(), input.data());
 
-        std::vector<std::complex<float>> expected = {3., 4., 5., 5., 5., 5., 5., 4., 3.};
+        std::vector<std::complex<float>> expected = {
+                3., 4., 5., 5., 5., 5., 5., 4., 3.};
         float mae = maxAbsError(output, expected);
         EXPECT_LT(mae, errtol);
 
@@ -183,7 +193,7 @@ TEST(RangeCompTest, ConvolveMode)
     }
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

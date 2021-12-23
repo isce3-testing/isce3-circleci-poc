@@ -103,49 +103,49 @@ void addbinding(py::class_<ElNullRangeEst>& pyElNullRangeEst)
                     py::arg("az_time") = std::nullopt, R"(
 Generate null products from echo (measured) and antenna (nominal/expected).
 The null product consists of azimuth time tag, null relative magnitude and its
-location in EL and slant range, plut its Doppler value given 
+location in EL and slant range, plut its Doppler value given
 azimuth (antenna geometry)/squint(Radar geometry) angle.
 
 Parameters
 ----------
-echo_left : np.ndarray(complex64) 
+echo_left : np.ndarray(complex64)
     complex 2-D array of raw echo samples (pulse by range) for
     the left RX channel corresponding to the left beam.
 echo_right : np.ndarray(complex64)
     complex 2-D array of raw echo samples (pulse by range) for
-    the right RX channel corresponding to the right beam. 
+    the right RX channel corresponding to the right beam.
     Must have the same shape as of that of left one!
-el_cut_left : np.ndarray(complex128) 
-    complex array of uniformly-sampled relative or absolute 
+el_cut_left : np.ndarray(complex128)
+    complex array of uniformly-sampled relative or absolute
     EL-cut antenna pattern on the left side.
-el_cut_right : np.ndarray(complex128)  
-    complex array of uniformly-sampled relative or absolute 
-    EL-cut antenna pattern on the right side. 
+el_cut_right : np.ndarray(complex128)
+    complex array of uniformly-sampled relative or absolute
+    EL-cut antenna pattern on the right side.
     It must have the same size as left one!
 sr_start : float
     start slant range (m) for both uniformly-sampled echoes in range.
-el_ang_start : float 
+el_ang_start : float
     start elevation angle for left/right EL patterns in (rad)
-el_ang_step : float 
-    step elevation angle for left/right EL patterns in (rad) 
-az_ang : float 
-    azimuth angle (antenna geometry) or squint angle (Radar geometry) 
-    in (rad). This angle determines the final Doppler centroid on 
+el_ang_step : float
+    step elevation angle for left/right EL patterns in (rad)
+az_ang : float
+    azimuth angle (antenna geometry) or squint angle (Radar geometry)
+    in (rad). This angle determines the final Doppler centroid on
     top of slant range value for both echo and antenna nulls.
-az_time : float, (optional) 
-    azimuth time of echoes in (sec) w.r.t reference epoch of orbit. 
+az_time : float, (optional)
+    azimuth time of echoes in (sec) w.r.t reference epoch of orbit.
     If not specified, the mid azimuth time of orbit will be used instead.
 
 Returns
 -------
 isce3::core::DateTime
     azimuth time tag of the null product
-isce3::antenna::NullProduct 
+isce3::antenna::NullProduct
     echo null product
 isce3::antenna:NullProduct
     antenna null product
 isce3::antenna::NullConvergenceFlags
-    all flags indicating convergence of iterative operations used 
+    all flags indicating convergence of iterative operations used
     in forming both echo and antenna EL null products.
 
 Raises

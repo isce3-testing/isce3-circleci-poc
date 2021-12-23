@@ -49,38 +49,38 @@ position, velocity,and attitude at a certain height w.r.t. an ellipsoid.
 
 Parameters
 ----------
-el_theta : float 
+el_theta : float
     either elevation or theta angle in radians
     depending on the 'frame' object.
-az_phi : float 
+az_phi : float
     either azimuth or phi angle in radians depending
     on the 'frame' object.
-pos_ecef : isce3.core.Vec3 
+pos_ecef : isce3.core.Vec3
     antenna/spacecraft position in ECEF (m,m,m).
 vel_ecef : isce3.core.Vec3
     spacecraft velocity in ECEF (m/s,m/s,m/s).
-quaternion : isce3.core.Quaternion 
+quaternion : isce3.core.Quaternion
     quaternion object for transformation from antenna
     body-fixed to ECEF.
-wavelength : float 
+wavelength : float
     Radar wavelength in (m).
 dem_interp : isce3.geometry.DEMInterpolator, default=0.0
-    isce3 DEMInterpolator object. 
+    isce3 DEMInterpolator object.
 abs_tol : float, default=0.5
-    Abs error/tolerance in height estimation (m) between desired 
-    input height and final output height. 
-max_iter : int, default=10 
+    Abs error/tolerance in height estimation (m) between desired
+    input height and final output height.
+max_iter : int, default=10
     Max number of iterations in height estimation.
-frame : isce3.antenna.Frame, default=EL_AND_AZ 
-   isce3 Frame object to define antenna spherical coordinate system. 
-ellips : isce3.core.Ellipsoid, default=WGS84 
-   isce3 Ellipsoid object defining the ellipsoidal planet. 
+frame : isce3.antenna.Frame, default=EL_AND_AZ
+   isce3 Frame object to define antenna spherical coordinate system.
+ellips : isce3.core.Ellipsoid, default=WGS84
+   isce3 Ellipsoid object defining the ellipsoidal planet.
 
 Returns
 -------
-float  
-    slant range in (m). 
-float 
+float
+    slant range in (m).
+float
     Doppler centroid in (Hz).
 bool
     convergence, true if height tolerance is met,false otherwise.
@@ -129,34 +129,34 @@ Parameters
 el_theta : list(float)
     a list of either elevation or theta angles in radians
     depending on the 'frame' object.
-az_phi : float 
+az_phi : float
     either azimuth or phi angle in radians depending
     on the 'frame' object.
-pos_ecef : isce3.core.Vec3 
+pos_ecef : isce3.core.Vec3
     antenna/spacecraft position in ECEF (m,m,m).
 vel_ecef : isce3.core.Vec3
     spacecraft velocity in ECEF (m/s,m/s,m/s).
-quaternion : isce3.core.Quaternion 
+quaternion : isce3.core.Quaternion
     quaternion object for transformation from antenna
     body-fixed to ECEF.
-wavelength : float 
+wavelength : float
     Radar wavelength in (m).
 dem_interp : isce3.geometry.DEMInterpolator, default=0.0
-    isce3 DEMInterpolator object. 
+    isce3 DEMInterpolator object.
 abs_tol : float, default=0.5
-    Abs error/tolerance in height estimation (m) between desired 
-    input height and final output height. 
-max_iter : int, default=10 
+    Abs error/tolerance in height estimation (m) between desired
+    input height and final output height.
+max_iter : int, default=10
     Max number of iterations in height estimation.
-frame : isce3.antenna.Frame, default=EL_AND_AZ 
-   isce3 Frame object to define antenna spherical coordinate system. 
-ellips : isce3.core.Ellipsoid, default=WGS84 
-   isce3 Ellipsoid object defining the ellipsoidal planet. 
+frame : isce3.antenna.Frame, default=EL_AND_AZ
+   isce3 Frame object to define antenna spherical coordinate system.
+ellips : isce3.core.Ellipsoid, default=WGS84
+   isce3 Ellipsoid object defining the ellipsoidal planet.
 
 Returns
 -------
-numpy.ndarray(float)  
-    Array of slant ranges in (m). 
+numpy.ndarray(float)
+    Array of slant ranges in (m).
 numpy.ndarray(float)
     Array of Doppler centroids in (Hz).
 bool
@@ -204,33 +204,33 @@ position and attitude at a certain height w.r.t. an ellipsoid.
 
 Parameters
 ----------
-el_theta : float 
+el_theta : float
     either elevation or theta angle in radians
     depending on the 'frame' object.
-az_phi : float 
+az_phi : float
     either azimuth or phi angle in radians depending
     on the 'frame' object.
-pos_ecef : isce3.core.Vec3 
+pos_ecef : isce3.core.Vec3
     antenna/spacecraft position in ECEF (m,m,m).
-quaternion : isce3.core.Quaternion 
+quaternion : isce3.core.Quaternion
     quaternion object for transformation from antenna
     body-fixed to ECEF.
 dem_interp : isce3.geometry.DEMInterpolator, default=0.0
-    isce3 DEMInterpolator object. 
+    isce3 DEMInterpolator object.
 abs_tol : float, default=0.5
-    Abs error/tolerance in height estimation (m) between desired 
-    input height and final output height. 
-max_iter : int, default=10 
+    Abs error/tolerance in height estimation (m) between desired
+    input height and final output height.
+max_iter : int, default=10
     Max number of iterations in height estimation.
-frame : isce3.antenna.Frame, default=EL_AND_AZ 
-   isce3 Frame object to define antenna spherical coordinate system. 
-ellips : isce3.core.Ellipsoid, default=WGS84 
-   isce3 Ellipsoid object defining the ellipsoidal planet. 
+frame : isce3.antenna.Frame, default=EL_AND_AZ
+   isce3 Frame object to define antenna spherical coordinate system.
+ellips : isce3.core.Ellipsoid, default=WGS84
+   isce3 Ellipsoid object defining the ellipsoidal planet.
 
 Returns
 -------
-numpy.ndarray(float)  
-    geodetic (longitude, latitude, height) in (rad,rad,m). 
+numpy.ndarray(float)
+    geodetic (longitude, latitude, height) in (rad,rad,m).
 bool
     convergence, true if height tolerance is met, false otherwise.
 
@@ -275,33 +275,33 @@ position and attitude at a certain height w.r.t. an ellipsoid.
 
 Parameters
 ----------
-el_theta : list(float) 
+el_theta : list(float)
     a list of either elevation or theta angles in radians
     depending on the 'frame' object.
-az_phi : float 
+az_phi : float
     either azimuth or phi angle in radians depending
     on the 'frame' object.
-pos_ecef : isce3.core.Vec3 
+pos_ecef : isce3.core.Vec3
     antenna/spacecraft position in ECEF (m,m,m).
-quaternion : isce3.core.Quaternion 
+quaternion : isce3.core.Quaternion
     quaternion object for transformation from antenna
     body-fixed to ECEF.
 dem_interp : isce3.geometry.DEMInterpolator, default=0.0
     isce3 DEMInterpolator object.
 abs_tol : float, default=0.5
-    Abs error/tolerance in height estimation (m) between desired 
-    input height and final output height. 
-max_iter : int, default=10 
+    Abs error/tolerance in height estimation (m) between desired
+    input height and final output height.
+max_iter : int, default=10
     Max number of iterations in height estimation.
-frame : isce3.antenna.Frame, default=EL_AND_AZ 
-   isce3 Frame object to define antenna spherical coordinate system. 
-ellips : isce3.core.Ellipsoid, default=WGS84 
-   isce3 Ellipsoid object defining the ellipsoidal planet. 
+frame : isce3.antenna.Frame, default=EL_AND_AZ
+   isce3 Frame object to define antenna spherical coordinate system.
+ellips : isce3.core.Ellipsoid, default=WGS84
+   isce3 Ellipsoid object defining the ellipsoidal planet.
 
 Returns
 -------
-list(numpy.ndarray(float))  
-    a list of geodetic (longitude, latitude, height) in (rad,rad,m). 
+list(numpy.ndarray(float))
+    a list of geodetic (longitude, latitude, height) in (rad,rad,m).
 bool
     convergence, true if height tolerance is met, false otherwise.
 

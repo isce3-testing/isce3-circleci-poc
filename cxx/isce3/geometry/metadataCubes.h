@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
-
 #include <isce3/core/forward.h>
 #include <isce3/io/forward.h>
 #include <isce3/product/forward.h>
+
+#include <vector>
 
 namespace isce3 { namespace geometry {
 
@@ -202,8 +202,8 @@ void makeGeolocationGridCubes(
         isce3::io::Raster* along_track_unit_vector_x_raster = nullptr,
         isce3::io::Raster* along_track_unit_vector_y_raster = nullptr,
         isce3::io::Raster* elevation_angle_raster = nullptr,
-        isce3::io::Raster* ground_track_velocity_raster = nullptr, 
+        isce3::io::Raster* ground_track_velocity_raster = nullptr,
         const double threshold_geo2rdr = 1e-8, const int numiter_geo2rdr = 100,
         const double delta_range = 1e-8);
 
-}} // namespace isce3::geocode
+}} // namespace isce3::geometry

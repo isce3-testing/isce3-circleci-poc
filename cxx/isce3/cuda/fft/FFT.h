@@ -13,11 +13,12 @@ namespace isce3 { namespace cuda { namespace fft {
  * \returns Forward FFT plan
  */
 template<typename T>
-FwdFFTPlan<T> planfft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n);
+FwdFFTPlan<T> planfft1d(thrust::complex<T>* out, thrust::complex<T>* in, int n);
 
-/** \copydoc planfft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n) */
+/** \copydoc planfft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n)
+ */
 template<typename T>
-FwdFFTPlan<T> planfft1d(thrust::complex<T> * out, T * in, int n);
+FwdFFTPlan<T> planfft1d(thrust::complex<T>* out, T* in, int n);
 
 /**
  * Create a re-useable 1-D forward FFT plan for 2-D data.
@@ -32,11 +33,14 @@ FwdFFTPlan<T> planfft1d(thrust::complex<T> * out, T * in, int n);
  * \returns Forward FFT plan
  */
 template<typename T>
-FwdFFTPlan<T> planfft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2], int axis);
+FwdFFTPlan<T> planfft1d(thrust::complex<T>* out, thrust::complex<T>* in,
+        const int (&dims)[2], int axis);
 
-/** \copydoc planfft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2], int axis) */
+/** \copydoc planfft1d(thrust::complex<T> * out, thrust::complex<T> * in, const
+ * int (&dims)[2], int axis) */
 template<typename T>
-FwdFFTPlan<T> planfft1d(thrust::complex<T> * out, T * in, const int (&dims)[2], int axis);
+FwdFFTPlan<T> planfft1d(
+        thrust::complex<T>* out, T* in, const int (&dims)[2], int axis);
 
 /**
  * Create a re-useable 2-D forward FFT plan.
@@ -49,11 +53,13 @@ FwdFFTPlan<T> planfft1d(thrust::complex<T> * out, T * in, const int (&dims)[2], 
  * \returns Forward FFT plan
  */
 template<typename T>
-FwdFFTPlan<T> planfft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2]);
+FwdFFTPlan<T> planfft2d(
+        thrust::complex<T>* out, thrust::complex<T>* in, const int (&dims)[2]);
 
-/** \copydoc planfft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2]) */
+/** \copydoc planfft2d(thrust::complex<T> * out, thrust::complex<T> * in, const
+ * int (&dims)[2]) */
 template<typename T>
-FwdFFTPlan<T> planfft2d(thrust::complex<T> * out, T * in, const int (&dims)[2]);
+FwdFFTPlan<T> planfft2d(thrust::complex<T>* out, T* in, const int (&dims)[2]);
 
 /**
  * Create a re-useable 1-D inverse FFT plan.
@@ -64,11 +70,13 @@ FwdFFTPlan<T> planfft2d(thrust::complex<T> * out, T * in, const int (&dims)[2]);
  * \returns Inverse FFT plan
  */
 template<typename T>
-InvFFTPlan<T> planifft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n);
+InvFFTPlan<T> planifft1d(
+        thrust::complex<T>* out, thrust::complex<T>* in, int n);
 
-/** \copydoc planifft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n) */
+/** \copydoc planifft1d(thrust::complex<T> * out, thrust::complex<T> * in, int
+ * n) */
 template<typename T>
-InvFFTPlan<T> planifft1d(T * out, thrust::complex<T> * in, int n);
+InvFFTPlan<T> planifft1d(T* out, thrust::complex<T>* in, int n);
 
 /**
  * Create a re-useable 1-D inverse FFT plan for 2-D data.
@@ -83,11 +91,14 @@ InvFFTPlan<T> planifft1d(T * out, thrust::complex<T> * in, int n);
  * \returns Inverse FFT plan
  */
 template<typename T>
-InvFFTPlan<T> planifft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2], int axis);
+InvFFTPlan<T> planifft1d(thrust::complex<T>* out, thrust::complex<T>* in,
+        const int (&dims)[2], int axis);
 
-/** \copydoc planifft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2], int axis) */
+/** \copydoc planifft1d(thrust::complex<T> * out, thrust::complex<T> * in, const
+ * int (&dims)[2], int axis) */
 template<typename T>
-InvFFTPlan<T> planifft1d(T * out, thrust::complex<T> * in, const int (&dims)[2], int axis);
+InvFFTPlan<T> planifft1d(
+        T* out, thrust::complex<T>* in, const int (&dims)[2], int axis);
 
 /**
  * Create a re-useable 2-D inverse FFT plan.
@@ -100,11 +111,13 @@ InvFFTPlan<T> planifft1d(T * out, thrust::complex<T> * in, const int (&dims)[2],
  * \returns Inverse FFT plan
  */
 template<typename T>
-InvFFTPlan<T> planifft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2]);
+InvFFTPlan<T> planifft2d(
+        thrust::complex<T>* out, thrust::complex<T>* in, const int (&dims)[2]);
 
-/** \copydoc planifft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2]) */
+/** \copydoc planifft2d(thrust::complex<T> * out, thrust::complex<T> * in, const
+ * int (&dims)[2]) */
 template<typename T>
-InvFFTPlan<T> planifft2d(T * out, thrust::complex<T> * in, const int (&dims)[2]);
+InvFFTPlan<T> planifft2d(T* out, thrust::complex<T>* in, const int (&dims)[2]);
 
 /**
  * Compute the 1-D forward FFT.
@@ -114,11 +127,11 @@ InvFFTPlan<T> planifft2d(T * out, thrust::complex<T> * in, const int (&dims)[2])
  * \param[in] n Transform size
  */
 template<typename T>
-void fft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n);
+void fft1d(thrust::complex<T>* out, thrust::complex<T>* in, int n);
 
 /** \copydoc fft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n) */
 template<typename T>
-void fft1d(thrust::complex<T> * out, T * in, int n);
+void fft1d(thrust::complex<T>* out, T* in, int n);
 
 /**
  * Compute the 1-D forward FFT on 2-D data.
@@ -132,11 +145,13 @@ void fft1d(thrust::complex<T> * out, T * in, int n);
  * \param[in] axis Axis over which to compute the FFT
  */
 template<typename T>
-void fft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2], int axis);
+void fft1d(thrust::complex<T>* out, thrust::complex<T>* in,
+        const int (&dims)[2], int axis);
 
-/** \copydoc fft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2], int axis) */
+/** \copydoc fft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int
+ * (&dims)[2], int axis) */
 template<typename T>
-void fft1d(thrust::complex<T> * out, T * in, const int (&dims)[2], int axis);
+void fft1d(thrust::complex<T>* out, T* in, const int (&dims)[2], int axis);
 
 /**
  * Compute the 2-D forward FFT.
@@ -148,11 +163,13 @@ void fft1d(thrust::complex<T> * out, T * in, const int (&dims)[2], int axis);
  * \param[in] dims Input/output array shape (nrows, ncols)
  */
 template<typename T>
-void fft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2]);
+void fft2d(
+        thrust::complex<T>* out, thrust::complex<T>* in, const int (&dims)[2]);
 
-/** \copydoc fft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2]) */
+/** \copydoc fft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int
+ * (&dims)[2]) */
 template<typename T>
-void fft2d(thrust::complex<T> * out, T * in, const int (&dims)[2]);
+void fft2d(thrust::complex<T>* out, T* in, const int (&dims)[2]);
 
 /**
  * Compute the 1-D inverse FFT.
@@ -162,11 +179,11 @@ void fft2d(thrust::complex<T> * out, T * in, const int (&dims)[2]);
  * \param[in] n Transform size
  */
 template<typename T>
-void ifft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n);
+void ifft1d(thrust::complex<T>* out, thrust::complex<T>* in, int n);
 
 /** \copydoc ifft1d(thrust::complex<T> * out, thrust::complex<T> * in, int n) */
 template<typename T>
-void ifft1d(T * out, thrust::complex<T> * in, int n);
+void ifft1d(T* out, thrust::complex<T>* in, int n);
 
 /**
  * Compute the 1-D inverse FFT on 2-D data.
@@ -180,11 +197,13 @@ void ifft1d(T * out, thrust::complex<T> * in, int n);
  * \param[in] axis Axis over which to compute the FFT
  */
 template<typename T>
-void ifft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2], int axis);
+void ifft1d(thrust::complex<T>* out, thrust::complex<T>* in,
+        const int (&dims)[2], int axis);
 
-/** \copydoc ifft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2], int axis) */
+/** \copydoc ifft1d(thrust::complex<T> * out, thrust::complex<T> * in, const int
+ * (&dims)[2], int axis) */
 template<typename T>
-void ifft1d(T * out, thrust::complex<T> * in, const int (&dims)[2], int axis);
+void ifft1d(T* out, thrust::complex<T>* in, const int (&dims)[2], int axis);
 
 /**
  * Compute the 2-D inverse FFT.
@@ -196,13 +215,15 @@ void ifft1d(T * out, thrust::complex<T> * in, const int (&dims)[2], int axis);
  * \param[in] dims Input/output array shape (nrows, ncols)
  */
 template<typename T>
-void ifft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2]);
+void ifft2d(
+        thrust::complex<T>* out, thrust::complex<T>* in, const int (&dims)[2]);
 
-/** \copydoc ifft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int (&dims)[2]) */
+/** \copydoc ifft2d(thrust::complex<T> * out, thrust::complex<T> * in, const int
+ * (&dims)[2]) */
 template<typename T>
-void ifft2d(T * out, thrust::complex<T> * in, int (&dims)[2]);
+void ifft2d(T* out, thrust::complex<T>* in, int (&dims)[2]);
 
-}}}
+}}} // namespace isce3::cuda::fft
 
 #define ISCE_CUDA_FFT_FFT_ICC
 #include "FFT.icc"

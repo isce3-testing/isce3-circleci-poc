@@ -4,7 +4,7 @@
 
 \section doccpp C++ Documentation
 
-Developers are expected to document their functions using <a href="https://www.stack.nl/~dimitri/doxygen/manual/docblocks.html">Doxygen syntax</a>. Specific auto-documentation styles for various types of functions are shown below. We will base our examples on the code from Ellipsoid.h and Ellipsoid.cpp files in the source tree. 
+Developers are expected to document their functions using <a href="https://www.stack.nl/~dimitri/doxygen/manual/docblocks.html">Doxygen syntax</a>. Specific auto-documentation styles for various types of functions are shown below. We will base our examples on the code from Ellipsoid.h and Ellipsoid.cpp files in the source tree.
 
 
 \subsection docinlinecpp Inline functions
@@ -26,7 +26,7 @@ These types of functions are typically defined in the struct/class definition it
 
 \code{.cpp}
 
-/*/** */* \brief Set semi-major axis 
+/*/** */* \brief Set semi-major axis
 *
 * @param[in] val Semi-major axis of ellipsoid in meters*/
 void a(double val) {_a = val;}
@@ -36,7 +36,7 @@ void a(double val) {_a = val;}
 
 \subsubsection docinlinecppmulti With multiple inputs
 
-These types of functions should typically not be defined in the struct/class definition. These are included either in the .h header file or the .icc include file. In this case, a brief one liner is provided as part of the function declaration in the header file followed by a detail description of the parameters just before the function specification in the header file or the .icc file. For example, documentation of function isce3::core::Ellipsoid::rDir can be found in two places - first in the class declaration as 
+These types of functions should typically not be defined in the struct/class definition. These are included either in the .h header file or the .icc include file. In this case, a brief one liner is provided as part of the function declaration in the header file followed by a detail description of the parameters just before the function specification in the header file or the .icc file. For example, documentation of function isce3::core::Ellipsoid::rDir can be found in two places - first in the class declaration as
 
 \code{.cpp}
 
@@ -45,7 +45,7 @@ inline double rDir(double lat, double hdg) const;
 
 \endcode
 
-and later in the header file, just before the function declaration as 
+and later in the header file, just before the function declaration as
 
 \code{.cpp}
 
@@ -57,7 +57,7 @@ and later in the header file, just before the function declaration as
 double isce3::core::Ellipsoid::rDir(double hdg, double lat) const {
     auto re = rEast(lat);
     auto rn = rNorth(lat);
-    return (re * rn) / ((re * std::pow(std::cos(hdg), 2)) 
+    return (re * rn) / ((re * std::pow(std::cos(hdg), 2))
          + (rn * std::pow(std::sin(hdg), 2)));
 }
 
@@ -99,7 +99,7 @@ The detailed description of individual parameters must be provided just before t
 
 \code{.cpp}
 
-/*/** */*  @param[in] xyz ECEF Cartesian coordinates in meters. 
+/*/** */*  @param[in] xyz ECEF Cartesian coordinates in meters.
  *  @param[out] llh Latitude (rad), Longitude(rad), Height (m).
  *
  *  Using the approach laid out in Vermeille, 2002 \cite vermeille2002direct */
@@ -115,7 +115,7 @@ Doxygen interprets CUDA code in the same manner as C/C++. Use the same style gui
 
 \section docpy Python Documentation
 
-Developers are expected to document their functions using <a href="http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html">Google Style docstrings</a>. ISCE uses sphinx with the autodoc, autosummary and napoleon extensions. We will base our examples on the code from pyEllipsoid.pyx file in the extensions folder of the source tree. 
+Developers are expected to document their functions using <a href="http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html">Google Style docstrings</a>. ISCE uses sphinx with the autodoc, autosummary and napoleon extensions. We will base our examples on the code from pyEllipsoid.pyx file in the extensions folder of the source tree.
 
 
 \subsection docpyfunc Functions
@@ -131,7 +131,7 @@ For example, pyEllipsoid.copyFrom
     def copyFrom(self, elp):
         '''
         Copy ellipsoid parameters with any class that has semi-major axis and eccentricity parameters.
-        
+
         Args:
             elp (obj): Any python object that has attributes a and e2.
 
@@ -191,7 +191,7 @@ If a function returns multiple values, the return type must be clearly indicated
 
 Keyword arguments are also listed under the Args section of the docstring but are clearly labelled as optional. For example
 
-\code{.py} 
+\code{.py}
 
     def exampleFunction(angle, degrees=False):
         '''

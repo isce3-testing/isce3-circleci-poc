@@ -8,17 +8,18 @@
 
 #include <cmath>
 #include <cstdint>
-#include <isce3/except/Error.h>
 #include <limits>
+
+#include <isce3/except/Error.h>
 
 using isce3::except::DomainError;
 
-//Normalize function
+// Normalize function
 void isce3::core::TimeDelta::_normalize()
 {
     // Promote fields to avoid intermediate overflows.
     using T = std::int64_t;
-    T d{days}, h{hours}, m{minutes}, s{seconds};
+    T d {days}, h {hours}, m {minutes}, s {seconds};
     // Fail if seconds doesn't fit in an integer:
     // int32: 2**31 s ~ 68 years
     // int64: 2**63 s ~ 10**11 years
@@ -27,7 +28,7 @@ void isce3::core::TimeDelta::_normalize()
     if (maxsec >= static_cast<double>(std::numeric_limits<T>::max())) {
         throw DomainError(ISCE_SRCINFO(), "Time interval too large (seconds).");
     }
-    //Adjust fractional part
+    // Adjust fractional part
     {
         T ipart = static_cast<T>(frac - (frac < 0));
         frac -= static_cast<double>(ipart);
@@ -62,9 +63,8 @@ void isce3::core::TimeDelta::_normalize()
     seconds = static_cast<decltype(seconds)>(s);
 }
 
-//Constructors
-void isce3::core::TimeDelta::
-_init(int dd, int hh, int mm, int ss, double ff)
+// Constructors
+void isce3::core::TimeDelta::_init(int dd, int hh, int mm, int ss, double ff)
 {
     days = dd;
     hours = hh;
@@ -74,49 +74,37 @@ _init(int dd, int hh, int mm, int ss, double ff)
     _normalize();
 }
 
-isce3::core::TimeDelta::
-TimeDelta() : TimeDelta(0.0) {}
+isce3::core::TimeDelta::TimeDelta() : TimeDelta(0.0) {}
 
-isce3::core::TimeDelta::
-TimeDelta(double ss)
+isce3::core::TimeDelta::TimeDelta(double ss) { _init(0, 0, 0, 0, ss); }
+
+isce3::core::TimeDelta::TimeDelta(int hh, int mm, int ss)
 {
-    _init(0,0,0,0,ss);
+    _init(0, hh, mm, ss, 0);
 }
 
-isce3::core::TimeDelta::
-TimeDelta(int hh, int mm, int ss)
+isce3::core::TimeDelta::TimeDelta(int hh, int mm, double ss)
 {
-    _init(0,hh,mm,ss,0);
+    _init(0, hh, mm, 0, ss);
 }
 
-isce3::core::TimeDelta::
-TimeDelta(int hh, int mm, double ss)
+isce3::core::TimeDelta::TimeDelta(int hh, int mm, int ss, double ff)
 {
-    _init(0,hh,mm,0,ss);
+    _init(0, hh, mm, ss, ff);
 }
 
-isce3::core::TimeDelta::
-TimeDelta(int hh, int mm, int ss, double ff)
+isce3::core::TimeDelta::TimeDelta(int dd, int hh, int mm, int ss, double ff)
 {
-    _init(0,hh,mm,ss,ff);
+    _init(dd, hh, mm, ss, ff);
 }
 
-isce3::core::TimeDelta::
-TimeDelta(int dd, int hh, int mm, int ss, double ff)
-{
-    _init(dd,hh,mm,ss,ff);
-}
-
-isce3::core::TimeDelta::
-TimeDelta(const TimeDelta & ts)
+isce3::core::TimeDelta::TimeDelta(const TimeDelta& ts)
 {
     _init(ts.days, ts.hours, ts.minutes, ts.seconds, ts.frac);
 }
 
-
-//Return as double functions
-double isce3::core::TimeDelta::
-getTotalSeconds() const
+// Return as double functions
+double isce3::core::TimeDelta::getTotalSeconds() const
 {
     // Careful to avoid intermediate overflow. Biggest multiplier
     // log2(DAY_TO_SEC) is roughly 16 bits, and four adds means a couple extra
@@ -135,151 +123,121 @@ getTotalSeconds() const
                                minutes * T(MIN_TO_SEC) + T(seconds));
 }
 
-double isce3::core::TimeDelta::
-getTotalMinutes() const
+double isce3::core::TimeDelta::getTotalMinutes() const
 {
-    return getTotalSeconds()/(1.0 * MIN_TO_SEC);
+    return getTotalSeconds() / (1.0 * MIN_TO_SEC);
 }
 
-double isce3::core::TimeDelta::
-getTotalHours() const
+double isce3::core::TimeDelta::getTotalHours() const
 {
-    return getTotalSeconds()/(1.0 * HOUR_TO_SEC);
+    return getTotalSeconds() / (1.0 * HOUR_TO_SEC);
 }
 
-double isce3::core::TimeDelta::
-getTotalDays() const
+double isce3::core::TimeDelta::getTotalDays() const
 {
-    return getTotalSeconds()/ (1.0*DAY_TO_SEC);
+    return getTotalSeconds() / (1.0 * DAY_TO_SEC);
 }
 
-//Comparison operators
-bool isce3::core::TimeDelta::
-operator<(const TimeDelta &ts) const
+// Comparison operators
+bool isce3::core::TimeDelta::operator<(const TimeDelta& ts) const
 {
     return *this < ts.getTotalSeconds();
 }
 
-bool isce3::core::TimeDelta::
-operator<(double ts) const
+bool isce3::core::TimeDelta::operator<(double ts) const
 {
     return getTotalSeconds() < ts;
 }
 
-
-bool isce3::core::TimeDelta::
-operator>(const TimeDelta &ts) const
+bool isce3::core::TimeDelta::operator>(const TimeDelta& ts) const
 {
     return *this > ts.getTotalSeconds();
 }
 
-bool isce3::core::TimeDelta::
-operator>(double ts) const
+bool isce3::core::TimeDelta::operator>(double ts) const
 {
     return getTotalSeconds() > ts;
 }
 
-bool isce3::core::TimeDelta::
-operator<=(const TimeDelta &ts) const
+bool isce3::core::TimeDelta::operator<=(const TimeDelta& ts) const
 {
     return !(*this > ts.getTotalSeconds());
 }
 
-bool isce3::core::TimeDelta::
-operator<=(double ts) const
+bool isce3::core::TimeDelta::operator<=(double ts) const
 {
     return !(getTotalSeconds() > ts);
 }
 
-bool isce3::core::TimeDelta::
-operator>=(const TimeDelta &ts) const
+bool isce3::core::TimeDelta::operator>=(const TimeDelta& ts) const
 {
-    return !( *this < ts.getTotalSeconds());
+    return !(*this < ts.getTotalSeconds());
 }
 
-bool isce3::core::TimeDelta::
-operator>=(double ts) const
+bool isce3::core::TimeDelta::operator>=(double ts) const
 {
     return !(getTotalSeconds() < ts);
 }
 
-bool isce3::core::TimeDelta::
-operator==(const TimeDelta &ts) const
+bool isce3::core::TimeDelta::operator==(const TimeDelta& ts) const
 {
     return (*this == ts.getTotalSeconds());
 }
 
-bool isce3::core::TimeDelta::
-operator==(double ts) const
+bool isce3::core::TimeDelta::operator==(double ts) const
 {
     return getTotalSeconds() == ts;
 }
 
-bool isce3::core::TimeDelta::
-operator!=(const TimeDelta &ts) const
+bool isce3::core::TimeDelta::operator!=(const TimeDelta& ts) const
 {
     return !(*this == ts.getTotalSeconds());
 }
 
-bool isce3::core::TimeDelta::
-operator!=(double ts) const
+bool isce3::core::TimeDelta::operator!=(double ts) const
 {
     return !(*this == ts);
 }
 
-
-//Math operators
-isce3::core::TimeDelta &
-isce3::core::TimeDelta::
-operator=(const TimeDelta &ts) {
+// Math operators
+isce3::core::TimeDelta& isce3::core::TimeDelta::operator=(const TimeDelta& ts)
+{
     _init(ts.days, ts.hours, ts.minutes, ts.seconds, ts.frac);
     _normalize();
     return *this;
 }
 
-isce3::core::TimeDelta &
-isce3::core::TimeDelta::
-operator=(double ss) {
+isce3::core::TimeDelta& isce3::core::TimeDelta::operator=(double ss)
+{
     _init(0, 0, 0, 0, ss);
     return *this;
 }
 
-isce3::core::TimeDelta
-isce3::core::TimeDelta::
-operator+(const TimeDelta &ts) const
+isce3::core::TimeDelta isce3::core::TimeDelta::operator+(
+        const TimeDelta& ts) const
 {
-    return TimeDelta(days+ts.days, hours + ts.hours,
-            minutes + ts.minutes, seconds + ts.seconds,
-            frac + ts.frac);
+    return TimeDelta(days + ts.days, hours + ts.hours, minutes + ts.minutes,
+            seconds + ts.seconds, frac + ts.frac);
 }
 
-isce3::core::TimeDelta
-isce3::core::TimeDelta::
-operator+(const double &s) const
+isce3::core::TimeDelta isce3::core::TimeDelta::operator+(const double& s) const
 {
     return TimeDelta(days, hours, minutes, seconds, frac + s);
 }
 
-isce3::core::TimeDelta
-isce3::core::TimeDelta::
-operator-(const TimeDelta &ts) const
+isce3::core::TimeDelta isce3::core::TimeDelta::operator-(
+        const TimeDelta& ts) const
 {
-    return TimeDelta(days-ts.days, hours - ts.hours,
-            minutes - ts.minutes, seconds - ts.seconds,
-            frac - ts.frac);
+    return TimeDelta(days - ts.days, hours - ts.hours, minutes - ts.minutes,
+            seconds - ts.seconds, frac - ts.frac);
 }
 
-isce3::core::TimeDelta
-isce3::core::TimeDelta::
-operator-(const double& s) const
+isce3::core::TimeDelta isce3::core::TimeDelta::operator-(const double& s) const
 {
     return TimeDelta(days, hours, minutes, seconds, frac - s);
 }
 
-
-isce3::core::TimeDelta &
-isce3::core::TimeDelta::
-operator+=(const TimeDelta& ts)
+isce3::core::TimeDelta& isce3::core::TimeDelta::operator+=(const TimeDelta& ts)
 {
     days += ts.days;
     hours += ts.hours;
@@ -290,18 +248,14 @@ operator+=(const TimeDelta& ts)
     return *this;
 }
 
-isce3::core::TimeDelta &
-isce3::core::TimeDelta::
-operator+=(const double& s)
+isce3::core::TimeDelta& isce3::core::TimeDelta::operator+=(const double& s)
 {
     frac += s;
     _normalize();
     return *this;
 }
 
-isce3::core::TimeDelta &
-isce3::core::TimeDelta::
-operator-=(const TimeDelta& ts)
+isce3::core::TimeDelta& isce3::core::TimeDelta::operator-=(const TimeDelta& ts)
 {
     days -= ts.days;
     hours -= ts.hours;
@@ -312,52 +266,42 @@ operator-=(const TimeDelta& ts)
     return *this;
 }
 
-isce3::core::TimeDelta &
-isce3::core::TimeDelta::
-operator-=(const double& s)
+isce3::core::TimeDelta& isce3::core::TimeDelta::operator-=(const double& s)
 {
     frac -= s;
     _normalize();
     return *this;
 }
 
-isce3::core::TimeDelta
-isce3::core::TimeDelta::
-operator*(const double& s) const
+isce3::core::TimeDelta isce3::core::TimeDelta::operator*(const double& s) const
 {
-    return TimeDelta(getTotalSeconds()*s);
+    return TimeDelta(getTotalSeconds() * s);
 }
 
-isce3::core::TimeDelta &
-isce3::core::TimeDelta::
-operator*=(const double& s)
+isce3::core::TimeDelta& isce3::core::TimeDelta::operator*=(const double& s)
 {
-    _init(0,0,0,0, getTotalSeconds()*s);
+    _init(0, 0, 0, 0, getTotalSeconds() * s);
     return *this;
 }
 
-isce3::core::TimeDelta
-isce3::core::TimeDelta::
-operator/(const double& s) const
+isce3::core::TimeDelta isce3::core::TimeDelta::operator/(const double& s) const
 {
-    return TimeDelta(getTotalSeconds()/s);
+    return TimeDelta(getTotalSeconds() / s);
 }
 
-isce3::core::TimeDelta &
-isce3::core::TimeDelta::
-operator/=(const double& s)
+isce3::core::TimeDelta& isce3::core::TimeDelta::operator/=(const double& s)
 {
-    _init(0,0,0,0,getTotalSeconds()/s);
+    _init(0, 0, 0, 0, getTotalSeconds() / s);
     return *this;
 }
 
 namespace isce3 { namespace core {
 
-TimeDelta operator*(double lhs, const TimeDelta & rhs)
+TimeDelta operator*(double lhs, const TimeDelta& rhs)
 {
     return TimeDelta(lhs * rhs.getTotalSeconds());
 }
 
-}}
+}} // namespace isce3::core
 
 // end of file

@@ -377,7 +377,7 @@ crossmul(isce3::io::Raster& referenceSLC,
                 _commonAzimuthBandwidth,
                 _prf,
                 _beta,
-                nfft, 
+                nfft,
                 rowsPerBlock);
     }
 

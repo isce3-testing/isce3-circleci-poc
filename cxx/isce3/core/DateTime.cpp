@@ -170,8 +170,8 @@ void isce3::core::DateTime::_normalize()
 }
 
 // Constructors
-void isce3::core::DateTime::_init(int yy, int mm, int dd, int hh, int mn,
-                                  int ss, double ff)
+void isce3::core::DateTime::_init(
+        int yy, int mm, int dd, int hh, int mn, int ss, double ff)
 {
     year = yy;
     months = mm;
@@ -202,16 +202,16 @@ isce3::core::DateTime::DateTime(int yy, int mm, int dd, int hh, int mn, int ss)
     _init(yy, mm, dd, hh, mn, ss, 0);
 }
 
-isce3::core::DateTime::DateTime(int yy, int mm, int dd, int hh, int mn,
-                                double ss)
+isce3::core::DateTime::DateTime(
+        int yy, int mm, int dd, int hh, int mn, double ss)
 {
     int ipart = ss;
     double fpart = ss - ipart;
     _init(yy, mm, dd, hh, mn, ipart, fpart);
 }
 
-isce3::core::DateTime::DateTime(int yy, int mm, int dd, int hh, int mn, int ss,
-                                double ff)
+isce3::core::DateTime::DateTime(
+        int yy, int mm, int dd, int hh, int mn, int ss, double ff)
 {
     _init(yy, mm, dd, hh, mn, ss, ff);
 }
@@ -219,7 +219,7 @@ isce3::core::DateTime::DateTime(int yy, int mm, int dd, int hh, int mn, int ss,
 isce3::core::DateTime::DateTime(const DateTime& ts)
 {
     _init(ts.year, ts.months, ts.days, ts.hours, ts.minutes, ts.seconds,
-          ts.frac);
+            ts.frac);
 }
 
 // From string
@@ -232,7 +232,7 @@ isce3::core::DateTime::DateTime(const std::string& datestr)
 isce3::core::DateTime& isce3::core::DateTime::operator=(const DateTime& ts)
 {
     _init(ts.year, ts.months, ts.days, ts.hours, ts.minutes, ts.seconds,
-          ts.frac);
+            ts.frac);
     return *this;
 }
 
@@ -268,15 +268,15 @@ bool isce3::core::DateTime::operator!=(const DateTime& ts) const
 }
 
 // Math operators
-isce3::core::DateTime
-isce3::core::DateTime::operator+(const TimeDelta& ts) const
+isce3::core::DateTime isce3::core::DateTime::operator+(
+        const TimeDelta& ts) const
 {
     int ord = _ymd_to_ord(year, months, days) + ts.days;
     int y, m, d;
     _ord_to_ymd(ord, y, m, d);
 
     return DateTime(y, m, d, hours + ts.hours, minutes + ts.minutes,
-                    seconds + ts.seconds, frac + ts.frac);
+            seconds + ts.seconds, frac + ts.frac);
 }
 
 isce3::core::DateTime isce3::core::DateTime::operator+(const double& ts) const
@@ -284,15 +284,15 @@ isce3::core::DateTime isce3::core::DateTime::operator+(const double& ts) const
     return (*this) + TimeDelta(ts);
 }
 
-isce3::core::DateTime
-isce3::core::DateTime::operator-(const TimeDelta& ts) const
+isce3::core::DateTime isce3::core::DateTime::operator-(
+        const TimeDelta& ts) const
 {
     int ord = _ymd_to_ord(year, months, days) - ts.days;
     int y, m, d;
     _ord_to_ymd(ord, y, m, d);
 
     return DateTime(y, m, d, hours - ts.hours, minutes - ts.minutes,
-                    seconds - ts.seconds, frac - ts.frac);
+            seconds - ts.seconds, frac - ts.frac);
 }
 
 isce3::core::DateTime isce3::core::DateTime::operator-(const double& ts) const
@@ -307,7 +307,7 @@ isce3::core::DateTime& isce3::core::DateTime::operator+=(const TimeDelta& ts)
     int y, m, d;
     _ord_to_ymd(ord, y, m, d);
     _init(y, m, d, hours + ts.hours, minutes + ts.minutes, seconds + ts.seconds,
-          frac + ts.frac);
+            frac + ts.frac);
     return *this;
 }
 
@@ -323,7 +323,7 @@ isce3::core::DateTime& isce3::core::DateTime::operator-=(const TimeDelta& ts)
     int y, m, d;
     _ord_to_ymd(ord, y, m, d);
     _init(y, m, d, hours - ts.hours, minutes - ts.minutes, seconds - ts.seconds,
-          frac - ts.frac);
+            frac - ts.frac);
     return *this;
 }
 
@@ -333,13 +333,13 @@ isce3::core::DateTime& isce3::core::DateTime::operator-=(const double& ts)
     return *this;
 }
 
-isce3::core::TimeDelta
-isce3::core::DateTime::operator-(const DateTime& ts) const
+isce3::core::TimeDelta isce3::core::DateTime::operator-(
+        const DateTime& ts) const
 {
     int delta_days = _ymd_to_ord(year, months, days) -
                      _ymd_to_ord(ts.year, ts.months, ts.days);
     return TimeDelta(delta_days, hours - ts.hours, minutes - ts.minutes,
-                     seconds - ts.seconds, frac - ts.frac);
+            seconds - ts.seconds, frac - ts.frac);
 }
 
 bool isce3::core::DateTime::isClose(const DateTime& ts) const
@@ -348,8 +348,8 @@ bool isce3::core::DateTime::isClose(const DateTime& ts) const
     return std::abs(dt.getTotalSeconds()) < TOL_SECONDS;
 }
 
-bool isce3::core::DateTime::isClose(const DateTime& ts,
-                                    const TimeDelta& errtol) const
+bool isce3::core::DateTime::isClose(
+        const DateTime& ts, const TimeDelta& errtol) const
 {
     TimeDelta dt = (*this) - ts;
     return std::abs(dt.getTotalSeconds()) < errtol.getTotalSeconds();
@@ -409,15 +409,14 @@ std::string isce3::core::DateTime::isoformat() const
 void isce3::core::DateTime::strptime(std::string datetime_str)
 {
     if (!isIsoFormat(datetime_str))
-        throw isce3::except::InvalidArgument(
-                ISCE_SRCINFO(),
+        throw isce3::except::InvalidArgument(ISCE_SRCINFO(),
                 "ISO-8601 incompatible or bad value for datetime string!");
     // if time section is missing then append time
     if (datetime_str.find(':') == std::string::npos)
         datetime_str = datetime_str.substr(0, 10) + "T00:00:00";
     // replace decimal point ":" or "," by "." if any
     if (datetime_str.find_last_of(':') == 19 ||
-        datetime_str.find_last_of(',') == 19)
+            datetime_str.find_last_of(',') == 19)
         datetime_str.replace(19, 1, ".");
     // supports any desired sep for string format!
     std::string str_fmt {"%d-%d-%d%d:%d:%lf"};
@@ -425,8 +424,8 @@ void isce3::core::DateTime::strptime(std::string datetime_str)
     // Parse the string
     double decimal_seconds = std::numeric_limits<double>::min();
     std::sscanf(datetime_str.c_str(), str_fmt.c_str(), &this->year,
-                &this->months, &this->days, &this->hours, &this->minutes,
-                &decimal_seconds);
+            &this->months, &this->days, &this->hours, &this->minutes,
+            &decimal_seconds);
     // Convert decimal seconds to integer and fraction
     int integer_seconds = int(decimal_seconds);
     this->seconds = integer_seconds;

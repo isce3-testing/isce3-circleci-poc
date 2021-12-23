@@ -27,10 +27,10 @@ void addbinding_pnt_intersect(py::module& m)
     ----------
     pos : isce3.core.Vec3
         ECEF (x,y,z) positions of antenna/platform in (m,m,m).
-    lkvec : isce3.core.Vec3   
+    lkvec : isce3.core.Vec3
         looking/pointing unit vector in ECEF towards planet from
         Antenna/platform.
-    ellips : isce3.core.Ellipsoid, default=WGS84         
+    ellips : isce3.core.Ellipsoid, default=WGS84
 
     Returns
     -------
@@ -38,8 +38,8 @@ void addbinding_pnt_intersect(py::module& m)
         slant range in (m).
 
     Raises
-    ------   
-    ValueError 
+    ------
+    ValueError
         zero look vector input argument
     RuntimeError
         Non-positive slant range
@@ -82,15 +82,15 @@ void addbinding_pnt_intersect(py::module& m)
 
     Parameters
     ----------
-    sc_pos : isce3.core.Vec3   
+    sc_pos : isce3.core.Vec3
         Spacecraft position in ECEF (x,y,z) all in (m)
     lkvec : isce3.core.Vec3
-        look unit vector in ECEF (x,y,z), looking from spacecraft 
+        look unit vector in ECEF (x,y,z), looking from spacecraft
         towards the planet.
-    dem_interp : isce3.geometry.DEMInterpolator, default=0.0 
+    dem_interp : isce3.geometry.DEMInterpolator, default=0.0
         Desired DEM height (m) above the reference ellipsoid.
     hgt_err : float, default=0.5
-        Max error in height estimation (m) between desired 
+        Max error in height estimation (m) between desired
         input height and final output height.
     num_iter : int, default=10
         Max number of iterations in height estimation.
@@ -100,20 +100,20 @@ void addbinding_pnt_intersect(py::module& m)
     -------
     dict
         A dict with the following keys
-        iter_info : tuple of (int, float) 
+        iter_info : tuple of (int, float)
             number of iterations and height error in (m).
-        slantrange : float   
-            slant range in (m). 
-        pos_xyz : isce3.core.Vec3     
+        slantrange : float
+            slant range in (m).
+        pos_xyz : isce3.core.Vec3
             target position on Ellipsoid in ECEF(x,y,z)  in (m,m,m).
         pos_llh : isce3.core.Vec3
-            target position on Ellipsoid in geodtic (lon,lat,height) 
+            target position on Ellipsoid in geodtic (lon,lat,height)
             in (rad,rad,m).
 
     Raises
     ------
     ValueError
-        Bad Iteration or zero look vector input arguments 
+        Bad Iteration or zero look vector input arguments
     RuntimeError
         Non-positive slant range
 

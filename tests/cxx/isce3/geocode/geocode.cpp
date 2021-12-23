@@ -11,8 +11,8 @@
 #include <isce3/core/LUT2d.h>
 #include <isce3/core/Metadata.h>
 #include <isce3/core/Orbit.h>
-#include <isce3/geocode/geocodeSlc.h>
 #include <isce3/geocode/GeocodeCov.h>
+#include <isce3/geocode/geocodeSlc.h>
 #include <isce3/geometry/Topo.h>
 #include <isce3/io/IH5.h>
 #include <isce3/io/Raster.h>
@@ -34,14 +34,14 @@ void createZeroDem();
 // To create test data
 void createTestData();
 
+template<class T>
+void checkStatsReal(isce3::math::Stats<T>, isce3::io::Raster& raster);
 
 template<class T>
-void checkStatsReal(isce3::math::Stats<T>, isce3::io::Raster &raster);
+void checkStatsComplex(isce3::math::Stats<T>, isce3::io::Raster& raster);
 
-template<class T>
-void checkStatsComplex(isce3::math::Stats<T>, isce3::io::Raster &raster);
-
-TEST(GeocodeTest, TestGeocodeCov) {
+TEST(GeocodeTest, TestGeocodeCov)
+{
 
     // This test runs Topo to compute lat lon height on ellipsoid for a given
     // radar dataset. Then each of the computed latitude and longitude
@@ -51,7 +51,8 @@ TEST(GeocodeTest, TestGeocodeCov) {
     // Create a DEM with zero height (ellipsoid surface)
     createZeroDem();
 
-    // Run Topo with the zero height DEM and cerate the lat-lon grids on ellipsoid
+    // Run Topo with the zero height DEM and cerate the lat-lon grids on
+    // ellipsoid
     createTestData();
 
     std::string h5file(TESTDATA_DIR "envisat.h5");
@@ -60,13 +61,14 @@ TEST(GeocodeTest, TestGeocodeCov) {
     // Load the product
     isce3::product::Product product(file);
 
-    const isce3::product::Swath & swath = product.swath('A');
+    const isce3::product::Swath& swath = product.swath('A');
     isce3::core::Orbit orbit = product.metadata().orbit();
     isce3::core::Ellipsoid ellipsoid;
-    isce3::core::LUT2d<double> doppler = product.metadata().procInfo().dopplerCentroid('A');
+    isce3::core::LUT2d<double> doppler =
+            product.metadata().procInfo().dopplerCentroid('A');
     auto lookSide = product.lookSide();
 
-    double threshold = 1.0e-9 ;
+    double threshold = 1.0e-9;
     int numiter = 25;
     size_t linesPerBlock = 1000;
     double demBlockMargin = 0.1;
@@ -108,7 +110,7 @@ TEST(GeocodeTest, TestGeocodeCov) {
     isce3::product::RadarGridParameters radar_grid(swath, lookSide);
 
     geoObj.geoGrid(geoGridStartX, geoGridStartY, geoGridSpacingX,
-                   geoGridSpacingY, geoGridWidth, geoGridLength, epsgcode);
+            geoGridSpacingY, geoGridWidth, geoGridLength, epsgcode);
 
     // populate optional parameters
     bool flag_az_baseband_doppler = false;
@@ -118,11 +120,10 @@ TEST(GeocodeTest, TestGeocodeCov) {
     isce3::geometry::rtcInputTerrainRadiometry input_terrain_radiometry =
             isce3::geometry::rtcInputTerrainRadiometry::BETA_NAUGHT;
     isce3::geometry::rtcOutputTerrainRadiometry output_terrain_radiometry =
-        isce3::geometry::rtcOutputTerrainRadiometry::GAMMA_NAUGHT;
+            isce3::geometry::rtcOutputTerrainRadiometry::GAMMA_NAUGHT;
     int exponent = 0;
     float rtc_min_value_db = std::numeric_limits<float>::quiet_NaN();
-    double rtc_geogrid_upsampling =
-            std::numeric_limits<double>::quiet_NaN();
+    double rtc_geogrid_upsampling = std::numeric_limits<double>::quiet_NaN();
     isce3::geometry::rtcAlgorithm rtc_algorithm =
             isce3::geometry::rtcAlgorithm::RTC_AREA_PROJECTION;
     double abs_cal_factor = 1;
@@ -185,7 +186,7 @@ TEST(GeocodeTest, TestGeocodeCov) {
                     offset_az_raster, offset_rg_raster, geocode_memory_mode_1,
                     min_block_size, max_block_size);
         }
-    } 
+    }
 
     // Test generation of full-covariance elements and block processing
 
@@ -204,12 +205,11 @@ TEST(GeocodeTest, TestGeocodeCov) {
     geoComplexObj.dataInterpolator(method);
 
     geoComplexObj.geoGrid(geoGridStartX, geoGridStartY, geoGridSpacingX,
-                          geoGridSpacingY, geoGridWidth, geoGridLength,
-                          epsgcode);
+            geoGridSpacingY, geoGridWidth, geoGridLength, epsgcode);
 
     // load complex raster X and Y as a raster vector
     std::vector<Raster> slc_raster_xyVect = {isce3::io::Raster("xslc_rdr.bin"),
-                                           isce3::io::Raster("yslc_rdr.bin")};
+            isce3::io::Raster("yslc_rdr.bin")};
 
     isce3::io::Raster slc_raster_xy =
             isce3::io::Raster("xy_slc_rdr.vrt", slc_raster_xyVect);
@@ -217,12 +217,11 @@ TEST(GeocodeTest, TestGeocodeCov) {
     // geocode full-covariance
     output_mode = isce3::geocode::geocodeOutputMode::AREA_PROJECTION;
 
-    isce3::io::Raster geocoded_diag_raster("area_proj_geo_diag.bin", geoGridWidth,
-                                         geoGridLength, 2, GDT_Float32, "ENVI");
+    isce3::io::Raster geocoded_diag_raster("area_proj_geo_diag.bin",
+            geoGridWidth, geoGridLength, 2, GDT_Float32, "ENVI");
 
     isce3::io::Raster geocoded_off_diag_raster("area_proj_geo_off_diag.bin",
-                                            geoGridWidth, geoGridLength, 1,
-                                            GDT_CFloat32, "ENVI");
+            geoGridWidth, geoGridLength, 1, GDT_CFloat32, "ENVI");
 
     geoComplexObj.geocode(radar_grid, slc_raster_xy, geocoded_diag_raster,
             demRaster, output_mode, flag_az_baseband_doppler, flatten,
@@ -239,15 +238,14 @@ TEST(GeocodeTest, TestGeocodeCov) {
     isce3::io::Raster slc_x_conj_y_raster("x_conj_y_slc_rdr.bin");
 
     isce3::io::Raster geocoded_slc_x_conj_y_raster("area_proj_geo_x_conj_y.bin",
-                                                   geoGridWidth, geoGridLength,
-                                                   1, GDT_CFloat32, "ENVI");
+            geoGridWidth, geoGridLength, 1, GDT_CFloat32, "ENVI");
 
-    geoComplexObj.geocode(radar_grid, slc_x_conj_y_raster, geocoded_slc_x_conj_y_raster,
-                          demRaster, output_mode);
+    geoComplexObj.geocode(radar_grid, slc_x_conj_y_raster,
+            geocoded_slc_x_conj_y_raster, demRaster, output_mode);
 }
 
-
-TEST(GeocodeTest, CheckGeocodeCovFullCovResults) {
+TEST(GeocodeTest, CheckGeocodeCovFullCovResults)
+{
     //  The geocoded latitude and longitude data should be
     // consistent with the geocoded pixel location.
 
@@ -256,7 +254,8 @@ TEST(GeocodeTest, CheckGeocodeCovFullCovResults) {
     std::cout << "opening: area_proj_geo_off_diag.bin" << std::endl;
     isce3::io::Raster geocoded_off_diag_raster("area_proj_geo_off_diag.bin");
     std::cout << "opening: area_proj_geo_x_conj_y.bin" << std::endl;
-    isce3::io::Raster geocoded_slc_x_conj_y_raster("area_proj_geo_x_conj_y.bin");
+    isce3::io::Raster geocoded_slc_x_conj_y_raster(
+            "area_proj_geo_x_conj_y.bin");
 
     size_t length = geocoded_diag_raster.length();
     size_t width = geocoded_diag_raster.width();
@@ -265,7 +264,7 @@ TEST(GeocodeTest, CheckGeocodeCovFullCovResults) {
     double err_y = 0.0;
     double err_x_conj_y = 0.0;
     double max_err_x = 0.0;
-    double max_err_y = 0.0; 
+    double max_err_y = 0.0;
     double max_err_x_conj_y = 0.0;
 
     std::valarray<double> geocoded_diag_array_x(length * width);
@@ -273,11 +272,14 @@ TEST(GeocodeTest, CheckGeocodeCovFullCovResults) {
     std::valarray<std::complex<double>> geocoded_off_diag_array(length * width);
     std::valarray<std::complex<double>> slc_x_conj_y_array(length * width);
 
-    geocoded_diag_raster.getBlock(geocoded_diag_array_x, 0, 0, width, length, 1);
-    geocoded_diag_raster.getBlock(geocoded_diag_array_y, 0, 0, width, length, 2);
-    geocoded_off_diag_raster.getBlock(geocoded_off_diag_array, 0, 0, width,
-                                    length);
-    geocoded_slc_x_conj_y_raster.getBlock(slc_x_conj_y_array, 0, 0, width, length);
+    geocoded_diag_raster.getBlock(
+            geocoded_diag_array_x, 0, 0, width, length, 1);
+    geocoded_diag_raster.getBlock(
+            geocoded_diag_array_y, 0, 0, width, length, 2);
+    geocoded_off_diag_raster.getBlock(
+            geocoded_off_diag_array, 0, 0, width, length);
+    geocoded_slc_x_conj_y_raster.getBlock(
+            slc_x_conj_y_array, 0, 0, width, length);
 
     double square_sum_x = 0; // sum of square differences
     int nvalid_x = 0;
@@ -323,7 +325,6 @@ TEST(GeocodeTest, CheckGeocodeCovFullCovResults) {
             double norm_off_diag = std::norm(geocoded_off_diag_array[index]);
             double norm_x_conj_y = std::norm(slc_x_conj_y_array[index]);
 
-
             if (isnan(norm_x_conj_y)) {
                 continue;
             }
@@ -345,29 +346,27 @@ TEST(GeocodeTest, CheckGeocodeCovFullCovResults) {
                 continue;
             }
 
-            err_x_conj_y = std::norm(geocoded_off_diag_array[index] -
-                                        slc_x_conj_y_array[index]);
+            err_x_conj_y = std::norm(
+                    geocoded_off_diag_array[index] - slc_x_conj_y_array[index]);
             square_sum_x_conj_y += pow(err_x_conj_y, 2);
             // if (norm_off_diag > 0 && norm_x_conj_y > 0) {
             nvalid_x_conj_y++;
             // }
 
-            max_err_x_conj_y = std::max(max_err_x_conj_y, 
-                                        std::abs(err_x_conj_y));
-    
+            max_err_x_conj_y =
+                    std::max(max_err_x_conj_y, std::abs(err_x_conj_y));
         }
     }
 
     stats.mean = total / static_cast<double>(stats.n_valid);
     double mean_real_valued = total_real_valued / stats.n_valid;
 
-    double sample_stddev_factor = (
-        static_cast<double>(stats.n_valid)) / 
-        (static_cast<double>(stats.n_valid - 1));
+    double sample_stddev_factor = (static_cast<double>(stats.n_valid)) /
+                                  (static_cast<double>(stats.n_valid - 1));
 
-    stats.sample_stddev = std::sqrt(sample_stddev_factor *
-                                    (total_square / stats.n_valid -
-                                     std::pow(mean_real_valued, 2)));
+    stats.sample_stddev = std::sqrt(
+            sample_stddev_factor *
+            (total_square / stats.n_valid - std::pow(mean_real_valued, 2)));
 
     double rmse_x = std::sqrt(square_sum_x / nvalid_x);
     double rmse_y = std::sqrt(square_sum_y / nvalid_y);
@@ -393,11 +392,10 @@ TEST(GeocodeTest, CheckGeocodeCovFullCovResults) {
     ASSERT_LT(max_err_x_conj_y, 1.0e-6);
 
     checkStatsComplex(stats, geocoded_slc_x_conj_y_raster);
-
 }
 
-
-TEST(GeocodeTest, CheckGeocodeCovResults) {
+TEST(GeocodeTest, CheckGeocodeCovResults)
+{
     // The geocoded latitude and longitude data should be
     // consistent with the geocoded pixel location.
 
@@ -487,16 +485,16 @@ TEST(GeocodeTest, CheckGeocodeCovResults) {
         stats_x.mean = total_x / stats_x.n_valid;
         stats_y.mean = total_y / stats_y.n_valid;
 
-        double sample_stddev_factor = (
-            static_cast<double>(stats_x.n_valid)) / 
-            (static_cast<double>(stats_x.n_valid - 1));
+        double sample_stddev_factor =
+                (static_cast<double>(stats_x.n_valid)) /
+                (static_cast<double>(stats_x.n_valid - 1));
 
-        stats_x.sample_stddev = std::sqrt(sample_stddev_factor *
-                                          (total_square_x / stats_x.n_valid -
-                                           std::pow(stats_x.mean, 2)));
-        stats_y.sample_stddev = std::sqrt(sample_stddev_factor *
-                                          (total_square_y / stats_y.n_valid -
-                                           std::pow(stats_y.mean, 2)));
+        stats_x.sample_stddev = std::sqrt(
+                sample_stddev_factor *
+                (total_square_x / stats_x.n_valid - std::pow(stats_x.mean, 2)));
+        stats_y.sample_stddev = std::sqrt(
+                sample_stddev_factor *
+                (total_square_y / stats_y.n_valid - std::pow(stats_y.mean, 2)));
 
         double rmse_x = std::sqrt(square_sum_x / stats_x.n_valid);
         double rmse_y = std::sqrt(square_sum_y / stats_y.n_valid);
@@ -510,7 +508,7 @@ TEST(GeocodeTest, CheckGeocodeCovResults) {
         std::cout << "  maxErrY: " << maxErrY << std::endl;
         std::cout << "  dx: " << dx << std::endl;
         std::cout << "  dy: " << dy << std::endl;
-    
+
         ASSERT_GE(stats_x.n_valid, 800);
         ASSERT_GE(stats_y.n_valid, 800);
 
@@ -527,7 +525,6 @@ TEST(GeocodeTest, CheckGeocodeCovResults) {
         // Check stats
         checkStatsReal(stats_x, xRaster);
         checkStatsReal(stats_y, yRaster);
-
     }
 }
 
@@ -563,13 +560,13 @@ TEST(GeocodeTest, TestGeocodeSlc)
             product.metadata().procInfo().dopplerCentroid('A');
 
     // construct a zero 2D LUT
-    isce3::core::Matrix<double> M(imageGridDoppler.length(),
-                                  imageGridDoppler.width());
+    isce3::core::Matrix<double> M(
+            imageGridDoppler.length(), imageGridDoppler.width());
 
     M.zeros();
-    isce3::core::LUT2d<double> nativeDoppler(
-            imageGridDoppler.xStart(), imageGridDoppler.yStart(),
-            imageGridDoppler.xSpacing(), imageGridDoppler.ySpacing(), M);
+    isce3::core::LUT2d<double> nativeDoppler(imageGridDoppler.xStart(),
+            imageGridDoppler.yStart(), imageGridDoppler.xSpacing(),
+            imageGridDoppler.ySpacing(), M);
 
     double thresholdGeo2rdr = 1.0e-9;
     int numiterGeo2rdr = 25;
@@ -590,33 +587,33 @@ TEST(GeocodeTest, TestGeocodeSlc)
     int epsgcode = 4326;
 
     std::cout << "Geogrid" << std::endl;
-    isce3::product::GeoGridParameters geoGrid(
-            geoGridStartX, geoGridStartY, geoGridSpacingX, geoGridSpacingY,
-            geoGridWidth, geoGridLength, epsgcode);
+    isce3::product::GeoGridParameters geoGrid(geoGridStartX, geoGridStartY,
+            geoGridSpacingX, geoGridSpacingY, geoGridWidth, geoGridLength,
+            epsgcode);
 
     isce3::io::Raster demRaster("zero_height_dem_geo.bin");
 
     isce3::io::Raster inputSlc("xslc_rdr.bin", GA_ReadOnly);
 
-    isce3::io::Raster geocodedSlc("xslc_geo.bin", geoGridWidth, geoGridLength, 1,
-                                 GDT_CFloat32, "ENVI");
+    isce3::io::Raster geocodedSlc("xslc_geo.bin", geoGridWidth, geoGridLength,
+            1, GDT_CFloat32, "ENVI");
 
     bool flatten = false;
 
     isce3::geocode::geocodeSlc(geocodedSlc, inputSlc, demRaster, radarGrid,
-                              geoGrid, orbit, nativeDoppler, imageGridDoppler,
-                              ellipsoid, thresholdGeo2rdr, numiterGeo2rdr,
-                              linesPerBlock, demBlockMargin, flatten);
+            geoGrid, orbit, nativeDoppler, imageGridDoppler, ellipsoid,
+            thresholdGeo2rdr, numiterGeo2rdr, linesPerBlock, demBlockMargin,
+            flatten);
 
     isce3::io::Raster inputSlcY("yslc_rdr.bin", GA_ReadOnly);
 
-    isce3::io::Raster geocodedSlcY("yslc_geo.bin", geoGridWidth, geoGridLength, 1,
-                                  GDT_CFloat32, "ENVI");
+    isce3::io::Raster geocodedSlcY("yslc_geo.bin", geoGridWidth, geoGridLength,
+            1, GDT_CFloat32, "ENVI");
 
     isce3::geocode::geocodeSlc(geocodedSlcY, inputSlcY, demRaster, radarGrid,
-                              geoGrid, orbit, nativeDoppler, imageGridDoppler,
-                              ellipsoid, thresholdGeo2rdr, numiterGeo2rdr,
-                              linesPerBlock, demBlockMargin, flatten);
+            geoGrid, orbit, nativeDoppler, imageGridDoppler, ellipsoid,
+            thresholdGeo2rdr, numiterGeo2rdr, linesPerBlock, demBlockMargin,
+            flatten);
 
     double* _geoTrans = new double[6];
     _geoTrans[0] = geoGridStartX;
@@ -724,61 +721,71 @@ void createZeroDem()
     zeroDemRaster.setBlock(dem, 0, 0, width, length);
 }
 
-
 template<class T>
-void checkStatsReal(isce3::math::Stats<T> computed_stats, 
-                    isce3::io::Raster &raster) {
+void checkStatsReal(
+        isce3::math::Stats<T> computed_stats, isce3::io::Raster& raster)
+{
 
-        int band = 0, approx_ok = 0;
-        double raster_min, raster_max, raster_mean, raster_stddev, raster_sample_stddev;
+    int band = 0, approx_ok = 0;
+    double raster_min, raster_max, raster_mean, raster_stddev,
+            raster_sample_stddev;
 
-        auto isce3_stats = computeRasterStats<T>(raster)[band];
+    auto isce3_stats = computeRasterStats<T>(raster)[band];
 
-        // Get GDAL metadata stats
-        GDALDataset* output_raster_dataset = raster.dataset();
-        GDALRasterBand* output_raster_band =
-                output_raster_dataset->GetRasterBand(band + 1);
-        // output_raster_band->
-        output_raster_band->ComputeStatistics(approx_ok, &raster_min, &raster_max,
-                &raster_mean, &raster_stddev, NULL, nullptr);
+    // Get GDAL metadata stats
+    GDALDataset* output_raster_dataset = raster.dataset();
+    GDALRasterBand* output_raster_band =
+            output_raster_dataset->GetRasterBand(band + 1);
+    // output_raster_band->
+    output_raster_band->ComputeStatistics(approx_ok, &raster_min, &raster_max,
+            &raster_mean, &raster_stddev, NULL, nullptr);
 
-        // convert stddev to sample stddev
-        raster_sample_stddev = raster_stddev * std::sqrt(isce3_stats.n_valid) / std::sqrt(isce3_stats.n_valid - 1);
+    // convert stddev to sample stddev
+    raster_sample_stddev = raster_stddev * std::sqrt(isce3_stats.n_valid) /
+                           std::sqrt(isce3_stats.n_valid - 1);
 
-        std::cout << "=== real gdal =====================" << std::endl;
-        std::cout << "min: " << isce3_stats.min << ", " << raster_min << std::endl;
-        std::cout << "mean: " << isce3_stats.mean << ", " << raster_mean << std::endl;
-        std::cout << "max: " << isce3_stats.max << ", " << raster_max << std::endl;
-        std::cout << "sample_stddev: " << isce3_stats.sample_stddev << ", " << raster_stddev << std::endl;
-        std::cout << "sample_stddev: " << isce3_stats.sample_stddev << ", " << raster_sample_stddev << std::endl;
+    std::cout << "=== real gdal =====================" << std::endl;
+    std::cout << "min: " << isce3_stats.min << ", " << raster_min << std::endl;
+    std::cout << "mean: " << isce3_stats.mean << ", " << raster_mean
+              << std::endl;
+    std::cout << "max: " << isce3_stats.max << ", " << raster_max << std::endl;
+    std::cout << "sample_stddev: " << isce3_stats.sample_stddev << ", "
+              << raster_stddev << std::endl;
+    std::cout << "sample_stddev: " << isce3_stats.sample_stddev << ", "
+              << raster_sample_stddev << std::endl;
 
-        std::cout << "=== real =====================" << std::endl;
-        std::cout << "min: " << isce3_stats.min << ", " << computed_stats.min << std::endl;
-        std::cout << "mean: " << isce3_stats.mean << ", " << computed_stats.mean << std::endl;
-        std::cout << "max: " << isce3_stats.max << ", " << computed_stats.max << std::endl;
-        std::cout << "sample_stddev: " << isce3_stats.sample_stddev << ", " << computed_stats.sample_stddev << std::endl;
-        std::cout << "n_valid: " << isce3_stats.n_valid << ", " << computed_stats.n_valid << std::endl;
+    std::cout << "=== real =====================" << std::endl;
+    std::cout << "min: " << isce3_stats.min << ", " << computed_stats.min
+              << std::endl;
+    std::cout << "mean: " << isce3_stats.mean << ", " << computed_stats.mean
+              << std::endl;
+    std::cout << "max: " << isce3_stats.max << ", " << computed_stats.max
+              << std::endl;
+    std::cout << "sample_stddev: " << isce3_stats.sample_stddev << ", "
+              << computed_stats.sample_stddev << std::endl;
+    std::cout << "n_valid: " << isce3_stats.n_valid << ", "
+              << computed_stats.n_valid << std::endl;
 
-        // Compare Stats struct values with GDAL metadata saved by GeocodeCov
-        ASSERT_NEAR(isce3_stats.min, raster_min, 1.0e-15);
-        ASSERT_NEAR(isce3_stats.mean, raster_mean, 1.0e-15);
-        ASSERT_NEAR(isce3_stats.max, raster_max, 1.0e-15);
-        ASSERT_NEAR(isce3_stats.sample_stddev, raster_sample_stddev , 1.0e-15);
+    // Compare Stats struct values with GDAL metadata saved by GeocodeCov
+    ASSERT_NEAR(isce3_stats.min, raster_min, 1.0e-15);
+    ASSERT_NEAR(isce3_stats.mean, raster_mean, 1.0e-15);
+    ASSERT_NEAR(isce3_stats.max, raster_max, 1.0e-15);
+    ASSERT_NEAR(isce3_stats.sample_stddev, raster_sample_stddev, 1.0e-15);
 
-        // Compare Stats struct values with unitest values
-        ASSERT_NEAR(isce3_stats.min, computed_stats.min, 1.0e-7);
-        ASSERT_NEAR(isce3_stats.mean, computed_stats.mean, 1.0e-7);
-        ASSERT_NEAR(isce3_stats.max, computed_stats.max, 1.0e-7);
+    // Compare Stats struct values with unitest values
+    ASSERT_NEAR(isce3_stats.min, computed_stats.min, 1.0e-7);
+    ASSERT_NEAR(isce3_stats.mean, computed_stats.mean, 1.0e-7);
+    ASSERT_NEAR(isce3_stats.max, computed_stats.max, 1.0e-7);
 
-        ASSERT_NEAR(isce3_stats.sample_stddev, computed_stats.sample_stddev, 1.0e-7);
+    ASSERT_NEAR(
+            isce3_stats.sample_stddev, computed_stats.sample_stddev, 1.0e-7);
 
-        ASSERT_EQ(isce3_stats.n_valid, computed_stats.n_valid);
-
+    ASSERT_EQ(isce3_stats.n_valid, computed_stats.n_valid);
 }
 
 template<class T>
-void checkStatsComplex(isce3::math::Stats<T> computed_stats,
-        isce3::io::Raster& raster)
+void checkStatsComplex(
+        isce3::math::Stats<T> computed_stats, isce3::io::Raster& raster)
 {
 
     int band = 0;
@@ -786,11 +793,16 @@ void checkStatsComplex(isce3::math::Stats<T> computed_stats,
     auto isce3_stats = computeRasterStats<T>(raster)[band];
 
     std::cout << "=== complex =====================" << std::endl;
-    std::cout << "min: " << isce3_stats.min << ", " << computed_stats.min << std::endl;
-    std::cout << "mean: " << isce3_stats.mean << ", " << computed_stats.mean << std::endl;
-    std::cout << "max: " << isce3_stats.max << ", " << computed_stats.max << std::endl;
-    std::cout << "sample_stddev: " << isce3_stats.sample_stddev << ", " << computed_stats.sample_stddev << std::endl;
-    std::cout << "n_valid: " << isce3_stats.n_valid << ", " << computed_stats.n_valid << std::endl;
+    std::cout << "min: " << isce3_stats.min << ", " << computed_stats.min
+              << std::endl;
+    std::cout << "mean: " << isce3_stats.mean << ", " << computed_stats.mean
+              << std::endl;
+    std::cout << "max: " << isce3_stats.max << ", " << computed_stats.max
+              << std::endl;
+    std::cout << "sample_stddev: " << isce3_stats.sample_stddev << ", "
+              << computed_stats.sample_stddev << std::endl;
+    std::cout << "n_valid: " << isce3_stats.n_valid << ", "
+              << computed_stats.n_valid << std::endl;
 
     // Compare Stats struct values with unitest values
     ASSERT_LT(std::abs(isce3_stats.min - computed_stats.min), 1.0e-15);
@@ -798,14 +810,13 @@ void checkStatsComplex(isce3::math::Stats<T> computed_stats,
     ASSERT_LT(std::abs(isce3_stats.max - computed_stats.max), 1.0e-15);
 
     if (!isnan(computed_stats.sample_stddev)) {
-        ASSERT_LT(std::abs(isce3_stats.sample_stddev - 
-                           computed_stats.sample_stddev), 1.0e-8);
+        ASSERT_LT(std::abs(isce3_stats.sample_stddev -
+                           computed_stats.sample_stddev),
+                1.0e-8);
     }
 
     ASSERT_EQ(isce3_stats.n_valid, computed_stats.n_valid);
-
 }
-
 
 void createTestData()
 {
@@ -862,18 +873,18 @@ void createTestData()
         x_conj_y_slc[ii] = cpxPhaseX * std::conj(cpxPhaseY);
     }
 
-    isce3::io::Raster slcRasterX("xslc_rdr.bin", width, length, 1, GDT_CFloat32,
-                                "ENVI");
+    isce3::io::Raster slcRasterX(
+            "xslc_rdr.bin", width, length, 1, GDT_CFloat32, "ENVI");
 
     slcRasterX.setBlock(xslc, 0, 0, width, length);
 
-    isce3::io::Raster slcRasterY("yslc_rdr.bin", width, length, 1, GDT_CFloat32,
-                                "ENVI");
+    isce3::io::Raster slcRasterY(
+            "yslc_rdr.bin", width, length, 1, GDT_CFloat32, "ENVI");
 
     slcRasterY.setBlock(yslc, 0, 0, width, length);
 
-    isce3::io::Raster slc_x_conj_y_raster("x_conj_y_slc_rdr.bin", width, length, 1,
-                                      GDT_CFloat32, "ENVI");
+    isce3::io::Raster slc_x_conj_y_raster(
+            "x_conj_y_slc_rdr.bin", width, length, 1, GDT_CFloat32, "ENVI");
 
     slc_x_conj_y_raster.setBlock(x_conj_y_slc, 0, 0, width, length);
 }

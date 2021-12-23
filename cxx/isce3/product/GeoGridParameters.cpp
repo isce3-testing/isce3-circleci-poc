@@ -1,4 +1,5 @@
 #include "GeoGridParameters.h"
+
 #include <isce3/core/Projections.h>
 #include <isce3/except/Error.h>
 #include <isce3/geometry/boundingbox.h>
@@ -6,10 +7,10 @@
 
 namespace isce3 { namespace product {
 
-GeoGridParameters::GeoGridParameters(
-        double geoGridStartX, double geoGridStartY, double geoGridSpacingX,
-        double geoGridSpacingY, int width, int length, int epsgcode) :
-      // the starting coordinate of the output geocoded grid in X direction.
+GeoGridParameters::GeoGridParameters(double geoGridStartX, double geoGridStartY,
+        double geoGridSpacingX, double geoGridSpacingY, int width, int length,
+        int epsgcode)
+    : // the starting coordinate of the output geocoded grid in X direction.
       _startX(geoGridStartX),
 
       // the starting coordinate of the output geocoded grid in Y direction.
@@ -82,13 +83,11 @@ void GeoGridParameters::print() const
 }
 
 GeoGridParameters bbox2GeoGrid(const RadarGridParameters& radar_grid,
-                               const isce3::core::Orbit& orbit,
-                               const isce3::core::LUT2d<double>& doppler,
-                               double spacing_x, double spacing_y, int epsg,
-                               double min_height, double max_height,
-                               const double margin, const int pointsPerEdge,
-                               const double threshold, const int numiter,
-                               const double height_threshold)
+        const isce3::core::Orbit& orbit,
+        const isce3::core::LUT2d<double>& doppler, double spacing_x,
+        double spacing_y, int epsg, double min_height, double max_height,
+        const double margin, const int pointsPerEdge, const double threshold,
+        const int numiter, const double height_threshold)
 {
     if (spacing_x <= 0) {
         std::string errmsg = "X spacing must be > 0.0";
@@ -100,30 +99,29 @@ GeoGridParameters bbox2GeoGrid(const RadarGridParameters& radar_grid,
         throw isce3::except::OutOfRange(ISCE_SRCINFO(), errmsg);
     }
 
-
     // determine bounding box from radar grid
     auto proj = isce3::core::makeProjection(epsg);
-    isce3::geometry::BoundingBox bbox = isce3::geometry::getGeoBoundingBoxHeightSearch(
-            radar_grid, orbit,
-            proj.get(), doppler,
-            min_height, max_height,
-            margin, pointsPerEdge,
-            threshold, numiter,
-            height_threshold);
+    isce3::geometry::BoundingBox bbox =
+            isce3::geometry::getGeoBoundingBoxHeightSearch(radar_grid, orbit,
+                    proj.get(), doppler, min_height, max_height, margin,
+                    pointsPerEdge, threshold, numiter, height_threshold);
 
     // retrieve geogrid values based on bounding box values
     auto start_x = bbox.MinX;
     auto start_y = bbox.MaxY;
-    auto width = static_cast<int>(std::ceil((bbox.MaxX - bbox.MinX) / spacing_x));
-    auto length = static_cast<int>(std::ceil(std::abs((bbox.MaxY - bbox.MinY) / spacing_y)));
+    auto width =
+            static_cast<int>(std::ceil((bbox.MaxX - bbox.MinX) / spacing_x));
+    auto length = static_cast<int>(
+            std::ceil(std::abs((bbox.MaxY - bbox.MinY) / spacing_y)));
 
-    return GeoGridParameters(start_x, start_y, spacing_x, spacing_y, width, length, epsg);
+    return GeoGridParameters(
+            start_x, start_y, spacing_x, spacing_y, width, length, epsg);
 }
 
-GeoGridParameters bbox2GeoGridScaled(
-        const RadarGridParameters& radar_grid, const isce3::core::Orbit& orbit,
+GeoGridParameters bbox2GeoGridScaled(const RadarGridParameters& radar_grid,
+        const isce3::core::Orbit& orbit,
         const isce3::core::LUT2d<double>& doppler,
-        const isce3::io::Raster& dem_raster, double spacing_scale, 
+        const isce3::io::Raster& dem_raster, double spacing_scale,
         double min_height, double max_height, const double margin,
         const int pointsPerEdge, const double threshold, const int numiter,
         const double height_threshold)
@@ -139,8 +137,8 @@ GeoGridParameters bbox2GeoGridScaled(
 
     int epsg = dem_raster.getEPSG();
 
-    return bbox2GeoGrid(radar_grid, orbit, doppler, spacing_x,
-                        spacing_y, epsg, min_height, max_height, margin,
-                        pointsPerEdge, threshold, numiter, height_threshold);
+    return bbox2GeoGrid(radar_grid, orbit, doppler, spacing_x, spacing_y, epsg,
+            min_height, max_height, margin, pointsPerEdge, threshold, numiter,
+            height_threshold);
 }
-}}
+}} // namespace isce3::product

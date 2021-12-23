@@ -19,7 +19,7 @@ namespace isce3 { namespace cuda { namespace core {
  */
 template<class Kernel, typename T>
 CUDA_HOSTDEV T interp1d(const Kernel& kernel, const T* x, size_t length,
-                        size_t stride, double t, bool periodic = false);
+        size_t stride, double t, bool periodic = false);
 
 }}} // namespace isce3::cuda::core
 

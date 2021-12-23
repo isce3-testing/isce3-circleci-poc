@@ -44,15 +44,13 @@ public:
      * chirp replica and creates FFT plans for frequency domain convolution
      * with the matched filter.
      *
-     * \param[in] chirp     Time-domain replica of the transmitted chirp waveform
-     * \param[in] inputsize Number of range samples in the signal to be compressed
-     * \param[in] maxbatch  Max batch size
-     * \param[in] mode      Convolution output mode
+     * \param[in] chirp     Time-domain replica of the transmitted chirp
+     * waveform \param[in] inputsize Number of range samples in the signal to be
+     * compressed \param[in] maxbatch  Max batch size \param[in] mode
+     * Convolution output mode
      */
-    RangeComp(const std::vector<std::complex<float>> & chirp,
-              int inputsize,
-              int maxbatch = 1,
-              Mode mode = Mode::Full);
+    RangeComp(const std::vector<std::complex<float>>& chirp, int inputsize,
+            int maxbatch = 1, Mode mode = Mode::Full);
 
     /** Number of samples in chirp */
     int chirpSize() const { return _chirpsize; }
@@ -90,7 +88,8 @@ public:
      * \param[in]  in       Input data
      * \param[in]  batch    Input batch size
      */
-    void rangecompress(std::complex<float> * out, const std::complex<float> * in, int batch = 1);
+    void rangecompress(std::complex<float>* out, const std::complex<float>* in,
+            int batch = 1);
 
 private:
     int _chirpsize;
@@ -104,4 +103,4 @@ private:
     isce3::fft::InvFFTPlan<float> _ifftplan;
 };
 
-}}
+}} // namespace isce3::focus

@@ -25,11 +25,12 @@ std::valarray<double> gaussian1D(const int& length, const double& sigma);
  * \param[in] columns number of columns in the Gaussian kernel
  * \param[in] rows number of rows in the Gaussian kernel
  * \param[in] sigmaX standard deviation of the Gaussian kernel in columns
- * direction \param[in] sigmaY standard deviation of the Gaussian kernel in rows direction
+ * direction \param[in] sigmaY standard deviation of the Gaussian kernel in rows
+ * direction
  * @returns The output 2D Gaussian kernel
  */
 std::valarray<double> gaussian2D(const int& columns, const int& rows,
-                                 const double& sigmaX, const double& sigmaY);
+        const double& sigmaX, const double& sigmaY);
 
 /**
  * Create a 1D boxcar kernel.

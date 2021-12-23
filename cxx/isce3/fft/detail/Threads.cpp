@@ -15,4 +15,4 @@ int getMaxThreads()
 #endif
 }
 
-}}}
+}}} // namespace isce3::fft::detail

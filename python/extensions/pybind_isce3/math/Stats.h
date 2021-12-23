@@ -1,7 +1,8 @@
 #pragma once
 
-#include <isce3/math/Stats.h>
 #include <pybind11/pybind11.h>
+
+#include <isce3/math/Stats.h>
 
 template<typename T>
 void addbinding_stats(pybind11::module& m, const char* name);

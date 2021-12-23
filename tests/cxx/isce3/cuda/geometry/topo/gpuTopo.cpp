@@ -5,11 +5,12 @@
 // Copyright 2018
 //
 
-#include <iostream>
 #include <complex>
-#include <string>
-#include <sstream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+
 #include <gtest/gtest.h>
 
 // isce3::core
@@ -27,9 +28,10 @@
 #include "isce3/cuda/geometry/Topo.h"
 
 // Declaration for utility function to read metadata stream from VRT
-std::stringstream streamFromVRT(const char * filename, int bandNum=1);
+std::stringstream streamFromVRT(const char* filename, int bandNum = 1);
 
-TEST(GPUTopoTest, RunTopo) {
+TEST(GPUTopoTest, RunTopo)
+{
 
     // Open the HDF5 product
     std::string h5file(TESTDATA_DIR "envisat.h5");
@@ -53,19 +55,19 @@ TEST(GPUTopoTest, RunTopo) {
 
     // Run topo
     topo.topo(demRaster, ".");
-
 }
 
-TEST(GPUTopoTest, CheckResults) {
-    
+TEST(GPUTopoTest, CheckResults)
+{
+
     // Open generated topo raster
     isce3::io::Raster testRaster("topo.vrt");
-    
+
     // Open reference topo raster
     isce3::io::Raster refRaster(TESTDATA_DIR "topo/topo.vrt");
 
     // The associated tolerances
-    std::vector<double> tols{1.0e-5, 1.0e-5, 0.15, 1.0e-4, 1.0e-4, 0.02, 0.02};
+    std::vector<double> tols {1.0e-5, 1.0e-5, 0.15, 1.0e-4, 1.0e-4, 0.02, 0.02};
 
     // The directories where the data are
     std::string test_dir = "./";
@@ -89,7 +91,8 @@ TEST(GPUTopoTest, CheckResults) {
                 const double refVal = ref[j];
                 // Accumulate the error (skip outliers)
                 const double currentError = std::abs(testVal - refVal);
-                if (currentError > 5.0) continue;
+                if (currentError > 5.0)
+                    continue;
                 error += std::abs(testVal - refVal);
                 ++count;
             }
@@ -99,7 +102,8 @@ TEST(GPUTopoTest, CheckResults) {
     }
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

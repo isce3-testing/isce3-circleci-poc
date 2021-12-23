@@ -5,8 +5,7 @@
 #include <isce3/core/Orbit.h>
 #include <isce3/product/RadarGridParameters.h>
 
-namespace isce3 {
-namespace container {
+namespace isce3 { namespace container {
 
 /**
  * Scene geometry in radar coordinate system
@@ -20,12 +19,14 @@ private:
     using Orbit = isce3::core::Orbit;
     using RadarGridParameters = isce3::product::RadarGridParameters;
 
-    template<typename T> using Linspace = isce3::core::Linspace<T>;
-    template<typename T> using LUT2d = isce3::core::LUT2d<T>;
+    template<typename T>
+    using Linspace = isce3::core::Linspace<T>;
+    template<typename T>
+    using LUT2d = isce3::core::LUT2d<T>;
 
 public:
     RadarGeometry(const RadarGridParameters& radar_grid, const Orbit& orbit,
-                  const LUT2d<double>& doppler);
+            const LUT2d<double>& doppler);
 
     /** Get radar grid */
     const RadarGridParameters& radarGrid() const { return _radar_grid; }
@@ -63,7 +64,6 @@ private:
     LUT2d<double> _doppler;
 };
 
-} // namespace container
-} // namespace isce3
+}} // namespace isce3::container
 
 #include "RadarGeometry.icc"

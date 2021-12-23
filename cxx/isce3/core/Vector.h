@@ -6,6 +6,7 @@
 #include <cmath>
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Dense>
+
 #include "Common.h"
 
 namespace isce3 { namespace core {
@@ -19,9 +20,9 @@ class Vector : public Eigen::Matrix<T, N, 1> {
 };
 
 // Function to compute normal vector to a plane given three points
-CUDA_HOSTDEV inline Vec3 normalPlane(const Vec3& p1,
-                                     const Vec3& p2,
-                                     const Vec3& p3) {
+CUDA_HOSTDEV inline Vec3 normalPlane(
+        const Vec3& p1, const Vec3& p2, const Vec3& p3)
+{
     const Vec3 p13 = p3 - p1;
     const Vec3 p12 = p2 - p1;
     return p13.cross(p12).normalized();

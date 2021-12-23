@@ -14,7 +14,7 @@ The Range-Doppler equation establishes the relationship between the Target T loc
 \frac{2 \cdot \mathbf{V_{sat}}\left( \eta_{f,T} \right) \cdot \left( \mathbf{T} - \mathbf{R_{sat}}\left(\eta_{f,T}\right) \right)}{\lambda \cdot R_{f,T}} = f\left(\eta_{f,T}, R_{f,T}\right)
 \f]
 
-\f[ 
+\f[
 R_{f,T} = \left|\mathbf{T} - \mathbf{R_{sat}}\left(\eta_{f,T} \right)\right|
 \f]
 where
@@ -65,10 +65,10 @@ The forward geometry transformation is implemented via isce3::geometry::Topo mod
 
 This algorithm maps a given Target (T) located at azimuth time \f$ \left( \eta_{dc,T} \right) \f$ and slant range \f$\left( R_{dc,T}\right) \f$ in radar image coordinates to map coordinates \f$\left(X_{map}, Y_{map}, h\left(X_{map}, Y_{map}\right)\right)\f$. This is done using the given Doppler model \f$\left( f_d\left(\eta,R\right)\right)\f$ and a Digital Elevation Model (DEM) \f$ \left(z\left( X, Y\right)\right)\f$ as function of horizontal datum coordinates X, Y. Details of various implementations of the forward mapping algorithm can be found in a number of references (\cite kropatsch1990generation, \cite eineder2003efficient, \cite sansosti2006geometrical, \cite nitti2011impact).
 
-The forward mapping problem is formulated as finding target position \f$\mathbf{T}\f$, such that the following two constraints are satisfied 
+The forward mapping problem is formulated as finding target position \f$\mathbf{T}\f$, such that the following two constraints are satisfied
 
 \f[
-\frac{2 \mathbf{V_{sat}\left(\eta_{dc,T}\right)} \cdot \left( \mathbf{T} - \mathbf{R_{sat}\left(\eta_{dc,T}\right)} \right)}{\lambda \cdot R_{dc,T}}  =  f_{dc}\left(\eta_{dc,T}, R_{dc,T} \right) 
+\frac{2 \mathbf{V_{sat}\left(\eta_{dc,T}\right)} \cdot \left( \mathbf{T} - \mathbf{R_{sat}\left(\eta_{dc,T}\right)} \right)}{\lambda \cdot R_{dc,T}}  =  f_{dc}\left(\eta_{dc,T}, R_{dc,T} \right)
 \f]
 \f[
 \left| \mathbf{T} - \mathbf{R_{sat}\left(\eta_{dc,T}\right)} \right |  =  R_{dc,T}
@@ -92,7 +92,7 @@ Each of the steps is described in detail below. The algorithm can support analys
 
 Let \f$\mathbf{R_{sat}}\f$ and \f$\mathbf{V_{sat}}\f$  represent the position of the satellite corresponding to the azimuth time of the target of interest. The Geocentric radius at the intersection of the reference Ellipsoid and the vector connecting the satellite position to the center of the Ellipsoid is given by
 
-\f[ 
+\f[
  R_c =\frac{\left| \mathbf{R_{sat}}\right|} {\sqrt{ \left( \frac{X_{sat}}{a_e} \right)^2 + \left( \frac{Y_{sat}}{a_e} \right)^2 + \left( \frac{Z_{sat}}{b_e} \right)^2 }}
 \f]
 
@@ -126,13 +126,13 @@ where
 
 \subsection rangedopeqn Step 2: Range Doppler Equation Solution
 
-Assuming that the target point is located at height \f$h_0\f$ above the local sphere of radius (\f$R_c\f$), the slant range vector of length \f$R_0\f$ can be represented in the local TCN basis as 
+Assuming that the target point is located at height \f$h_0\f$ above the local sphere of radius (\f$R_c\f$), the slant range vector of length \f$R_0\f$ can be represented in the local TCN basis as
 
 \f[
 \mathbf{T} = \mathbf{R_{sat}} + \alpha \cdot \hat{t} + \beta \cdot \hat{c} + \gamma \cdot \hat{n}
 \f]
 
-Using the law of cosines on the local sphere, we can show that 
+Using the law of cosines on the local sphere, we can show that
 
 \f[
 \gamma = \frac{R_0}{2} \cdot \left[ \left( \frac{h_{sat} + R_c}{R_0}\right) + \left( \frac{R_0}{h_{sat} + R_c } \right) - \left( \frac{h_0 + R_c}{h_{sat}+R_c} \right) \cdot \left( \frac{h_0 + R_{curv}}{R_0} \right) \right]
@@ -153,7 +153,7 @@ Once \f$ \alpha, \beta\f$ and \f$\gamma\f$ are computd, we can compute the locat
 
 \subsection deminterp Step 3: DEM interpolation
 
-DEMs are commonly provided in non-Cartesian coordinates (e.g., Lat-Long grid, UTM grid, EASE-2 grid) and contain heights above a geoid (e.g., EGM96 or EGM08). The geometry mapping algorithms presented in this document explicitly assume that the DEMs have been adjusted to represent heights above the representative ellipsoid like WGS84. Standard GIS tools offer numerous methods of interpolating height data (e.g., nearest neighbor, bilinear, and bicubic). We recommend using biquintic interpolation method \cite kidner1999s  as this appears to be least susceptible to difference between the DEM resolution and the radar grid resolution to which it is being mapped. Moreover, biquintic polynomials represent the smallest order polynomials that preserve slope information when interpolating across neighboring cells in the DEM. 
+DEMs are commonly provided in non-Cartesian coordinates (e.g., Lat-Long grid, UTM grid, EASE-2 grid) and contain heights above a geoid (e.g., EGM96 or EGM08). The geometry mapping algorithms presented in this document explicitly assume that the DEMs have been adjusted to represent heights above the representative ellipsoid like WGS84. Standard GIS tools offer numerous methods of interpolating height data (e.g., nearest neighbor, bilinear, and bicubic). We recommend using biquintic interpolation method \cite kidner1999s  as this appears to be least susceptible to difference between the DEM resolution and the radar grid resolution to which it is being mapped. Moreover, biquintic polynomials represent the smallest order polynomials that preserve slope information when interpolating across neighboring cells in the DEM.
 
 For the forward mapping algorithm, we interpolate the DEM at location \f$\left(X_{map}, Y_{map}\right)\f$ to determine the new \f$z_{map}\f$. This new target location is then transformed into the ECEF coordinate system and the new height estimate \f$h_est\f$ is given by
 
@@ -212,7 +212,7 @@ The adjustment to the initial guess of the azimuth time epoch (\f$\eta_g\f$) is 
 \eta_{new} = \eta_g - \frac{y\left( \eta_g \right)}{y^{\prime}\left( \eta_g\right)}
 \f]
 
-where 
+where
 \f[
 y^{\prime}\left( \eta \right) \approx \frac{\lambda}{2} \cdot \left[ \frac{ f_{dc}\left( \eta, R_{dc}\left( \eta \right) \right)}{R_{dc}\left( \eta \right)} + f_d^{\prime}\left( \eta, R_{dc}\left( \eta \right) \right) \right] \cdot \left( \mathbf{V_{sat}\left( \eta \right)} \cdot \left( \mathbf{T} - \mathbf{R_{sat}\left(\eta\right)} \right) - \left| \mathbf{V_{sat}\left( \eta \right)}\right|^2 \right)
 \f]

@@ -36,7 +36,7 @@ For installing docs, copy over the generated documentation to the "install" fold
 \code{.sh}
 > cd ${ISCEHOME}/tools/isce/install
 > mkdir share/doc
-> cp -r ${ISCEHOME}/tools/isce/build/doc/html share/doc 
+> cp -r ${ISCEHOME}/tools/isce/build/doc/html share/doc
 \endcode
 
 */

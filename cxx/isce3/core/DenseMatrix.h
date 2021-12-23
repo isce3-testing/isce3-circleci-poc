@@ -20,7 +20,7 @@ class DenseMatrix : public Eigen::Matrix<T, N, N> {
 
 public:
     DenseMatrix() = default;
-    CUDA_HOSTDEV auto operator[](int i)       { return this->row(i); }
+    CUDA_HOSTDEV auto operator[](int i) { return this->row(i); }
     CUDA_HOSTDEV auto operator[](int i) const { return this->row(i); }
 
     CUDA_HOSTDEV auto dot(const DenseMatrix& other) const
@@ -36,7 +36,8 @@ public:
 // Backport Eigen 3.4.0's initializer_list constructor
 #if !EIGEN_VERSION_AT_LEAST(3, 4, 0)
     CUDA_HOSTDEV explicit constexpr DenseMatrix(
-            std::initializer_list<std::initializer_list<T>> lst) {
+            std::initializer_list<std::initializer_list<T>> lst)
+    {
         int i = 0, j = 0;
         for (const auto& l : lst) {
             for (const auto& v : l) {
@@ -48,7 +49,8 @@ public:
 #endif
 
     /** Matrix transposition */
-    CUDA_HOSTDEV constexpr DenseMatrix<N, T> transpose() const {
+    CUDA_HOSTDEV constexpr DenseMatrix<N, T> transpose() const
+    {
         DenseMatrix<N, T> out;
         for (int i = 0; i < N; i++)
             for (int j = 0; j < N; j++)
@@ -70,12 +72,13 @@ public:
 };
 
 template<int N, typename T>
-CUDA_HOSTDEV Mat3 DenseMatrix<N, T>::xyzToEnu(double lat, double lon) {
+CUDA_HOSTDEV Mat3 DenseMatrix<N, T>::xyzToEnu(double lat, double lon)
+{
     using std::cos;
     using std::sin;
-    return Mat3 {{{         -sin(lon),           cos(lon),       0.},
-                  {-sin(lat)*cos(lon), -sin(lat)*sin(lon), cos(lat)},
-                  { cos(lat)*cos(lon),  cos(lat)*sin(lon), sin(lat)}}};
+    return Mat3 {{{-sin(lon), cos(lon), 0.},
+            {-sin(lat) * cos(lon), -sin(lat) * sin(lon), cos(lat)},
+            {cos(lat) * cos(lon), cos(lat) * sin(lon), sin(lat)}}};
 }
 
 template<int N, typename T>
@@ -84,8 +87,8 @@ CUDA_HOSTDEV Mat3 DenseMatrix<N, T>::enuToXyz(double lat, double lon)
     using std::cos;
     using std::sin;
     return Mat3 {{{-sin(lon), -sin(lat) * cos(lon), cos(lat) * cos(lon)},
-                  {cos(lon), -sin(lat) * sin(lon), cos(lat) * sin(lon)},
-                  {0, cos(lat), sin(lat)}}};
+            {cos(lon), -sin(lat) * sin(lon), cos(lat) * sin(lon)},
+            {0, cos(lat), sin(lat)}}};
 }
 
 // XXX
@@ -116,4 +119,4 @@ CUDA_HOSTDEV auto operator*(const DenseMatrix<N, T>& m, const Vector<N, T>& v)
     return out;
 }
 
-}}
+}} // namespace isce3::core

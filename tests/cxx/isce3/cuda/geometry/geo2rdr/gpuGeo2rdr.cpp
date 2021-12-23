@@ -5,11 +5,12 @@
 // Copyright 2018
 //
 
-#include <iostream>
 #include <complex>
-#include <string>
-#include <sstream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+
 #include <gtest/gtest.h>
 
 // isce3::core
@@ -25,7 +26,8 @@
 // isce3::cuda::geometry
 #include "isce3/cuda/geometry/Geo2rdr.h"
 
-TEST(Geo2rdrTest, RunGeo2rdr) {
+TEST(Geo2rdrTest, RunGeo2rdr)
+{
 
     // Open the HDF5 product
     std::string h5file(TESTDATA_DIR "envisat.h5");
@@ -46,11 +48,11 @@ TEST(Geo2rdrTest, RunGeo2rdr) {
 
     // Run geo2rdr
     geo.geo2rdr(topoRaster, ".", 0.0, 0.0);
-
 }
 
 // Results should be very close to zero
-TEST(Geo2rdrTest, CheckResults) {
+TEST(Geo2rdrTest, CheckResults)
+{
     // Open rasters
     isce3::io::Raster rgoffRaster("range.off");
     isce3::io::Raster azoffRaster("azimuth.off");
@@ -66,8 +68,8 @@ TEST(Geo2rdrTest, CheckResults) {
             if (std::abs(rgoff) > 999.0 || std::abs(azoff) > 999.0)
                 continue;
             // Accumulate error
-            rg_error += rgoff*rgoff;
-            az_error += azoff*azoff;
+            rg_error += rgoff * rgoff;
+            az_error += azoff * azoff;
         }
     }
     // Check errors; azimuth errors tend to be a little larger
@@ -75,7 +77,8 @@ TEST(Geo2rdrTest, CheckResults) {
     ASSERT_TRUE(az_error < 1.0e-10);
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

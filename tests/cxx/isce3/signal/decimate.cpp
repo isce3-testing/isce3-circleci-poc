@@ -49,8 +49,8 @@ TEST(Decimate, Decimate)
     }
 
     isce3::signal::decimate(dataDecimated, data, length, width,
-                            length_decimated, width_decimated, decimation_rows,
-                            decimation_cols, rows_offset, cols_offset);
+            length_decimated, width_decimated, decimation_rows, decimation_cols,
+            rows_offset, cols_offset);
 
     // max error tolerance
     double max_err = 0.0;

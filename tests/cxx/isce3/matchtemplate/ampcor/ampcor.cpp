@@ -1,15 +1,16 @@
 
 #include <complex>
+
 #include <gtest/gtest.h>
 
 // support
 #include <numeric>
 #include <random>
+
 #include <pyre/grid.h>
 #include <pyre/journal.h>
 // ampcor
 #include "isce3/matchtemplate/ampcor/correlators/correlators.h"
-
 
 // type aliases
 // my value type
@@ -21,17 +22,14 @@ using slc_t = pyre::grid::simple_t<2, pixel_t>;
 // the correlator
 using correlator_t = ampcor::correlators::sequential_t<slc_t>;
 // adapt a chunk of memory into a tile
-using tile_t = pyre::grid::grid_t<slc_t::cell_type,
-                                  slc_t::layout_type,
-                                  pyre::memory::constview_t<value_t>>;
+using tile_t = pyre::grid::grid_t<slc_t::cell_type, slc_t::layout_type,
+        pyre::memory::constview_t<value_t>>;
 // adapt a chunk of memory into a tile
-using tilec_t = pyre::grid::grid_t<slc_t::cell_type,
-                                  slc_t::layout_type,
-                                  pyre::memory::constview_t<slc_t::cell_type>>;
+using tilec_t = pyre::grid::grid_t<slc_t::cell_type, slc_t::layout_type,
+        pyre::memory::constview_t<slc_t::cell_type>>;
 
-
-// Sanity check. 
-// Verify that correlator data space is properly allocated and 
+// Sanity check.
+// Verify that correlator data space is properly allocated and
 // accessible
 TEST(Ampcor, SanityCheck)
 {
@@ -39,9 +37,9 @@ TEST(Ampcor, SanityCheck)
     // the number of pairs
     correlator_t::size_type pairs = 1;
     // the reference shape
-    correlator_t::shape_type refShape = { 64, 64};
+    correlator_t::shape_type refShape = {64, 64};
     // the search window shape
-    correlator_t::shape_type tgtShape = { 80, 80 };
+    correlator_t::shape_type tgtShape = {80, 80};
 
     // make a correlator
     correlator_t c(pairs, refShape, tgtShape);
@@ -51,11 +49,7 @@ TEST(Ampcor, SanityCheck)
     ASSERT_NE(arena, nullptr);
 }
 
-
-
-
-
-// Testing that reference and target tiles get properly loaded to 
+// Testing that reference and target tiles get properly loaded to
 // correlator
 TEST(Ampcor, AddTiles)
 {
@@ -64,11 +58,12 @@ TEST(Ampcor, AddTiles)
     // the margin around the reference tile
     int margin = 8;
     // therefore, the target tile extent
-    int tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    int placements = 2*margin + 1;
+    int tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    int placements = 2 * margin + 1;
     // the number of pairs
-    slc_t::size_type pairs = placements*placements;
+    slc_t::size_type pairs = placements * placements;
 
     // the number of cells in a reference tile
     slc_t::size_type refCells = refDim * refDim;
@@ -83,19 +78,18 @@ TEST(Ampcor, AddTiles)
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // make a correlator
     correlator_t c(pairs, refLayout, tgtLayout);
 
-
     // build reference tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
 
             // make a reference raster
             slc_t ref(refLayout);
@@ -107,7 +101,8 @@ TEST(Ampcor, AddTiles)
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            slc_t::slice_type slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            slc_t::slice_type slice =
+                    tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             slc_t::view_type view = tgt.view(slice);
             // fill it with ones
@@ -119,41 +114,41 @@ TEST(Ampcor, AddTiles)
         }
     }
 
-
-
     // verify the reference and target tiles
     // get the arena
     auto arena = c.arena();
     // go through all pairs
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; i<placements; ++i) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; i < placements; ++i) {
             // compute the pair id
-            auto pid = i*placements + j;
+            auto pid = i * placements + j;
             // get the reference raster
-            auto ref = arena + pid*cellsPerPair;
+            auto ref = arena + pid * cellsPerPair;
             // verify its contents
-            for (auto idx=0; idx<refDim; ++idx) {
-                for (auto jdx=0; jdx<refDim; ++jdx) {
+            for (auto idx = 0; idx < refDim; ++idx) {
+                for (auto jdx = 0; jdx < refDim; ++jdx) {
                     // the expected value
                     pixel_t expected = pid;
                     // the actual value
-                    pixel_t actual = ref[idx*refDim + jdx];
+                    pixel_t actual = ref[idx * refDim + jdx];
                     // Check match
                     ASSERT_EQ(expected, actual);
                 }
             }
 
             // get the target raster
-            auto tgt = arena + pid*cellsPerPair + refCells;
+            auto tgt = arena + pid * cellsPerPair + refCells;
             // verify its contents
-            for (auto idx=0; idx<refDim; ++idx) {
-                for (auto jdx=0; jdx<refDim; ++jdx) {
+            for (auto idx = 0; idx < refDim; ++idx) {
+                for (auto jdx = 0; jdx < refDim; ++jdx) {
                     // the bounds of the copy of the ref tile in the tgt tile
-                    auto within = (idx >= i && idx < i+refDim && jdx >= j && idx < j+refDim);
-                    // the expected value depends on whether we are within the magic subtile
-                    pixel_t expected = within ? ref[idx*refDim + jdx] : 0;
+                    auto within = (idx >= i && idx < i + refDim && jdx >= j &&
+                                   idx < j + refDim);
+                    // the expected value depends on whether we are within the
+                    // magic subtile
+                    pixel_t expected = within ? ref[idx * refDim + jdx] : 0;
                     // the actual value
-                    pixel_t actual = tgt[idx*tgtDim + jdx];
+                    pixel_t actual = tgt[idx * tgtDim + jdx];
                     // Check match
                     ASSERT_EQ(expected, actual);
                 }
@@ -161,9 +156,6 @@ TEST(Ampcor, AddTiles)
         }
     }
 }
-
-
-
 
 // Testing that conversion of complex to amplitude of correlator dataset is ok
 TEST(Ampcor, ComputeAmplitude)
@@ -173,12 +165,13 @@ TEST(Ampcor, ComputeAmplitude)
     // the margin around the reference tile
     int margin = 8;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
 
     // the number of pairs
-    auto pairs = placements*placements;
+    auto pairs = placements * placements;
 
     // the number of cells in a reference tile
     auto refCells = refDim * refDim;
@@ -195,18 +188,18 @@ TEST(Ampcor, ComputeAmplitude)
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // make a correlator
     correlator_t c(pairs, refLayout, tgtLayout);
 
     // build reference tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
 
             // make a reference raster
             slc_t ref(refLayout);
@@ -218,7 +211,8 @@ TEST(Ampcor, ComputeAmplitude)
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            slc_t::slice_type slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            slc_t::slice_type slice =
+                    tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             slc_t::view_type view = tgt.view(slice);
             // fill it with the contents of the reference tile for this pair
@@ -237,15 +231,12 @@ TEST(Ampcor, ComputeAmplitude)
     auto rArena = c._detect(cArena, refDim, tgtDim);
 
     // verify
-    for (auto cell=0; cell < cells; ++cell) 
+    for (auto cell = 0; cell < cells; ++cell)
         ASSERT_EQ(std::abs(cArena[cell]), rArena[cell]);
 
     // clean up
-    delete [] rArena;
-
+    delete[] rArena;
 }
-
-
 
 // Testing nudge, i.e., shifting the target tile such that it doesn't extend
 // beyond the main footprint
@@ -260,48 +251,50 @@ TEST(Ampcor, Nudge)
     // the margin around the refined target tile
     int refineMargin = 4;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
     // the number of pairs
-    auto pairs = placements*placements;
+    auto pairs = placements * placements;
 
     // the reference shape
     slc_t::shape_type refShape = {refDim, refDim};
     // the search window shape
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // make a correlator
     correlator_t c(pairs, refLayout, tgtLayout, refineFactor, refineMargin);
 
     // make an array of locations to simulate the result of {_maxcor}
-    int * loc = new int[2*pairs];
-    // fill with standard strategy: the (r,c) target tile have a maximum at (r,c)
+    int* loc = new int[2 * pairs];
+    // fill with standard strategy: the (r,c) target tile have a maximum at
+    // (r,c)
     for (auto pid = 0; pid < pairs; ++pid) {
         // decode the row and column
         int row = pid / placements;
         int col = pid % placements;
         // record
-        loc[2*pid] = row;
-        loc[2*pid + 1] = col;
+        loc[2 * pid] = row;
+        loc[2 * pid + 1] = col;
     }
 
-    //main function to test
+    // main function to test
     c._nudge(loc, refDim, tgtDim);
 
     // the lowest possible index
     int low = 0;
     // and the highest possible index
-    int high = tgtDim - (refDim + 2*refineMargin);
+    int high = tgtDim - (refDim + 2 * refineMargin);
     // go through the locations and check
     for (auto pid = 0; pid < pairs; ++pid) {
         // get the row and column
-        auto row = loc[2*pid];
-        auto col = loc[2*pid + 1];
+        auto row = loc[2 * pid];
+        auto col = loc[2 * pid + 1];
         // verify
         ASSERT_LE(low, row);
         ASSERT_LE(low, col);
@@ -310,12 +303,8 @@ TEST(Ampcor, Nudge)
     }
 
     // clean up
-    delete [] loc;
+    delete[] loc;
 }
-
-
-
-
 
 // Testing Sum Area Table
 TEST(Ampcor, SAT)
@@ -325,12 +314,13 @@ TEST(Ampcor, SAT)
     // the margin around the reference tile
     int margin = 1;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
 
     // the number of pairs
-    auto pairs = placements*placements;
+    auto pairs = placements * placements;
 
     // the number of cells in a reference tile
     auto refCells = refDim * refDim;
@@ -345,9 +335,9 @@ TEST(Ampcor, SAT)
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // make a correlator
     correlator_t c(pairs, refLayout, tgtLayout);
@@ -356,7 +346,7 @@ TEST(Ampcor, SAT)
     // make a device
     std::random_device dev {};
     // a random number generator
-    std::mt19937 rng { dev() };
+    std::mt19937 rng {dev()};
     // use them to build a normal distribution
     std::normal_distribution<value_t> normal {};
 
@@ -370,26 +360,26 @@ TEST(Ampcor, SAT)
     // make a view over the reference tile
     auto rview = ref.constview();
     // build reference tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // make a target tile
             slc_t tgt(tgtLayout);
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            slc_t::slice_type slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            slc_t::slice_type slice =
+                    tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             slc_t::view_type view = tgt.view(slice);
             // fill it with the contents of the reference tile for this pair
             std::copy(rview.begin(), rview.end(), view.begin());
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
             // add this pair to the correlator
             c.addReferenceTile(pid, rview);
             c.addTargetTile(pid, tgt.constview());
         }
     }
-
 
     // get a handle on the data
     auto cArena = c.arena();
@@ -400,33 +390,26 @@ TEST(Ampcor, SAT)
     // compute the sum area tables
     auto sat = c._sat(rArena, refDim, tgtDim);
 
-
-    // verify: go through all the tables and check that the lower right hand corner contains
-    // the sum of all the tile elements
+    // verify: go through all the tables and check that the lower right hand
+    // corner contains the sum of all the tile elements
     for (auto pid = 0; pid < pairs; ++pid) {
         // compute the start of this tile
-        auto begin = rArena + pid*cellsPerPair + refDim*refDim;
+        auto begin = rArena + pid * cellsPerPair + refDim * refDim;
         // and one past the end of this tile
-        auto end = begin + tgtDim*tgtDim;
+        auto end = begin + tgtDim * tgtDim;
         // compute the sum
         auto expected = std::accumulate(begin, end, 0.0);
         // get the value form the LRC of the corresponding SAT
-        auto computed = sat[(pid+1)*tgtDim*tgtDim - 1];
+        auto computed = sat[(pid + 1) * tgtDim * tgtDim - 1];
         // check the difference
         ASSERT_FLOAT_EQ(expected, computed);
     }
 
     // clean up
-    delete [] sat;
-    delete [] rArena;
-
+    delete[] sat;
+    delete[] rArena;
 }
 
-
-
-
-
- 
 // Testing reference image statistics computation (for correlation)
 TEST(Ampcor, ReferenceStats)
 {
@@ -435,17 +418,18 @@ TEST(Ampcor, ReferenceStats)
     // the margin around the reference tile
     int margin = 8;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
 
     // the number of pairs
-    auto pairs = placements*placements;
+    auto pairs = placements * placements;
 
     // the number of cells in a reference tile
     auto refCells = refDim * refDim;
     // the number of cells in each pair
-    auto cellsPerPair = refDim*refDim + tgtDim*tgtDim;
+    auto cellsPerPair = refDim * refDim + tgtDim * tgtDim;
 
     // the reference shape
     slc_t::shape_type refShape = {refDim, refDim};
@@ -453,9 +437,9 @@ TEST(Ampcor, ReferenceStats)
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // make a correlator
     correlator_t c(pairs, refLayout, tgtLayout);
@@ -464,7 +448,7 @@ TEST(Ampcor, ReferenceStats)
     // make a device
     std::random_device dev {};
     // a random number generator
-    std::mt19937 rng { dev() };
+    std::mt19937 rng {dev()};
     // use them to build a normal distribution
     std::normal_distribution<value_t> normal {};
 
@@ -476,27 +460,27 @@ TEST(Ampcor, ReferenceStats)
         ref[idx] = normal(rng);
     }
     // build reference tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // make a target tile
             slc_t tgt(tgtLayout);
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            slc_t::slice_type slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            slc_t::slice_type slice =
+                    tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             slc_t::view_type view = tgt.view(slice);
             // fill it with the contents of the reference tile for this pair
             std::copy(ref.view().begin(), ref.view().end(), view.begin());
 
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
             // add this pair to the correlator
             c.addReferenceTile(pid, ref.constview());
             c.addTargetTile(pid, tgt.constview());
         }
     }
-
 
     // Get a handle on the data
     auto cArena = c.arena();
@@ -504,26 +488,28 @@ TEST(Ampcor, ReferenceStats)
     // compute the amplitude of every pixel
     auto rArena = c._detect(cArena, refDim, tgtDim);
 
-    // subtract the tile mean from each pixel in the reference tile and compute the variance
+    // subtract the tile mean from each pixel in the reference tile and compute
+    // the variance
     auto refStats = c._refStats(rArena, refDim, tgtDim);
 
-
-
     // make a lambda that accumulates the square of a value
-    auto square = [] (value_t partial, value_t pxl) -> value_t { return partial + pxl*pxl; };
+    auto square = [](value_t partial, value_t pxl) -> value_t {
+        return partial + pxl * pxl;
+    };
     auto tolerance = 10 * std::numeric_limits<value_t>::epsilon();
     // verify
     for (auto pid = 0; pid < pairs; ++pid) {
         // compute the starting address of this tile
         auto tile = rArena + pid * cellsPerPair;
         // compute the mean of the tile
-        auto mean = std::accumulate(tile, tile+refCells, 0.0) / refCells;
+        auto mean = std::accumulate(tile, tile + refCells, 0.0) / refCells;
         // verify it's near zero
-        //ASSERT_FLOAT_EQ(std::abs(mean), zeroMean);
+        // ASSERT_FLOAT_EQ(std::abs(mean), zeroMean);
         ASSERT_NEAR(std::abs(mean), 0.0, tolerance);
 
         // compute the variance of the tile
-        auto expectedVar = std::sqrt(std::accumulate(tile, tile+refCells, 0.0, square));
+        auto expectedVar =
+                std::sqrt(std::accumulate(tile, tile + refCells, 0.0, square));
         // the computed value
         auto computedVar = refStats[pid];
         // chech the mismatch
@@ -531,13 +517,9 @@ TEST(Ampcor, ReferenceStats)
     }
 
     // clean up
-    delete [] refStats;
-    delete [] rArena;
+    delete[] refStats;
+    delete[] rArena;
 }
-
-
-
-
 
 // Testing target image statistics computation (for correlation)
 TEST(Ampcor, TargetStats)
@@ -547,14 +529,15 @@ TEST(Ampcor, TargetStats)
     // the margin around the reference tile
     int margin = 4;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
     //  the dimension of the correlation matrix
     auto corDim = placements;
 
     // the number of pairs
-    auto pairs = placements*placements;
+    auto pairs = placements * placements;
 
     // the number of cells in a reference tile
     auto refCells = refDim * refDim;
@@ -571,9 +554,9 @@ TEST(Ampcor, TargetStats)
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // make a correlator
     correlator_t c(pairs, refLayout, tgtLayout);
@@ -582,7 +565,7 @@ TEST(Ampcor, TargetStats)
     // make a device
     std::random_device dev {};
     // a random number generator
-    std::mt19937 rng { dev() };
+    std::mt19937 rng {dev()};
     // use them to build a normal distribution
     std::normal_distribution<float> normal {};
 
@@ -597,21 +580,21 @@ TEST(Ampcor, TargetStats)
     // make a view over the reference tile
     auto rview = ref.constview();
     // build reference tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // make a target tile
             slc_t tgt(tgtLayout);
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            auto slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            auto slice = tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             auto view = tgt.view(slice);
             // fill it with the contents of the reference tile for this pair
             std::copy(rview.begin(), rview.end(), view.begin());
 
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
             // add this pair to the correlator
             c.addReferenceTile(pid, rview);
             c.addTargetTile(pid, tgt.constview());
@@ -627,7 +610,8 @@ TEST(Ampcor, TargetStats)
     // compute the sum area tables
     auto sat = c._sat(rArena, refDim, tgtDim);
 
-    // compute the average amplitude of all possible ref shaped sub-tiles in the target tile
+    // compute the average amplitude of all possible ref shaped sub-tiles in the
+    // target tile
     auto tgtStats = c._tgtStats(sat, refDim, tgtDim, corDim);
 
     // compare expected with computed
@@ -635,22 +619,25 @@ TEST(Ampcor, TargetStats)
     auto tolerance = 10 * std::numeric_limits<value_t>::epsilon();
     for (auto pid = 0; pid < pairs; ++pid) {
         // find the beginning of the target tile
-        value_t * tgtStart = rArena + pid*cellsPerPair + refCells;
+        value_t* tgtStart = rArena + pid * cellsPerPair + refCells;
         // make a tile
-        tile_t tgt { tgtLayout, tgtStart };
+        tile_t tgt {tgtLayout, tgtStart};
         // locate the table of mean values for this pair
-        value_t * stats = tgtStats + pid*corCells;
+        value_t* stats = tgtStats + pid * corCells;
         // go through all the placements
-        for (auto i=0; i<corDim; ++i) {
-            for (auto j=0; j<corDim; ++j) {
+        for (auto i = 0; i < corDim; ++i) {
+            for (auto j = 0; j < corDim; ++j) {
                 // the offset to the stats for this tile for this placement
-                auto offset = i*corDim + j;
+                auto offset = i * corDim + j;
                 // slice the target tile
-                auto slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+                auto slice =
+                        tgt.layout().slice({i, j}, {i + refDim, j + refDim});
                 // make a view
                 auto view = tgt.constview(slice);
                 // use it to compute the average value in the slice
-                auto expectedMean = std::accumulate(view.begin(), view.end(), 0.0) / refCells;
+                auto expectedMean =
+                        std::accumulate(view.begin(), view.end(), 0.0) /
+                        refCells;
                 // read the computed value
                 auto computedMean = stats[offset];
                 // check mismatch
@@ -659,14 +646,13 @@ TEST(Ampcor, TargetStats)
         }
     }
 
-    delete [] tgtStats;
-    delete [] sat;
-    delete [] rArena;
+    delete[] tgtStats;
+    delete[] sat;
+    delete[] rArena;
 }
 
-
-
-// Testing migration of data from coarse correlation space to refine correlation space
+// Testing migration of data from coarse correlation space to refine correlation
+// space
 TEST(Ampcor, Migrate)
 {
     // the reference tile extent
@@ -678,11 +664,12 @@ TEST(Ampcor, Migrate)
     // the margin around the refined target tile
     int refineMargin = 4;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
     // the number of pairs
-    auto pairs = placements*placements;
+    auto pairs = placements * placements;
 
     // the number of cells in a reference tile
     auto refCells = refDim * refDim;
@@ -696,18 +683,20 @@ TEST(Ampcor, Migrate)
     // the search window shape
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // the shape of the refined reference tiles
     auto refRefinedShape = refineFactor * refShape;
     // the shape of the refined target tiles
-    auto tgtRefinedShape = refineFactor * (refShape + slc_t::index_type::fill(2*refineMargin));
+    auto tgtRefinedShape =
+            refineFactor *
+            (refShape + slc_t::index_type::fill(2 * refineMargin));
     // the layout of the refined reference tiles
-    slc_t::layout_type refRefinedLayout { refRefinedShape };
+    slc_t::layout_type refRefinedLayout {refRefinedShape};
     // the layout of the refined target tiles
-    slc_t::layout_type tgtRefinedLayout { tgtRefinedShape };
+    slc_t::layout_type tgtRefinedLayout {tgtRefinedShape};
     // the number of cells in a refined reference tile
     auto refRefinedCells = refRefinedLayout.size();
     // the number of cells in a refined target tile
@@ -722,7 +711,7 @@ TEST(Ampcor, Migrate)
     // make a device
     std::random_device dev {};
     // a random number generator
-    std::mt19937 rng { dev() };
+    std::mt19937 rng {dev()};
     // use them to build a normal distribution
     std::normal_distribution<float> normal {};
 
@@ -736,20 +725,20 @@ TEST(Ampcor, Migrate)
     // make a view over the reference tile
     auto rview = ref.constview();
     // build reference tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // make a target tile
             slc_t tgt(tgtLayout);
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            auto slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            auto slice = tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             auto view = tgt.view(slice);
             // place a copy of the reference tile
             std::copy(rview.begin(), rview.end(), view.begin());
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
             // add this pair to the correlator
             c.addReferenceTile(pid, ref.constview());
             c.addTargetTile(pid, tgt.constview());
@@ -759,7 +748,6 @@ TEST(Ampcor, Migrate)
     // push the data to the device
     auto coarseArena = c.arena();
 
-
     // allocate a new arena
     auto refinedArena = c._refinedArena();
 
@@ -767,12 +755,12 @@ TEST(Ampcor, Migrate)
     // we build a (row, col) index for each pair
     auto locCells = 2 * pairs;
     // allocate
-    int * loc = new int[locCells];
+    int* loc = new int[locCells];
     // initialize it
-    for (auto pid=0; pid < pairs; ++pid) {
+    for (auto pid = 0; pid < pairs; ++pid) {
         // decode the row and column and place the values
-        loc[2*pid] = pid / placements;
-        loc[2*pid + 1] = pid % placements;
+        loc[2 * pid] = pid / placements;
+        loc[2 * pid + 1] = pid % placements;
     }
 
     // nudge them
@@ -781,25 +769,24 @@ TEST(Ampcor, Migrate)
     // migrate
     c._tgtMigrate(coarseArena, loc, refinedArena);
 
-
     // Verify
-    
+
     // the dimension of the expanded maxcor slice
-    auto expDim = refDim + 2*refineMargin;
+    auto expDim = refDim + 2 * refineMargin;
     // go through all the pairs
     for (auto pid = 0; pid < pairs; ++pid) {
         // decode the pair id into an index
         // compute the beginning of the target tile in the refined arena
-        //auto trmem = refined + pid*cellsPerRefinedPair + refRefinedCells;
-        auto trmem = refinedArena + pid*cellsPerRefinedPair + refRefinedCells;
+        // auto trmem = refined + pid*cellsPerRefinedPair + refRefinedCells;
+        auto trmem = refinedArena + pid * cellsPerRefinedPair + refRefinedCells;
         // build a grid over it
-        tilec_t tgtRefined { tgtRefinedLayout, trmem };
+        tilec_t tgtRefined {tgtRefinedLayout, trmem};
         // compute the beginning of the correct target tile
-        auto tmem = c.arena() + pid*cellsPerPair + refCells;
+        auto tmem = c.arena() + pid * cellsPerPair + refCells;
         // build a grid over it
-        tilec_t tgt { tgtLayout, tmem };
+        tilec_t tgt {tgtLayout, tmem};
         // find the ULHC of the tile expanded maxcor tile in the target tile
-        auto base = tilec_t::index_type {loc[2*pid], loc[2*pid+1]};
+        auto base = tilec_t::index_type {loc[2 * pid], loc[2 * pid + 1]};
 
         // go through it
         for (auto idx : tgtRefined.layout()) {
@@ -811,7 +798,7 @@ TEST(Ampcor, Migrate)
                 // what i got
                 auto actual = tgtRefined[idx];
                 // what i expect
-                auto expected = tgt[base+idx];
+                auto expected = tgt[base + idx];
                 // if there is a mismatch
                 ASSERT_FLOAT_EQ(actual.real(), expected.real());
                 ASSERT_FLOAT_EQ(actual.imag(), expected.imag());
@@ -820,36 +807,33 @@ TEST(Ampcor, Migrate)
     }
 
     // clean up
-    delete [] loc;
-    delete [] refinedArena;
+    delete[] loc;
+    delete[] refinedArena;
 }
-
-
-
-
 
 // Testing the correlation function
 TEST(Ampcor, Correlate)
 {
     // the tile type
-    typedef pyre::grid::grid_t<value_t, 
-                               pyre::grid::layout_t<
-                                   pyre::grid::index_t<std::array<int, 4>>>, 
-                               pyre::memory::constview_t<value_t>> ctile_t;
+    typedef pyre::grid::grid_t<value_t,
+            pyre::grid::layout_t<pyre::grid::index_t<std::array<int, 4>>>,
+            pyre::memory::constview_t<value_t>>
+            ctile_t;
 
     // the reference tile extent
     int refDim = 16;
     // the margin around the reference tile
     int margin = 4;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
     //  the dimension of the correlation matrix
     auto corDim = placements;
 
     // the number of pairs
-    auto pairs = placements*placements;
+    auto pairs = placements * placements;
 
     // the reference shape
     slc_t::shape_type refShape = {refDim, refDim};
@@ -857,9 +841,9 @@ TEST(Ampcor, Correlate)
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // make a correlator
     correlator_t c(pairs, refLayout, tgtLayout);
@@ -868,7 +852,7 @@ TEST(Ampcor, Correlate)
     // make a device
     std::random_device dev {};
     // a random number generator
-    std::mt19937 rng { dev() };
+    std::mt19937 rng {dev()};
     // use them to build a normal distribution
     std::normal_distribution<float> normal {};
 
@@ -882,27 +866,26 @@ TEST(Ampcor, Correlate)
     // make a view over the reference tile
     auto rview = ref.constview();
     // build the target tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // make a target tile
             slc_t tgt(tgtLayout);
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            auto slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            auto slice = tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             auto tgtView = tgt.view(slice);
             // fill it with the contents of the reference tile for this pair
             std::copy(rview.begin(), rview.end(), tgtView.begin());
 
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
             // add this pair to the correlator
             c.addReferenceTile(pid, rview);
             c.addTargetTile(pid, tgt.constview());
         }
     }
-
 
     // get a handle on the data
     auto cArena = c.arena();
@@ -916,22 +899,26 @@ TEST(Ampcor, Correlate)
     // compute the sum area tables
     auto sat = c._sat(rArena, refDim, tgtDim);
 
-    // compute the average amplitude of all possible ref shaped sub-tiles in the target tile
+    // compute the average amplitude of all possible ref shaped sub-tiles in the
+    // target tile
     auto tgtStats = c._tgtStats(sat, refDim, tgtDim, corDim);
 
-    // compute the average amplitude of all possible ref shaped sub-tiles in the target tile
-    auto gamma = c._correlate(rArena, refStats, tgtStats, refDim, tgtDim, corDim);
+    // compute the average amplitude of all possible ref shaped sub-tiles in the
+    // target tile
+    auto gamma =
+            c._correlate(rArena, refStats, tgtStats, refDim, tgtDim, corDim);
 
-    // the shape of the correlation matrix: the first two indices identify the pair, the last
-    // two indicate the placement of the reference tile within the target search window
+    // the shape of the correlation matrix: the first two indices identify the
+    // pair, the last two indicate the placement of the reference tile within
+    // the target search window
     ctile_t::shape_type corShape = {corDim, corDim, corDim, corDim};
     // the layout of the correlation matrix
-    ctile_t::layout_type corLayout = { corShape };
+    ctile_t::layout_type corLayout = {corShape};
     // adapt the correlation matrix into a grid
-    ctile_t cgrid { corLayout, gamma };
+    ctile_t cgrid {corLayout, gamma};
 
-    // verify by checking that the correlation is unity for the correct placement of the
-    // reference tile within the target window
+    // verify by checking that the correlation is unity for the correct
+    // placement of the reference tile within the target window
     auto tolerance = 10 * std::numeric_limits<value_t>::epsilon();
     for (auto idx = 0; idx < corDim; ++idx) {
         for (auto jdx = 0; jdx < corDim; ++jdx) {
@@ -945,38 +932,35 @@ TEST(Ampcor, Correlate)
     }
 
     // clean up
-    delete [] gamma;
-    delete [] tgtStats;
-    delete [] sat;
-    delete [] rArena;
+    delete[] gamma;
+    delete[] tgtStats;
+    delete[] sat;
+    delete[] rArena;
 }
-
-
-
 
 // Testing identification of the correlation peak
 TEST(Ampcor, MaxCor)
 {
     // the tile type
-    typedef pyre::grid::grid_t<int, 
-                               pyre::grid::layout_t<
-                                   pyre::grid::index_t<std::array<int,3>>>, 
-                               pyre::memory::constview_t<int>> ctile_t;
+    typedef pyre::grid::grid_t<int,
+            pyre::grid::layout_t<pyre::grid::index_t<std::array<int, 3>>>,
+            pyre::memory::constview_t<int>>
+            ctile_t;
 
     // the reference tile extent
     int refDim = 16;
     // the margin around the reference tile
     int margin = 4;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
     //  the dimension of the correlation matrix
     auto corDim = placements;
 
     // the number of pairs
-    auto pairs = placements*placements;
-
+    auto pairs = placements * placements;
 
     // the reference shape
     slc_t::shape_type refShape = {refDim, refDim};
@@ -984,9 +968,9 @@ TEST(Ampcor, MaxCor)
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // make a correlator
     correlator_t c(pairs, refLayout, tgtLayout);
@@ -995,7 +979,7 @@ TEST(Ampcor, MaxCor)
     // make a device
     std::random_device dev {};
     // a random number generator
-    std::mt19937 rng { dev() };
+    std::mt19937 rng {dev()};
     // use them to build a normal distribution
     std::normal_distribution<float> normal {};
 
@@ -1009,21 +993,21 @@ TEST(Ampcor, MaxCor)
     // make a view over the reference tile
     auto rview = ref.constview();
     // build the target tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // make a target tile
             slc_t tgt(tgtLayout);
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            auto slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            auto slice = tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             auto tgtView = tgt.view(slice);
             // fill it with the contents of the reference tile for this pair
             std::copy(rview.begin(), rview.end(), tgtView.begin());
 
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
             // add this pair to the correlator
             c.addReferenceTile(pid, rview);
             c.addTargetTile(pid, tgt.constview());
@@ -1042,26 +1026,30 @@ TEST(Ampcor, MaxCor)
     // compute the sum area tables
     auto sat = c._sat(rArena, refDim, tgtDim);
 
-    // compute the average amplitude of all possible ref shaped sub-tiles in the target tile
+    // compute the average amplitude of all possible ref shaped sub-tiles in the
+    // target tile
     auto tgtStats = c._tgtStats(sat, refDim, tgtDim, corDim);
 
-    // compute the average amplitude of all possible ref shaped sub-tiles in the target tile
-    auto gamma = c._correlate(rArena, refStats, tgtStats, refDim, tgtDim, corDim);
+    // compute the average amplitude of all possible ref shaped sub-tiles in the
+    // target tile
+    auto gamma =
+            c._correlate(rArena, refStats, tgtStats, refDim, tgtDim, corDim);
 
     // compute the locations of the correlation maxima
     auto loc = c._maxcor(gamma, corDim);
 
-    // the shape of the correlation matrix: the first two indices identify the pair, the last
-    // two indicate the placement of the reference tile within the target search window
-    ctile_t::shape_type shape = { corDim, corDim, 2 };
+    // the shape of the correlation matrix: the first two indices identify the
+    // pair, the last two indicate the placement of the reference tile within
+    // the target search window
+    ctile_t::shape_type shape = {corDim, corDim, 2};
     // the layout of the correlation matrix
-    ctile_t::layout_type layout = { shape };
+    ctile_t::layout_type layout = {shape};
     // adapt the correlation matrix into a grid
-    ctile_t cgrid { layout, loc };
-    //ctile_t cgrid { layout, results };
+    ctile_t cgrid {layout, loc};
+    // ctile_t cgrid { layout, results };
 
-    // verify by checking that the correlation max is at the correct placement of the
-    // reference tile within the target window
+    // verify by checking that the correlation max is at the correct placement
+    // of the reference tile within the target window
     for (auto idx = 0; idx < corDim; ++idx) {
         for (auto jdx = 0; jdx < corDim; ++jdx) {
             // the magic placement should also have unit correlation
@@ -1074,18 +1062,15 @@ TEST(Ampcor, MaxCor)
     }
 
     // clean up
-    delete [] loc;
-    delete [] gamma;
-    delete [] tgtStats;
-    delete [] sat;
-    delete [] rArena;
+    delete[] loc;
+    delete[] gamma;
+    delete[] tgtStats;
+    delete[] sat;
+    delete[] rArena;
 }
 
-
-
-
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
-

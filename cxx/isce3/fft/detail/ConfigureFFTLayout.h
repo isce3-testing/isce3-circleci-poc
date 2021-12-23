@@ -2,11 +2,7 @@
 
 namespace isce3 { namespace fft { namespace detail {
 
-void configureFFTLayout(int * n,
-                        int * stride,
-                        int * dist,
-                        int * batch,
-                        const int (&dims)[2],
-                        int axis);
+void configureFFTLayout(int* n, int* stride, int* dist, int* batch,
+        const int (&dims)[2], int axis);
 
-}}}
+}}} // namespace isce3::fft::detail

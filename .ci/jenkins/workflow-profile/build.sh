@@ -29,7 +29,7 @@ git clone --single-branch \
 
 ./build-profile.sh  ${TAG} ${WORKSPACE} WorkflowProfile
 
-# download test data in artifactory 
+# download test data in artifactory
 cd /tmp
 curl -O "https://cae-artifactory.jpl.nasa.gov/artifactory/general-develop/gov/nasa/jpl/nisar/adt/data/jenkins_wfprofile_data.tar.gz"
 ls -al jenkins_wfprofile_data.tar.gz

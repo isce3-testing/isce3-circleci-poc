@@ -13,16 +13,16 @@ void addbinding_ltp_coordinates(py::module& m)
 
     m.def("heading", &geom::heading, py::arg("lon"), py::arg("lat"),
             py::arg("vel"), R"(
-    Get spacecraft heading/track angle from velocity vector at 
+    Get spacecraft heading/track angle from velocity vector at
     a certain geodetic location of Spacecraft.
 
     Parameters
     ----------
-    lon : float 
+    lon : float
         geodetic longitude in radians.
     lat : float
         geodetic latitude in radians.
-    vel : isce3.core.Vec3 
+    vel : isce3.core.Vec3
         velocity vector or its unit vector in ECEF (x,y,z).
 
     Returns
@@ -39,9 +39,9 @@ void addbinding_ltp_coordinates(py::module& m)
 
     Parameters
     ----------
-    lon : float     
+    lon : float
         geodetic longitude in radians
-    lat : float    
+    lat : float
         geodetic latitude in radians
     vector : isce3.core.Vec3
         3-D  unit vector or velocity vector in ECEF (x,y,z).
@@ -62,7 +62,7 @@ void addbinding_ltp_coordinates(py::module& m)
 
     References
     ----------
-    .. [1] https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates        
+    .. [1] https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates
 )");
 
     m.def("nwu_vector", &geom::nwuVector, py::arg("lon"), py::arg("lat"),
@@ -72,9 +72,9 @@ void addbinding_ltp_coordinates(py::module& m)
 
     Parameters
     ----------
-    lon : float     
+    lon : float
         geodetic longitude in radians
-    lat : float    
+    lat : float
         geodetic latitude in radians
     vector : isce3.core.Vec3
         3-D  unit vector or velocity vector in ECEF (x,y,z).
@@ -95,8 +95,8 @@ void addbinding_ltp_coordinates(py::module& m)
 
     References
     ----------
-    .. [1] https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates 
-   
+    .. [1] https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates
+
 )");
 
     m.def("enu_vector", &geom::enuVector, py::arg("lon"), py::arg("lat"),
@@ -106,9 +106,9 @@ void addbinding_ltp_coordinates(py::module& m)
 
     Parameters
     ----------
-    lon : float     
+    lon : float
         geodetic longitude in radians
-    lat : float    
+    lat : float
         geodetic latitude in radians
     vector : isce3.core.Vec3
         3-D  unit vector or velocity vector in ECEF (x,y,z).
@@ -129,7 +129,7 @@ void addbinding_ltp_coordinates(py::module& m)
 
     References
     ----------
-    .. [1] https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates 
-    
+    .. [1] https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates
+
 )");
 }

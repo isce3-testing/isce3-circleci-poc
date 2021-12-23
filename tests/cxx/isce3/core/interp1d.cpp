@@ -26,7 +26,7 @@ using isce3::math::sinc;
 double rad2deg(double x) { return x * 180.0 / M_PI; }
 
 double _correlation(std::vector<std::complex<double>>& x,
-                    std::vector<std::complex<double>>& y)
+        std::vector<std::complex<double>>& y)
 {
     double xy = 0.0, xx = 0.0, yy = 0.0;
     int n = std::min(x.size(), y.size());
@@ -51,12 +51,12 @@ double _stdev(std::vector<double>& v)
     double m = _mean(v);
     double accum = 0.0;
     std::for_each(std::begin(v), std::end(v),
-                  [&](const double d) { accum += (d - m) * (d - m); });
+            [&](const double d) { accum += (d - m) * (d - m); });
     return std::sqrt(accum / (v.size() - 1.0));
 }
 
 double _phase_stdev(std::vector<std::complex<double>>& x,
-                    std::vector<std::complex<double>>& y)
+        std::vector<std::complex<double>>& y)
 {
     auto n = std::min(x.size(), y.size());
     std::vector<double> phase(n);
@@ -70,8 +70,8 @@ double _phase_stdev(std::vector<std::complex<double>>& x,
 double dB(double x) { return 10.0 * std::log10(std::abs(x)); }
 
 void power_bias_stdev(double& bias, double& stdev, double minval,
-                      std::vector<std::complex<double>>& a,
-                      std::vector<std::complex<double>>& b)
+        std::vector<std::complex<double>>& a,
+        std::vector<std::complex<double>>& b)
 {
     std::vector<double> ratio(0);
     auto n = std::min(a.size(), b.size());
@@ -183,13 +183,13 @@ protected:
     }
 
     void fill_out(const std::vector<double>& times,
-                  isce3::core::Kernel<double>& kernel)
+            isce3::core::Kernel<double>& kernel)
     {
         auto nt = times.size();
         out.assign(nt, 0.0);
         for (int i = 0; i < nt; ++i) {
-            out[i] = interp1d<double, std::complex<double>>(kernel, signal,
-                                                            times[i]);
+            out[i] = interp1d<double, std::complex<double>>(
+                    kernel, signal, times[i]);
         }
     }
 
@@ -205,8 +205,8 @@ protected:
     }
 
     // Must have filled out and ref arrays.
-    void check(double min_cor, double max_phs, double max_bias,
-               double max_spread)
+    void check(
+            double min_cor, double max_phs, double max_bias, double max_spread)
     {
         auto cor = _correlation(ref, out);
         auto dphase = _phase_stdev(ref, out);
@@ -225,8 +225,8 @@ protected:
     }
 
     void check_interp(double min_cor, double max_phs, double max_bias,
-                      double max_spread, std::vector<double>& times,
-                      isce3::core::Kernel<double>& kernel)
+            double max_spread, std::vector<double>& times,
+            isce3::core::Kernel<double>& kernel)
     {
         fill_ref(times);
         fill_out(times, kernel);
@@ -246,8 +246,7 @@ protected:
     }
 
     void test_rand_offsets(double min_cor, double max_phs, double max_bias,
-                           double max_spread,
-                           isce3::core::Kernel<double>& kernel)
+            double max_spread, isce3::core::Kernel<double>& kernel)
     {
         printf("Testing random offsets.\n");
         auto times = gen_rand_times();
@@ -255,8 +254,7 @@ protected:
     }
 
     void test_fixed_offset(double min_cor, double max_phs, double max_bias,
-                           double max_spread,
-                           isce3::core::Kernel<double>& kernel, double off)
+            double max_spread, isce3::core::Kernel<double>& kernel, double off)
     {
         printf("Testing fixed offset=%g\n", off);
         std::vector<double> times(n);

@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
-from isce3.core import DateTime, StateVector, Orbit
+
+from isce3.core import DateTime, Orbit, StateVector
 
 
 def load_orbit_from_xml(f, epoch: DateTime = None) -> Orbit:

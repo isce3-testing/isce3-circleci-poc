@@ -3,12 +3,12 @@
  * @brief The controller for running cuAmcor
  *
  * cuAmpController is the main processor, also interface to python
- * It determines the total number of windows, the starting pixels for each window.
- * It then divides windows into chunks (batches), and creates cuAmpcorChunk instances
- *  to process each chunk.
- * A chunk includes multiple windows, to maximize the use of GPU cores.
- * Different cuAmpcorChunk processors use different cuda streams, to overlap
- *  the kernel execution with data copying.
+ * It determines the total number of windows, the starting pixels for each
+ * window. It then divides windows into chunks (batches), and creates
+ * cuAmpcorChunk instances to process each chunk. A chunk includes multiple
+ * windows, to maximize the use of GPU cores. Different cuAmpcorChunk processors
+ * use different cuda streams, to overlap the kernel execution with data
+ * copying.
  */
 
 // code guard
@@ -22,7 +22,7 @@
 
 class cuAmpcorController {
 public:
-    std::unique_ptr<cuAmpcorParameter> param;  ///< the parameter set
+    std::unique_ptr<cuAmpcorParameter> param; ///< the parameter set
     // constructor
     cuAmpcorController();
     // run interface

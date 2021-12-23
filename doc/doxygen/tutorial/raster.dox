@@ -8,7 +8,7 @@ to simplify the interface. You will find detailed documentation of all the metho
 
 \section rasterinclude Include headers
 
-In general, one only needs to include the isce3::io::Raster headerfile. 
+In general, one only needs to include the isce3::io::Raster headerfile.
 \code{.cpp}
 #include "isce3/io/Raster.h"
 \endcode
@@ -25,7 +25,7 @@ If one is looking to use advanecd features from GDAL, you might need additional 
 
 \subsection rasterreadonly Read-Only Mode
 
-Raster imagery that already exists can be opened in Read-Only mode in a simple manner with just a string with 
+Raster imagery that already exists can be opened in Read-Only mode in a simple manner with just a string with
 the filename to be used.
 
 \code{.cpp}
@@ -33,10 +33,10 @@ isce3::io::Raster raster(inputFilename);
 \endcode
 
 All the GDAL environment variables and driver settings are respected. One should also be able to access remotely located
-resources using vsicurl / vsis3 etc. One can also use standard GDAL interfaces to access raster imagery 
+resources using vsicurl / vsis3 etc. One can also use standard GDAL interfaces to access raster imagery
 within NETCDF and HDF5 by treating them as subdatasets (see here for details on <a href="https://www.gdal.org/frmt_netcdf.html">NETCDF</a>
 and <a href="https://www.gdal.org/frmt_hdf5.html">HDF5</a>). For a complete list of supported formats in your GDAL build
-, refer to output of  
+, refer to output of
 
 \code{.sh}
 > gdalinfo --formats
@@ -65,16 +65,16 @@ See the full range of isce3::io::Raster constructors available for options. Note
 to use GDAL type definitions.
 
 
-\todo Add ability to pass creation options to Raster object. This could possibly be done by accepting a vector of 
+\todo Add ability to pass creation options to Raster object. This could possibly be done by accepting a vector of
 strings as an additional input, that is then passed directly to the GDAL driver during creation.
 
 
 \section hdf5io Working with HDF5 files
 
 NISAR mission will produce Level 1 and Level 2 products in HDF5 format. However, GDAL does not include HDF5 creation support.
-ISCE provides two different interfaces to work with HDF5 files. Since, GDAL does not include HDF5 creation support 
+ISCE provides two different interfaces to work with HDF5 files. Since, GDAL does not include HDF5 creation support
 - users are expected to use the IH5 interface described below or h5py at the Python level for dataset creation, and
-then wire it through a custom IH5 GDAL Driver for I/O. 
+then wire it through a custom IH5 GDAL Driver for I/O.
 
 \subsection ih5intro IH5 - Extension of H5 C++ interface
 ISCE includes an easy to use HDF5 interface using isce3::io namespace, that can be used to
@@ -116,23 +116,23 @@ to access existing datasets.
 <li> There are numerous interfaces to creating HDF5 datasets - all overloaded under isce3::io::IH5File::createDataset.
 Please spend some time on choosing the right interface for your implementation.
 <li> IEEE float16 data types are available under isce3::io::float16 and these can be used with IH5 interfaces to create
-datasets. Note that this type is not available for computation. Any I/O operation transforms data stored in 
+datasets. Note that this type is not available for computation. Any I/O operation transforms data stored in
 isce3::io::float16 or std::complex<isce3::io::float16> this to user requested native type.
-<li> isce3::io::IDataSet::read and isce3::io::IDataSet::write methods can then be used to read / write to datasets. 
+<li> isce3::io::IDataSet::read and isce3::io::IDataSet::write methods can then be used to read / write to datasets.
 <li> isce3::io::IDataSet::createAttribute or isce3::io::IGroup::createAttribute can be used to create attributes.
-<li> isce3::io::IDataSet::read or isce3::io::IGroup::read have been overloaded to read attributes. 
+<li> isce3::io::IDataSet::read or isce3::io::IGroup::read have been overloaded to read attributes.
 </ol>
 
 
 \subsection ih52raster Passing HDF5 datasets to Raster interface
 
-Once access to HDF5 datasets has been setup using the IH5 interface discussed above, users can create an 
+Once access to HDF5 datasets has been setup using the IH5 interface discussed above, users can create an
 isce3::io::Raster object from it as shown below:
 
 \code{.cpp}
 
 //Header file for the GDAL interface
-#include "isce3/io/IH5Dataset.h"  
+#include "isce3/io/IH5Dataset.h"
 
 //Register custom IH5 Driver
 GDALAllRegister();
@@ -150,14 +150,14 @@ isce3::io::Raster slc( dset.toGDAL(), GA_ReadOnly);
 \endcode
 
 
-Rasters created using IH5 interface are equivalent to any other GDAL Dataset and same interface can be used to 
-populate / read data from these Rasters. isce3::io::IDataSet::toGDAL generates a string that is interpreted by 
+Rasters created using IH5 interface are equivalent to any other GDAL Dataset and same interface can be used to
+populate / read data from these Rasters. isce3::io::IDataSet::toGDAL generates a string that is interpreted by
 GDAL's custom IH5 driver, in a  manner very similar to GDAL's inbuilt <a href="https://gdal.org/drivers/raster/mem.html">MEM driver</a>.
 
 \section rasterpixel Reading/Writing Single Pixel
 
 Note that all pixels are indexed by the Top-Left corner (see <a href="overview_raster.html">Raster Overview</a>).
-One can read the data into a buffer of a type different from the storage format, as GDAL will handle the type translation. 
+One can read the data into a buffer of a type different from the storage format, as GDAL will handle the type translation.
 
 We use isce3::io::Raster::getValue to read a pixel value from Band 2 of the raster image in this example.
 If band number is not provided, it is assumed to be 1.
@@ -179,7 +179,7 @@ Similarly, isce3::io::Raster::setValue can be used to set a pixel value.
 
 \code{.cpp}
 //Create a Float32 raster of 100 pixels by 200 lines
-isce3::io::Raster raster("test.tif", 100, 200,1, GDT_Float32, "GTiff"); 
+isce3::io::Raster raster("test.tif", 100, 200,1, GDT_Float32, "GTiff");
 
 //Set value in Band 1
 int val = 25;
@@ -189,7 +189,7 @@ raster.setValue(val, 5,10);
 
 \section rasterline Reading/Writing Single line
 
-ISCE Raster object can currently interact with 3 types of containers - a raw buffer (no size checks), std::vector 
+ISCE Raster object can currently interact with 3 types of containers - a raw buffer (no size checks), std::vector
 and std::valarray. One can use any of the 3 interfaces with the isce3::io::Raster::getLine and
 isce3::io::Raster::setLine methods.
 

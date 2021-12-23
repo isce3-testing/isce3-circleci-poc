@@ -18,9 +18,9 @@ def test_presum_weights():
 
 def test_fill_weights():
     lut = {
-        123: np.array([1, 2, 3.]),
-        456: np.array([4, 5, 6.]),
-        789: np.array([7, 8, 9.]),
+        123: np.array([1, 2, 3.0]),
+        456: np.array([4, 5, 6.0]),
+        789: np.array([7, 8, 9.0]),
     }
     nr = 1000
     ids = np.random.choice(list(lut.keys()), nr)

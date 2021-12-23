@@ -1,11 +1,12 @@
 #pragma once
 
-#include <isce3/cuda/core/Event.h>
-#include <isce3/cuda/core/Stream.h>
-#include <isce3/io/Raster.h>
 #include <string>
 #include <thrust/host_vector.h>
 #include <thrust/system/cuda/experimental/pinned_allocator.h>
+
+#include <isce3/cuda/core/Event.h>
+#include <isce3/cuda/core/Stream.h>
+#include <isce3/io/Raster.h>
 
 namespace isce3 { namespace cuda { namespace io {
 
@@ -19,21 +20,18 @@ class fstreamCallback {
 private:
     fstreamCallback() = default;
 
-    fstreamCallback(const std::string * filename,
-                    const char * buffer,
-                    std::size_t offset,
-                    std::size_t count);
+    fstreamCallback(const std::string* filename, const char* buffer,
+            std::size_t offset, std::size_t count);
 
     // interface for cudaStreamAddCallback
     // casts *obj* to (fstreamCallback *) and calls write()
-    static
-    void CUDART_CB cb_write(cudaStream_t, cudaError_t, void * obj);
+    static void CUDART_CB cb_write(cudaStream_t, cudaError_t, void* obj);
 
     // write the contents of *buffer* to file at *filename* via std::ofstream
     void write();
 
-    const std::string * filename;
-    const char * buffer;
+    const std::string* filename;
+    const char* buffer;
     std::size_t offset;
     std::size_t count;
 
@@ -45,25 +43,20 @@ class RasterCallback {
 private:
     RasterCallback() = default;
 
-    RasterCallback(isce3::io::Raster * raster,
-                   char * buffer,
-                   std::size_t col,
-                   std::size_t row,
-                   std::size_t width,
-                   std::size_t length);
+    RasterCallback(isce3::io::Raster* raster, char* buffer, std::size_t col,
+            std::size_t row, std::size_t width, std::size_t length);
 
     // interface for cudaStreamAddCallback
     // casts *obj* to (RasterCallback *) and calls setBlock()
     template<typename T>
-    static
-    void CUDART_CB cb_setBlock(cudaStream_t, cudaError_t, void * obj);
+    static void CUDART_CB cb_setBlock(cudaStream_t, cudaError_t, void* obj);
 
     // forwards members as arguments to Raster::setBlock()
     template<typename T>
     void setBlock();
 
-    isce3::io::Raster * raster;
-    char * buffer;
+    isce3::io::Raster* raster;
+    char* buffer;
     std::size_t col;
     std::size_t row;
     std::size_t width;
@@ -87,15 +80,14 @@ public:
      * @param[in] stream CUDA stream
      * @param[in] buffer_size stream buffer size in bytes
      */
-    FileDataStream(const std::string & filename,
-                   isce3::cuda::core::Stream stream,
-                   std::size_t buffer_size = 0);
+    FileDataStream(const std::string& filename,
+            isce3::cuda::core::Stream stream, std::size_t buffer_size = 0);
 
     /** Get path to file. */
-    const std::string & filename() const;
+    const std::string& filename() const;
 
     /** Set path to file. */
-    void set_filename(const std::string &);
+    void set_filename(const std::string&);
 
     /** Get associated CUDA stream object. */
     isce3::cuda::core::Stream stream() const;
@@ -122,7 +114,7 @@ public:
      * @param[in] offset position of first character in file to read
      * @param[in] count size in bytes to read
      */
-    void load(void * dst, std::size_t offset, std::size_t count);
+    void load(void* dst, std::size_t offset, std::size_t count);
 
     /**
      * Write data from the current device to the file asynchronously.
@@ -137,7 +129,7 @@ public:
      * @param[in] offset position to write first character in file
      * @param[in] count size in bytes to write
      */
-    void store(const void * src, std::size_t offset, std::size_t count);
+    void store(const void* src, std::size_t offset, std::size_t count);
 
 private:
     std::string _filename;
@@ -162,15 +154,14 @@ public:
      * @param[in] stream CUDA stream
      * @param[in] buffer_size stream buffer size in bytes
      */
-    RasterDataStream(isce3::io::Raster * raster,
-                     isce3::cuda::core::Stream stream,
-                     std::size_t buffer_size = 0);
+    RasterDataStream(isce3::io::Raster* raster,
+            isce3::cuda::core::Stream stream, std::size_t buffer_size = 0);
 
     /** Get pointer to Raster object. */
-    isce3::io::Raster * raster() const;
+    isce3::io::Raster* raster() const;
 
     /** Set raster. */
-    void set_raster(isce3::io::Raster *);
+    void set_raster(isce3::io::Raster*);
 
     /** Get associated CUDA stream object. */
     isce3::cuda::core::Stream stream() const;
@@ -201,10 +192,7 @@ public:
      * @param[in] length number of rows to read
      */
     template<typename T>
-    void load(T * dst,
-            std::size_t col,
-            std::size_t row,
-            std::size_t width,
+    void load(T* dst, std::size_t col, std::size_t row, std::size_t width,
             std::size_t length);
 
     /**
@@ -224,21 +212,18 @@ public:
      * @param[in] length number of rows to write
      */
     template<typename T>
-    void store(const T * src,
-            std::size_t col,
-            std::size_t row,
-            std::size_t width,
-            std::size_t length);
+    void store(const T* src, std::size_t col, std::size_t row,
+            std::size_t width, std::size_t length);
 
 private:
-    isce3::io::Raster * _raster;
+    isce3::io::Raster* _raster;
     isce3::cuda::core::Stream _stream = 0;
     isce3::cuda::core::Event _mutex;
     pinned_host_vector<char> _buffer;
     RasterCallback _callback;
 };
 
-}}}
+}}} // namespace isce3::cuda::io
 
 #define ISCE_CUDA_IO_DATASTREAM_ICC
 #include "DataStream.icc"

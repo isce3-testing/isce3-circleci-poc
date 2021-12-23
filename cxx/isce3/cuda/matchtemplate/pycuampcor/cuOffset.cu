@@ -260,5 +260,3 @@ void cuDetermineSecondaryExtractOffset(cuArrays<int2> *maxLoc, cuArrays<int2> *m
 }
 
 // end of file
-
-

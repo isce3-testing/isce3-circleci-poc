@@ -1,10 +1,10 @@
 import xml.etree.ElementTree as ET
-from isce3.core import DateTime, Quaternion, Attitude
+
+from isce3.core import Attitude, DateTime, Quaternion
 
 
 def _require(node: ET.Element, pattern: str) -> ET.Element:
-    """Like Element.find but error if no match is found.
-    """
+    """Like Element.find but error if no match is found."""
     x = node.find(pattern)
     if x is None:
         raise IOError(f"Could not find XML element '{pattern}'")
@@ -44,8 +44,7 @@ def load_attitude_from_xml(f, epoch: DateTime = None, band="L") -> Attitude:
     datetimes, qs = [], []
     for node in svl.findall("radarPointingStateVector"):
         t = DateTime(_require(node, "utc").text)
-        q = (float(_require(node, name).text)
-             for name in ("q0", "q1", "q2", "q3"))
+        q = (float(_require(node, name).text) for name in ("q0", "q1", "q2", "q3"))
         datetimes.append(t)
         qs.append(Quaternion(*q))
     if len(datetimes) != n:

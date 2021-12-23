@@ -146,7 +146,7 @@ Basis geodeticTCN(const Vec3& x, const Vec3& v, const Ellipsoid& ellipsoid);
  * @param[in] ellipsoid     Nadir defined with respect to this ellipsoid.
  */
 EulerAngles factoredYawPitchRoll(const Quaternion& q, const Vec3& x,
-                                 const Vec3& v, const Ellipsoid& ellipsoid);
+        const Vec3& v, const Ellipsoid& ellipsoid);
 
 /** Get Euler angles between body and geocentric TCN, factoring out Earth
  * motion.
@@ -156,7 +156,7 @@ EulerAngles factoredYawPitchRoll(const Quaternion& q, const Vec3& x,
  * @param[in] x             position (m)
  * @param[in] v             velocity, Earth-fixed frame (m/s)
  */
-EulerAngles factoredYawPitchRoll(const Quaternion& q, const Vec3& x,
-                                 const Vec3& v);
+EulerAngles factoredYawPitchRoll(
+        const Quaternion& q, const Vec3& x, const Vec3& v);
 
 }} // namespace isce3::core

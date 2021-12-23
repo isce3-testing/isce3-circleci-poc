@@ -10,7 +10,7 @@
 #include <isce3/signal/decimate.h>
 
 void check_kernels(const std::valarray<double>& kernel_columns,
-                   const std::valarray<double>& kernel_rows)
+        const std::valarray<double>& kernel_rows)
 {
 
     size_t ncols_kernel = kernel_columns.size();
@@ -33,10 +33,9 @@ void check_kernels(const std::valarray<double>& kernel_columns,
 }
 
 void check_rasters(isce3::io::Raster& input_raster,
-                   isce3::io::Raster& output_raster,
-                   isce3::io::Raster& mask_raster, const bool do_decimate,
-                   const int ncols_kernel, const int nrows_kernel,
-                   const bool mask_data)
+        isce3::io::Raster& output_raster, isce3::io::Raster& mask_raster,
+        const bool do_decimate, const int ncols_kernel, const int nrows_kernel,
+        const bool mask_data)
 {
 
     // sanity checks
@@ -80,11 +79,9 @@ void check_rasters(isce3::io::Raster& input_raster,
 }
 
 void setup_block_parameters(const int nrows, const int blockRows,
-                            const int row_start, const int nblocks,
-                            const int block, const int pad_rows,
-                            int& block_line_start, int& line_start_read,
-                            int& line_stop_read, int& block_rows_data,
-                            int& block_rows_data_padded)
+        const int row_start, const int nblocks, const int block,
+        const int pad_rows, int& block_line_start, int& line_start_read,
+        int& line_stop_read, int& block_rows_data, int& block_rows_data_padded)
 {
 
     if ((row_start + blockRows) > nrows) {
@@ -127,9 +124,9 @@ void setup_block_parameters(const int nrows, const int blockRows,
 
 template<typename T>
 void isce3::signal::filter2D(isce3::io::Raster& output_raster,
-                             isce3::io::Raster& input_raster,
-                             const std::valarray<double>& kernel_columns,
-                             const std::valarray<double>& kernel_rows, int block_rows)
+        isce3::io::Raster& input_raster,
+        const std::valarray<double>& kernel_columns,
+        const std::valarray<double>& kernel_rows, int block_rows)
 {
 
     bool do_decimate = false;
@@ -142,30 +139,27 @@ void isce3::signal::filter2D(isce3::io::Raster& output_raster,
 
     // sanity checks
     if (kernel_columns.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in columnss direction should have non-zero size");
     }
     if (kernel_rows.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in rows direction should have non-zero size");
     }
 
     bool mask_data = false;
-    isce3::io::Raster mask_raster("/vsimem/dummy", 1, 1, 1, GDT_Float32,
-                                  "ENVI");
+    isce3::io::Raster mask_raster(
+            "/vsimem/dummy", 1, 1, 1, GDT_Float32, "ENVI");
 
     filter2D<T>(output_raster, input_raster, mask_raster, kernel_columns,
-                kernel_rows, do_decimate, mask_data, block_rows);
+            kernel_rows, do_decimate, mask_data, block_rows);
 }
 
 template<typename T>
 void isce3::signal::filter2D(isce3::io::Raster& output_raster,
-                             isce3::io::Raster& input_raster,
-                             isce3::io::Raster& mask_raster,
-                             const std::valarray<double>& kernel_columns,
-                             const std::valarray<double>& kernel_rows, int block_rows)
+        isce3::io::Raster& input_raster, isce3::io::Raster& mask_raster,
+        const std::valarray<double>& kernel_columns,
+        const std::valarray<double>& kernel_rows, int block_rows)
 {
 
     std::cout << "A mask is provided. The input will be masked before filtering"
@@ -181,28 +175,24 @@ void isce3::signal::filter2D(isce3::io::Raster& output_raster,
     }
 
     filter2D<T>(output_raster, input_raster, mask_raster, kernel_columns,
-                kernel_rows, do_decimate, mask_data, block_rows);
+            kernel_rows, do_decimate, mask_data, block_rows);
 }
 
 template<typename T>
 void isce3::signal::filter2D(isce3::io::Raster& output_raster,
-                             isce3::io::Raster& input_raster,
-                             isce3::io::Raster& mask_raster,
-                             const std::valarray<double>& kernel_columns,
-                             const std::valarray<double>& kernel_rows,
-                             const bool do_decimate, const bool mask_data,
-                             int block_rows)
+        isce3::io::Raster& input_raster, isce3::io::Raster& mask_raster,
+        const std::valarray<double>& kernel_columns,
+        const std::valarray<double>& kernel_rows, const bool do_decimate,
+        const bool mask_data, int block_rows)
 {
 
     // sanity checks
     if (kernel_columns.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in columnss direction should have non-zero size");
     }
     if (kernel_rows.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in rows direction should have non-zero size");
     }
 
@@ -215,7 +205,7 @@ void isce3::signal::filter2D(isce3::io::Raster& output_raster,
     int nrows_kernel = kernel_rows.size();
 
     check_rasters(input_raster, output_raster, mask_raster, do_decimate,
-                  ncols_kernel_input, nrows_kernel_input, mask_data);
+            ncols_kernel_input, nrows_kernel_input, mask_data);
 
     int nrows = input_raster.length();
     int ncols = input_raster.width();
@@ -267,9 +257,8 @@ void isce3::signal::filter2D(isce3::io::Raster& output_raster,
         int block_rows_data, block_rows_data_padded;
         int line_start_read, line_stop_read, block_line_start;
         setup_block_parameters(nrows, block_rows, row_start, nblocks, block,
-                               pad_rows, block_line_start, line_start_read,
-                               line_stop_read, block_rows_data,
-                               block_rows_data_padded);
+                pad_rows, block_line_start, line_start_read, line_stop_read,
+                block_rows_data, block_rows_data_padded);
 
         // containers for one line of data
         std::valarray<T> data_line(ncols);
@@ -281,9 +270,9 @@ void isce3::signal::filter2D(isce3::io::Raster& output_raster,
         for (size_t line = 0; line < block_rows_data_padded; ++line) {
 
             input_raster.getLine(data_line, line_start_read + line);
-            input[std::slice((line + block_line_start) * ncols_padded +
-                                     pad_cols,
-                             ncols, 1)] = data_line;
+            input[std::slice(
+                    (line + block_line_start) * ncols_padded + pad_cols, ncols,
+                    1)] = data_line;
         }
 
         if (mask_data) {
@@ -293,19 +282,19 @@ void isce3::signal::filter2D(isce3::io::Raster& output_raster,
             for (size_t line = 0; line < block_rows_data_padded; ++line) {
 
                 mask_raster.getLine(mask_line, line_start_read + line);
-                mask[std::slice((line + block_line_start) * ncols_padded +
-                                        pad_cols,
-                                ncols, 1)] = mask_line;
+                mask[std::slice(
+                        (line + block_line_start) * ncols_padded + pad_cols,
+                        ncols, 1)] = mask_line;
             }
 
             // Convolution in time domain
             isce3::signal::convolve2D(output, input, mask, kernel_columns,
-                                      kernel_rows, ncols, ncols_padded);
+                    kernel_rows, ncols, ncols_padded);
 
         } else {
             // Convolution in time domain
             isce3::signal::convolve2D(output, input, kernel_columns,
-                                      kernel_rows, ncols, ncols_padded);
+                    kernel_rows, ncols, ncols_padded);
         }
 
         // write the output block of filtered data to the raster
@@ -314,18 +303,16 @@ void isce3::signal::filter2D(isce3::io::Raster& output_raster,
             size_t cols_offset = ncols_kernel / 2;
 
             isce3::signal::decimate(output_decimated, output, block_rows, ncols,
-                                    block_rows_decimated, ncols_decimated,
-                                    nrows_kernel_input, ncols_kernel_input,
-                                    rows_offset, cols_offset);
+                    block_rows_decimated, ncols_decimated, nrows_kernel_input,
+                    ncols_kernel_input, rows_offset, cols_offset);
 
             output_raster.setBlock(output_decimated, 0,
-                                   row_start / nrows_kernel_input,
-                                   ncols / ncols_kernel_input,
-                                   block_rows_data / nrows_kernel_input);
+                    row_start / nrows_kernel_input, ncols / ncols_kernel_input,
+                    block_rows_data / nrows_kernel_input);
 
         } else {
-            output_raster.setBlock(output, 0, row_start, ncols,
-                                   block_rows_data);
+            output_raster.setBlock(
+                    output, 0, row_start, ncols, block_rows_data);
         }
     }
 }
@@ -334,18 +321,18 @@ void isce3::signal::filter2D(isce3::io::Raster& output_raster,
     template void isce3::signal::filter2D<T>(                                  \
             isce3::io::Raster & output_raster,                                 \
             isce3::io::Raster & input_raster,                                  \
-            const std::valarray<double> & kernel_columns,                      \
-            const std::valarray<double> & kernel_rows, int block_rows);        \
+            const std::valarray<double>& kernel_columns,                       \
+            const std::valarray<double>& kernel_rows, int block_rows);         \
     template void isce3::signal::filter2D<T>(                                  \
             isce3::io::Raster & output_raster,                                 \
             isce3::io::Raster & input_raster, isce3::io::Raster & mask_raster, \
-            const std::valarray<double> & kernel_columns,                      \
-            const std::valarray<double> & kernel_rows, int block_rows);        \
+            const std::valarray<double>& kernel_columns,                       \
+            const std::valarray<double>& kernel_rows, int block_rows);         \
     template void isce3::signal::filter2D<T>(                                  \
             isce3::io::Raster & output_raster,                                 \
             isce3::io::Raster & input_raster, isce3::io::Raster & mask_raster, \
-            const std::valarray<double> & kernel_columns,                      \
-            const std::valarray<double> & kernel_rows, const bool do_decimate, \
+            const std::valarray<double>& kernel_columns,                       \
+            const std::valarray<double>& kernel_rows, const bool do_decimate,  \
             const bool mask, int block_rows)
 
 SPECIALIZE_FILTER(float);

@@ -78,4 +78,3 @@ bool query(Stream stream)
 }
 
 }}}
-

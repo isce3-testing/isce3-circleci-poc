@@ -152,10 +152,7 @@ public:
      * \param[in] n Transform size
      * \param[in] batch Batch size
      */
-    FwdFFTPlan(thrust::complex<T> * out,
-               T * in,
-               int n,
-               int batch = 1);
+    FwdFFTPlan(thrust::complex<T>* out, T* in, int n, int batch = 1);
 
     /**
      * N-D real-to-complex forward transform
@@ -167,10 +164,8 @@ public:
      * \param[in] batch Batch size
      */
     template<int Rank>
-    FwdFFTPlan(thrust::complex<T> * out,
-               T * in,
-               const int (&n)[Rank],
-               int batch = 1);
+    FwdFFTPlan(thrust::complex<T>* out, T* in, const int (&n)[Rank],
+            int batch = 1);
 
     /**
      * 1-D real-to-complex forward transform
@@ -183,13 +178,8 @@ public:
      * \param[in] dist Stride between adjacent batches in the input/output
      * \param[in] batch Batch size
      */
-    FwdFFTPlan(thrust::complex<T> * out,
-               T * in,
-               int n,
-               int nembed,
-               int stride,
-               int dist,
-               int batch = 1);
+    FwdFFTPlan(thrust::complex<T>* out, T* in, int n, int nembed, int stride,
+            int dist, int batch = 1);
 
     /**
      * N-D real-to-complex forward transform
@@ -204,13 +194,8 @@ public:
      * \param[in] batch Batch size
      */
     template<int Rank>
-    FwdFFTPlan(thrust::complex<T> * out,
-               T * in,
-               const int (&n)[Rank],
-               const int (&nembed)[Rank],
-               int stride,
-               int dist,
-               int batch = 1);
+    FwdFFTPlan(thrust::complex<T>* out, T* in, const int (&n)[Rank],
+            const int (&nembed)[Rank], int stride, int dist, int batch = 1);
 
     /**
      * 1-D real-to-complex forward transform
@@ -226,16 +211,8 @@ public:
      * \param[in] odist Stride between adjacent batches in the output
      * \param[in] batch Batch size
      */
-    FwdFFTPlan(thrust::complex<T> * out,
-               T * in,
-               int n,
-               int inembed,
-               int istride,
-               int idist,
-               int onembed,
-               int ostride,
-               int odist,
-               int batch = 1);
+    FwdFFTPlan(thrust::complex<T>* out, T* in, int n, int inembed, int istride,
+            int idist, int onembed, int ostride, int odist, int batch = 1);
 
     /**
      * N-D real-to-complex forward transform
@@ -253,16 +230,9 @@ public:
      * \param[in] batch Batch size
      */
     template<int Rank>
-    FwdFFTPlan(thrust::complex<T> * out,
-               T * in,
-               const int (&n)[Rank],
-               const int (&inembed)[Rank],
-               int istride,
-               int idist,
-               const int (&onembed)[Rank],
-               int ostride,
-               int odist,
-               int batch = 1);
+    FwdFFTPlan(thrust::complex<T>* out, T* in, const int (&n)[Rank],
+            const int (&inembed)[Rank], int istride, int idist,
+            const int (&onembed)[Rank], int ostride, int odist, int batch = 1);
 
     // the following are declared here just for the purpose of doxygenating them
     // they are actually defined in the base class
@@ -421,10 +391,7 @@ public:
      * \param[in] n Transform size
      * \param[in] batch Batch size
      */
-    InvFFTPlan(T * out,
-               thrust::complex<T> * in,
-               int n,
-               int batch = 1);
+    InvFFTPlan(T* out, thrust::complex<T>* in, int n, int batch = 1);
 
     /**
      * N-D complex-to-real inverse transform
@@ -436,10 +403,8 @@ public:
      * \param[in] batch Batch size
      */
     template<int Rank>
-    InvFFTPlan(T * out,
-               thrust::complex<T> * in,
-               const int (&n)[Rank],
-               int batch = 1);
+    InvFFTPlan(T* out, thrust::complex<T>* in, const int (&n)[Rank],
+            int batch = 1);
 
     /**
      * 1-D complex-to-real inverse transform
@@ -452,13 +417,8 @@ public:
      * \param[in] dist Stride between adjacent batches in the input/output
      * \param[in] batch Batch size
      */
-    InvFFTPlan(T * out,
-               thrust::complex<T> * in,
-               int n,
-               int nembed,
-               int stride,
-               int dist,
-               int batch = 1);
+    InvFFTPlan(T* out, thrust::complex<T>* in, int n, int nembed, int stride,
+            int dist, int batch = 1);
 
     /**
      * N-D complex-to-real inverse transform
@@ -473,13 +433,8 @@ public:
      * \param[in] batch Batch size
      */
     template<int Rank>
-    InvFFTPlan(T * out,
-               thrust::complex<T> * in,
-               const int (&n)[Rank],
-               const int (&nembed)[Rank],
-               int stride,
-               int dist,
-               int batch = 1);
+    InvFFTPlan(T* out, thrust::complex<T>* in, const int (&n)[Rank],
+            const int (&nembed)[Rank], int stride, int dist, int batch = 1);
 
     /**
      * 1-D complex-to-real inverse transform
@@ -495,16 +450,8 @@ public:
      * \param[in] odist Stride between adjacent batches in the output
      * \param[in] batch Batch size
      */
-    InvFFTPlan(T * out,
-               thrust::complex<T> * in,
-               int n,
-               int inembed,
-               int istride,
-               int idist,
-               int onembed,
-               int ostride,
-               int odist,
-               int batch = 1);
+    InvFFTPlan(T* out, thrust::complex<T>* in, int n, int inembed, int istride,
+            int idist, int onembed, int ostride, int odist, int batch = 1);
 
     /**
      * N-D complex-to-real inverse transform
@@ -522,16 +469,9 @@ public:
      * \param[in] batch Batch size
      */
     template<int Rank>
-    InvFFTPlan(T * out,
-               thrust::complex<T> * in,
-               const int (&n)[Rank],
-               const int (&inembed)[Rank],
-               int istride,
-               int idist,
-               const int (&onembed)[Rank],
-               int ostride,
-               int odist,
-               int batch = 1);
+    InvFFTPlan(T* out, thrust::complex<T>* in, const int (&n)[Rank],
+            const int (&inembed)[Rank], int istride, int idist,
+            const int (&onembed)[Rank], int ostride, int odist, int batch = 1);
 
     // the following are declared here just for the purpose of doxygenating them
     // they are actually defined in the base class
@@ -544,7 +484,7 @@ public:
 #endif
 };
 
-}}}
+}}} // namespace isce3::cuda::fft
 
 #define ISCE_CUDA_FFT_FFTPLAN_ICC
 #include "FFTPlan.icc"

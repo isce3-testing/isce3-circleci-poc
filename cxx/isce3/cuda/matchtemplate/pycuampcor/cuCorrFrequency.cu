@@ -19,15 +19,15 @@ cuFreqCorrelator::cuFreqCorrelator(int imageNX, int imageNY, int nImages, cudaSt
     int imageSize = imageNX*imageNY;
     int fImageSize = imageNX*(imageNY/2+1);
     int n[NRANK] ={imageNX, imageNY};
-    
+
     // set up fft plans
     cufft_Error(cufftPlanMany(&forwardPlan, NRANK, n,
                               NULL, 1, imageSize,
-                              NULL, 1, fImageSize, 
-                              CUFFT_R2C, nImages));
-    cufft_Error(cufftPlanMany(&backwardPlan, NRANK, n, 
                               NULL, 1, fImageSize,
-                              NULL, 1, imageSize, 
+                              CUFFT_R2C, nImages));
+    cufft_Error(cufftPlanMany(&backwardPlan, NRANK, n,
+                              NULL, 1, fImageSize,
+                              NULL, 1, imageSize,
                               CUFFT_C2R, nImages));
     stream = stream_;
     cufftSetStream(forwardPlan, stream);
@@ -46,11 +46,11 @@ cuFreqCorrelator::cuFreqCorrelator(int imageNX, int imageNY, int nImages, cudaSt
 cuFreqCorrelator::~cuFreqCorrelator()
 {
     cufft_Error(cufftDestroy(forwardPlan));
-    cufft_Error(cufftDestroy(backwardPlan));	
+    cufft_Error(cufftDestroy(backwardPlan));
     workFM->deallocate();
     workFS->deallocate();
     workT->deallocate();
-}	
+}
 
 
 /**
@@ -89,11 +89,11 @@ __global__ void cudaKernel_elementMulConjugate(float2 *ainout, float2 *bin, int 
 {
     int idx = threadIdx.x + blockIdx.x*blockDim.x;
     if(idx < size) {
-        cuComplex prod; 
+        cuComplex prod;
         prod = cuMulConj(ainout[idx], bin[idx]);
         ainout [idx] = prod*coef;
     }
-} 
+}
 
 /**
  * Perform multiplication of coef*Conjugate[image1]*image2 for each element
@@ -108,5 +108,5 @@ void cuArraysElementMultiplyConjugate(cuArrays<float2> *image1, cuArrays<float2>
     int blockspergrid = IDIVUP (size, threadsperblock);
     cudaKernel_elementMulConjugate<<<blockspergrid, threadsperblock, 0, stream>>>(image1->devData, image2->devData, size, coef );
     getLastCudaError("cuArraysElementMultiply error\n");
-} 
+}
 //end of file

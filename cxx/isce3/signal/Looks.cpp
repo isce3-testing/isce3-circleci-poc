@@ -8,8 +8,8 @@
 #include "Looks.h"
 
 bool isce3::signal::verifyComplexToRealCasting(isce3::io::Raster& input_raster,
-                                              isce3::io::Raster& output_raster,
-                                              int& exponent) {
+        isce3::io::Raster& output_raster, int& exponent)
+{
     GDALDataType input_dtype = input_raster.dtype();
     GDALDataType output_dtype = output_raster.dtype();
     bool flag_complex_to_real = (GDALDataTypeIsComplex(input_dtype) &&
@@ -30,8 +30,8 @@ bool isce3::signal::verifyComplexToRealCasting(isce3::io::Raster& input_raster,
 
 template<class T>
 void isce3::signal::Looks<T>::multilook(isce3::io::Raster& input_raster,
-                                       isce3::io::Raster& output_raster,
-                                       int exponent) {
+        isce3::io::Raster& output_raster, int exponent)
+{
     int nbands = input_raster.numBands();
     _ncols = input_raster.width();
     _nrows = input_raster.length();
@@ -52,24 +52,25 @@ void isce3::signal::Looks<T>::multilook(isce3::io::Raster& input_raster,
             multilook(image, image_ml);
         } else {
             std::valarray<std::complex<T>> complex_image(_ncols * _nrows);
-            input_raster.getBlock(complex_image, 0, 0, _ncols, _nrows,
-                                  band + 1);
+            input_raster.getBlock(
+                    complex_image, 0, 0, _ncols, _nrows, band + 1);
             multilook(complex_image, image_ml, exponent);
         }
         std::cout << "saving block" << std::endl;
-        output_raster.setBlock(image_ml, 0, 0, _ncolsLooked, _nrowsLooked,
-                               band + 1);
+        output_raster.setBlock(
+                image_ml, 0, 0, _ncolsLooked, _nrowsLooked, band + 1);
         std::cout << "...done" << std::endl;
     }
 }
 
 /**
  * * @param[in] input input array to be multi-looked
- * * @param[out] output output multilooked and downsampled array 
+ * * @param[out] output output multilooked and downsampled array
  * */
 template<class T>
-void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
-                                       std::valarray<T>& output) {
+void isce3::signal::Looks<T>::multilook(
+        std::valarray<T>& input, std::valarray<T>& output)
+{
 
     // Time-domain multi-looking of an array with following parameters
     // size of input array: _ncols * _nrows
@@ -124,9 +125,9 @@ void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
  * @param[in] noDataValue invalid data which will be excluded when multi-looking
  */
 template<class T>
-void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
-                                       std::valarray<T>& output,
-                                       T noDataValue) {
+void isce3::signal::Looks<T>::multilook(
+        std::valarray<T>& input, std::valarray<T>& output, T noDataValue)
+{
 
     // Multi-looking an array while taking into account the noDataValue.
     // Pixels whose value equals "noDataValue" is excluded in mult-looking.
@@ -143,13 +144,14 @@ void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
 
 /**
  * @param[in] input input array to be multi-looked
- * @param[in] mask input boolean mask array to mask the input array before multi-looking 
+ * @param[in] mask input boolean mask array to mask the input array before
+ * multi-looking
  * @param[out] output output multilooked and downsampled array
  */
 template<class T>
 void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
-                                       std::valarray<bool>& mask,
-                                       std::valarray<T>& output) {
+        std::valarray<bool>& mask, std::valarray<T>& output)
+{
 
     // Multi-looking an array while taking into account a boolean mask.
     // Invalid pixels are excluded based on the mask.
@@ -167,15 +169,16 @@ void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
     multilook(input, weights, output);
 }
 
-/** 
+/**
  * @param[in] input input array to be multi-looked
- * @param[in] weights input weight array to weight the input array for multi-looking
+ * @param[in] weights input weight array to weight the input array for
+ * multi-looking
  * @param[out] output output multilooked and downsampled array
  */
 template<class T>
 void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
-                                       std::valarray<T>& weights,
-                                       std::valarray<T>& output) {
+        std::valarray<T>& weights, std::valarray<T>& output)
+{
 
     // A general implementation of multi-looking with weight array.
 
@@ -199,25 +202,25 @@ void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
         tempSumWeights[line * _ncolsLooked + col] = sumWgt;
     }
 
-    // weighted multi-looking the rows
-    #pragma omp parallel for
-    for (size_t kk = 0; kk < _nrowsLooked*_ncolsLooked; ++kk){
-        size_t line = kk/_ncolsLooked;
-        size_t col = kk%_ncolsLooked;
+// weighted multi-looking the rows
+#pragma omp parallel for
+    for (size_t kk = 0; kk < _nrowsLooked * _ncolsLooked; ++kk) {
+        size_t line = kk / _ncolsLooked;
+        size_t col = kk % _ncolsLooked;
 
         T sum = 0.0;
         T sumWgt = 0;
-        for (size_t i=line*_rowsLooks; i<(line+1)*_rowsLooks; ++i){
+        for (size_t i = line * _rowsLooks; i < (line + 1) * _rowsLooks; ++i) {
 
-            // Note that the elements of tempOutput are already weighted in the previous loop. 
-            // So no need to weight them again.
-            sum += tempOutput[i*_ncolsLooked + col];
-            sumWgt += tempSumWeights[i*_ncolsLooked + col];
+            // Note that the elements of tempOutput are already weighted in the
+            // previous loop. So no need to weight them again.
+            sum += tempOutput[i * _ncolsLooked + col];
+            sumWgt += tempSumWeights[i * _ncolsLooked + col];
         }
 
         // To avoid dividing by zero
-        if (sumWgt>0)
-            output[line*_ncolsLooked + col] = sum/sumWgt;
+        if (sumWgt > 0)
+            output[line * _ncolsLooked + col] = sum / sumWgt;
     }
 }
 
@@ -227,7 +230,8 @@ void isce3::signal::Looks<T>::multilook(std::valarray<T>& input,
  */
 template<class T>
 void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
-                                       std::valarray<std::complex<T>>& output) {
+        std::valarray<std::complex<T>>& output)
+{
 
     // The implementation details are same as real data. See the notes above.
 
@@ -245,12 +249,12 @@ void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
     }
 
 #pragma omp parallel for
-    for (size_t kk = 0; kk < _nrowsLooked * _ncolsLooked; ++kk){
-        size_t line = kk/_ncolsLooked;
-        size_t col = kk%_ncolsLooked;
-        std::complex<T> sum = std::complex<T> (0.0 , 0.0);
-        for (size_t i=line*_rowsLooks; i<(line+1)*_rowsLooks; ++i){
-            sum += tempOutput[i*_ncolsLooked + col];
+    for (size_t kk = 0; kk < _nrowsLooked * _ncolsLooked; ++kk) {
+        size_t line = kk / _ncolsLooked;
+        size_t col = kk % _ncolsLooked;
+        std::complex<T> sum = std::complex<T>(0.0, 0.0);
+        for (size_t i = line * _rowsLooks; i < (line + 1) * _rowsLooks; ++i) {
+            sum += tempOutput[i * _ncolsLooked + col];
         }
         output[line * _ncolsLooked + col] = sum;
     }
@@ -261,14 +265,12 @@ void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
 /**
  * @param[in] input input array of complex data to be multi-looked
  * @param[out] output output multilooked and downsampled array of complex data
- * @param[out] noDataValue invalid complex data which will be excluded when multi-looking
+ * @param[out] noDataValue invalid complex data which will be excluded when
+ * multi-looking
  */
-template <class T>
-void
-isce3::signal::Looks<T>::
-multilook(std::valarray<std::complex<T>> &input,
-            std::valarray<std::complex<T>> &output,
-            std::complex<T> noDataValue)
+template<class T>
+void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
+        std::valarray<std::complex<T>>& output, std::complex<T> noDataValue)
 {
 
     // buffer for a boolean mask
@@ -277,78 +279,73 @@ multilook(std::valarray<std::complex<T>> &input,
     // create the mask. (mask[input==noDataValue] = false)
     mask = isce3::core::makeMask(input, noDataValue);
 
-    // multilooking 
+    // multilooking
     multilook(input, mask, output);
-
 }
 
 /**
  * @param[in] input input array of complex data to be multi-looked
- * @param[in] mask input boolean mask array to mask the input array before multi-looking 
- * @param[out] noDataValue invalid complex data which will be excluded when multi-looking
+ * @param[in] mask input boolean mask array to mask the input array before
+ * multi-looking
+ * @param[out] noDataValue invalid complex data which will be excluded when
+ * multi-looking
  */
-template <class T>
-void
-isce3::signal::Looks<T>::
-multilook(std::valarray<std::complex<T>> &input,
-        std::valarray<bool> &mask,
-        std::valarray<std::complex<T>> &output)
+template<class T>
+void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
+        std::valarray<bool>& mask, std::valarray<std::complex<T>>& output)
 {
 
     std::valarray<T> weights(input.size());
     weights = 0.0;
     weights[mask] = 1.0;
     multilook(input, weights, output);
-
 }
 
 /**
  * @param[in] input input array of complex data to be multi-looked
- * @param[in] weights input weight array to weight the input array for multi-looking
- * @param[out] noDataValue invalid complex data which will be excluded when multi-looking
+ * @param[in] weights input weight array to weight the input array for
+ * multi-looking
+ * @param[out] noDataValue invalid complex data which will be excluded when
+ * multi-looking
  */
-template <class T>
-void
-isce3::signal::Looks<T>::
-multilook(std::valarray<std::complex<T>> &input,
-            std::valarray<T> &weights,
-            std::valarray<std::complex<T>> &output)
+template<class T>
+void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
+        std::valarray<T>& weights, std::valarray<std::complex<T>>& output)
 {
 
-    std::valarray<std::complex<T>> tempOutput(_nrows*_ncolsLooked);
+    std::valarray<std::complex<T>> tempOutput(_nrows * _ncolsLooked);
     std::valarray<T> tempSumWeights(_nrows * _ncolsLooked);
 
 #pragma omp parallel for
-    for (size_t kk = 0; kk < _nrows*_ncolsLooked; ++kk){
-        size_t line = kk/_ncolsLooked;
-        size_t col = kk%_ncolsLooked;
+    for (size_t kk = 0; kk < _nrows * _ncolsLooked; ++kk) {
+        size_t line = kk / _ncolsLooked;
+        size_t col = kk % _ncolsLooked;
 
-        std::complex<T> sum = std::complex<T> (0.0, 0.0);
+        std::complex<T> sum = std::complex<T>(0.0, 0.0);
         T sumWeights = 0;
 
-        for (size_t j=col*_colsLooks; j<(col+1)*_colsLooks; ++j){
-            sum += weights[line*_ncols+j] * input[line*_ncols+j];
+        for (size_t j = col * _colsLooks; j < (col + 1) * _colsLooks; ++j) {
+            sum += weights[line * _ncols + j] * input[line * _ncols + j];
             sumWeights += weights[line * _ncols + j];
         }
 
-        tempOutput[line*_ncolsLooked + col] = sum;
+        tempOutput[line * _ncolsLooked + col] = sum;
         tempSumWeights[line * _ncolsLooked + col] = sumWeights;
     }
 
-    #pragma omp parallel for
-    for (size_t kk = 0; kk < _nrowsLooked * _ncolsLooked; ++kk){
-        size_t line = kk/_ncolsLooked;
-        size_t col = kk%_ncolsLooked;
-        std::complex<T> sum = std::complex<T> (0.0 , 0.0);
+#pragma omp parallel for
+    for (size_t kk = 0; kk < _nrowsLooked * _ncolsLooked; ++kk) {
+        size_t line = kk / _ncolsLooked;
+        size_t col = kk % _ncolsLooked;
+        std::complex<T> sum = std::complex<T>(0.0, 0.0);
         T sumWeights = 0;
-        for (size_t i=line*_rowsLooks; i<(line+1)*_rowsLooks; ++i){
-            sum += tempOutput[i*_ncolsLooked + col];
+        for (size_t i = line * _rowsLooks; i < (line + 1) * _rowsLooks; ++i) {
+            sum += tempOutput[i * _ncolsLooked + col];
             sumWeights += tempSumWeights[i * _ncolsLooked + col];
         }
 
         output[line * _ncolsLooked + col] = sum / sumWeights;
     }
-    
 }
 
 /**
@@ -359,7 +356,8 @@ multilook(std::valarray<std::complex<T>> &input,
  */
 template<class T>
 void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
-                                       std::valarray<T>& output, int exponent) {
+        std::valarray<T>& output, int exponent)
+{
 
     // If exponent == 0, apply default complex-to-float multilooking (squared)
     if (exponent == 0)
@@ -379,15 +377,15 @@ void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
     }
 
 #pragma omp parallel for
-    for (size_t kk = 0; kk < _nrowsLooked * _ncolsLooked; ++kk){
-        size_t line = kk/_ncolsLooked;
-        size_t col = kk%_ncolsLooked;
+    for (size_t kk = 0; kk < _nrowsLooked * _ncolsLooked; ++kk) {
+        size_t line = kk / _ncolsLooked;
+        size_t col = kk % _ncolsLooked;
         T sum = 0.0;
-        for (size_t i=line*_rowsLooks; i<(line+1)*_rowsLooks; ++i){
-            sum += tempOutput[i*_ncolsLooked + col];
+        for (size_t i = line * _rowsLooks; i < (line + 1) * _rowsLooks; ++i) {
+            sum += tempOutput[i * _ncolsLooked + col];
         }
 
-        output[line*_ncolsLooked+col] = sum;
+        output[line * _ncolsLooked + col] = sum;
     }
     output /= (_colsLooks * _rowsLooks);
 }
@@ -395,4 +393,3 @@ void isce3::signal::Looks<T>::multilook(std::valarray<std::complex<T>>& input,
 template class isce3::signal::Looks<int>;
 template class isce3::signal::Looks<float>;
 template class isce3::signal::Looks<double>;
-

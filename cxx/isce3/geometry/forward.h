@@ -2,10 +2,11 @@
 
 namespace isce3 { namespace geometry {
 
-    class DEMInterpolator;
-    class Topo;
-    class TopoLayers;
+class DEMInterpolator;
+class Topo;
+class TopoLayers;
 
-    template<class T> class Geocode;
+template<class T>
+class Geocode;
 
-}}
+}} // namespace isce3::geometry

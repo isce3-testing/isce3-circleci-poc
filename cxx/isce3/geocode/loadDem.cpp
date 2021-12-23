@@ -1,4 +1,5 @@
 #include "loadDem.h"
+
 #include <isce3/except/Error.h>
 
 isce3::geometry::DEMInterpolator isce3::geocode::loadDEM(
@@ -63,7 +64,9 @@ isce3::geometry::DEMInterpolator isce3::geocode::loadDEM(
         for (size_t i = 0; i < lineInd.size(); i++) {
             isce3::core::Vec3 outpt = {
                     geoGrid.startX() + geoGrid.spacingX() * pixInd[i],
-                    geoGrid.startY() + geoGrid.spacingY() * (lineStart + lineInd[i]), 0.0};
+                    geoGrid.startY() +
+                            geoGrid.spacingY() * (lineStart + lineInd[i]),
+                    0.0};
 
             isce3::core::Vec3 dempt;
             if (!projTransform(proj.get(), demproj.get(), outpt, dempt)) {
@@ -72,9 +75,9 @@ isce3::geometry::DEMInterpolator isce3::geocode::loadDEM(
                 minY = std::min(minY, dempt[1]);
                 maxY = std::max(maxY, dempt[1]);
             } else {
-                std::string errmsg = "projection transformation between geogrid and DEM failed";
+                std::string errmsg = "projection transformation between "
+                                     "geogrid and DEM failed";
                 throw isce3::except::InvalidArgument(ISCE_SRCINFO(), errmsg);
-
             }
         }
     } else {

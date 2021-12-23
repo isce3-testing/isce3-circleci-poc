@@ -92,7 +92,7 @@ macro(getpackage_openmp_optional)
 endmacro()
 
 macro(getpackage_pybind11)
-    # Force legacy FindPythonInterp module used by pybind11 < 2.6 to 
+    # Force legacy FindPythonInterp module used by pybind11 < 2.6 to
     # find same installation as modern FindPython
     set(PYTHON_EXECUTABLE "${Python_EXECUTABLE}")
     set(PYBIND11_PYTHON_VERSION "${Python_VERSION}")

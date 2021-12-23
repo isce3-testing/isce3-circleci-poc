@@ -5,7 +5,7 @@
 Raster Tutorial
 ===============
 
-ISCE delegates raster data handling to the `Geospatial Data Abstraction Library (GDAL) <https://gdal.org/>`_ at the C++ level via isce::io::Raster. Even the Python interface to isce::io::Raster is designed to work in combination with GDAL's Python bindings. We will walk through some of the examples here. 
+ISCE delegates raster data handling to the `Geospatial Data Abstraction Library (GDAL) <https://gdal.org/>`_ at the C++ level via isce::io::Raster. Even the Python interface to isce::io::Raster is designed to work in combination with GDAL's Python bindings. We will walk through some of the examples here.
 
 A concise introduction to GDAL's Python bindings can be found `here <https://www.gdal.org/gdal_tutorial.html>`_. Familiarizing yourself with this will help navigate the following tutorial more easily. Note that pyRaster is a thin wrapper over GDAL Dataset and is only needed when you want to pass on the created object to processing modules in ISCE. For simple I/O at the python level, one should directly use the GDAL interface.
 
@@ -82,7 +82,7 @@ It is really easy to create raster with GDAL and then pass it to ISCE to work wi
 Creating a raster using numpy array
 -----------------------------------
 
-You can also create GDAL datasets out of numpy arrays and pass it to ISCE to work with. 
+You can also create GDAL datasets out of numpy arrays and pass it to ISCE to work with.
 
 .. code-block:: python
 
@@ -107,12 +107,12 @@ You can also create GDAL datasets out of numpy arrays and pass it to ISCE to wor
 Creating a raster using h5py
 ----------------------------
 
-You can also create ISCE Rasters out of h5py datasets. Note that for read only operations, you can use GDAL's 
-<a href="https://gdal.org/drivers/raster/hdf5.html">HDF5 driver</a> as well and set up rasters as shown above. 
+You can also create ISCE Rasters out of h5py datasets. Note that for read only operations, you can use GDAL's
+<a href="https://gdal.org/drivers/raster/hdf5.html">HDF5 driver</a> as well and set up rasters as shown above.
 
 .. code-block:: python
 
-   from isce3.io import raster 
+   from isce3.io import raster
    import h5py
 
    #Create HDF5 file
@@ -125,8 +125,7 @@ You can also create ISCE Rasters out of h5py datasets. Note that for read only o
    #All complicated creation options can be controlled via h5py if needed
    dset = grp.create_dataset("data", shape=(100,150), dtype='f4')
 
-   #Wrap it with ISCE raster 
+   #Wrap it with ISCE raster
    image = raster(h5=dset)
 
    #image is ready to be passed on to ISCE processing modules
-

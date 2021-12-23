@@ -32,13 +32,13 @@ class RadarGeometry {
 public:
     /** Construct a new RadarGeometry object. */
     RadarGeometry(const RadarGridParameters& radar_grid,
-                  const DeviceOrbit& orbit, const DeviceLUT2d<double>& doppler);
+            const DeviceOrbit& orbit, const DeviceLUT2d<double>& doppler);
 
     /** Construct a new RadarGeometry object. */
     RadarGeometry(const RadarGridParameters& radar_grid, const HostOrbit& orbit,
-                  const HostLUT2d<double>& doppler)
-        : RadarGeometry(radar_grid, DeviceOrbit(orbit),
-                        DeviceLUT2d<double>(doppler))
+            const HostLUT2d<double>& doppler)
+        : RadarGeometry(
+                  radar_grid, DeviceOrbit(orbit), DeviceLUT2d<double>(doppler))
     {}
 
     /** Copy a host RadarGeometry object to the device. */

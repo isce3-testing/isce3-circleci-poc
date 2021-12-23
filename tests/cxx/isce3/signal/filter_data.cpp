@@ -31,8 +31,8 @@ double product(std::valarray<double> x, std::valarray<double> y)
     return x.sum();
 }
 
-std::complex<double> product_cpx(std::valarray<std::complex<double>> x,
-                                 std::valarray<double> y)
+std::complex<double> product_cpx(
+        std::valarray<std::complex<double>> x, std::valarray<double> y)
 {
 
     std::complex<double> sum = std::complex<double>(0.0, 0.0);
@@ -43,7 +43,7 @@ std::complex<double> product_cpx(std::valarray<std::complex<double>> x,
 }
 
 void write2raster(std::valarray<double> data, std::valarray<double> mask,
-                  std::valarray<bool> indices, int width, int length)
+        std::valarray<bool> indices, int width, int length)
 {
 
     std::valarray<double> data_not_padded(length * width);
@@ -52,26 +52,26 @@ void write2raster(std::valarray<double> data, std::valarray<double> mask,
     data_not_padded = data[indices];
     mask_not_padded = mask[indices];
 
-    isce3::io::Raster dataRaster("input_data_real", width, length, 1,
-                                 GDT_Float64, "ENVI");
-    isce3::io::Raster maskRaster("input_mask_real", width, length, 1,
-                                 GDT_Float64, "ENVI");
+    isce3::io::Raster dataRaster(
+            "input_data_real", width, length, 1, GDT_Float64, "ENVI");
+    isce3::io::Raster maskRaster(
+            "input_mask_real", width, length, 1, GDT_Float64, "ENVI");
 
     dataRaster.setBlock(data_not_padded, 0, 0, width, length);
     maskRaster.setBlock(mask_not_padded, 0, 0, width, length);
 }
 
 void write2raster_cpx(std::valarray<std::complex<double>> data,
-                      std::valarray<double> mask, std::valarray<bool> indices,
-                      int width, int length)
+        std::valarray<double> mask, std::valarray<bool> indices, int width,
+        int length)
 {
 
     std::valarray<std::complex<double>> data_not_padded(length * width);
     data_not_padded = data[indices];
-    isce3::io::Raster dataRaster("input_data_cpx", width, length, 1,
-                                 GDT_CFloat64, "ENVI");
-    isce3::io::Raster maskRaster("input_mask_cpx", width, length, 1,
-                                 GDT_Float64, "ENVI");
+    isce3::io::Raster dataRaster(
+            "input_data_cpx", width, length, 1, GDT_CFloat64, "ENVI");
+    isce3::io::Raster maskRaster(
+            "input_mask_cpx", width, length, 1, GDT_Float64, "ENVI");
 
     dataRaster.setBlock(data_not_padded, 0, 0, width, length);
     maskRaster.setBlock(mask, 0, 0, width, length);
@@ -117,8 +117,8 @@ TEST(FilterData, FilterRealData)
 
     write2raster(data, mask, indices, width, length);
 
-    isce3::io::Raster filtDataRaster("output.filtered_data", width, length, 1,
-                                     GDT_Float64, "ENVI");
+    isce3::io::Raster filtDataRaster(
+            "output.filtered_data", width, length, 1, GDT_Float64, "ENVI");
 
     // create the kernels
     // 1D kernel in columns
@@ -136,8 +136,8 @@ TEST(FilterData, FilterRealData)
     isce3::io::Raster dataRaster("input_data_real");
     isce3::io::Raster maskRaster("input_mask_real");
 
-    isce3::signal::filter2D<double>(filtDataRaster, dataRaster, kernelColumns,
-                                    kernelRows);
+    isce3::signal::filter2D<double>(
+            filtDataRaster, dataRaster, kernelColumns, kernelRows);
 
     // error
     double max_err = 0.0;
@@ -149,9 +149,9 @@ TEST(FilterData, FilterRealData)
         for (int col = pad_cols / 2; col < pad_cols / 2 + width; ++col) {
             int kk = 0;
             for (int ii = -kernel_length / 2; ii < kernel_length / 2 + 1;
-                 ++ii) {
+                    ++ii) {
                 for (int jj = -kernel_width / 2; jj < kernel_width / 2 + 1;
-                     ++jj) {
+                        ++jj) {
                     d[kk] = data[(line + ii) * (width + pad_cols) + col + jj];
                     kk += 1;
                 }
@@ -213,8 +213,8 @@ TEST(FilterData, FilterComplexData)
 
     write2raster_cpx(data, mask, indices, width, length);
 
-    isce3::io::Raster filtDataRaster("output_cpx.filtered_data", width, length,
-                                     1, GDT_CFloat64, "ENVI");
+    isce3::io::Raster filtDataRaster(
+            "output_cpx.filtered_data", width, length, 1, GDT_CFloat64, "ENVI");
     // create the kernels
     // 1D kernel in columns
     std::valarray<double> kernelColumns = isce3::signal::boxcar1D(kernel_width);
@@ -242,9 +242,9 @@ TEST(FilterData, FilterComplexData)
         for (int col = pad_cols / 2; col < pad_cols / 2 + width; ++col) {
             int kk = 0;
             for (int ii = -kernel_length / 2; ii < kernel_length / 2 + 1;
-                 ++ii) {
+                    ++ii) {
                 for (int jj = -kernel_width / 2; jj < kernel_width / 2 + 1;
-                     ++jj) {
+                        ++jj) {
                     d[kk] = data[(line + ii) * (width + pad_cols) + col + jj];
                     kk += 1;
                 }

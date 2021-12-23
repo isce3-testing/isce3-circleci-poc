@@ -29,7 +29,7 @@ public:
      * (flattening)
      */
     ResampSlc(const isce3::product::Product& product,
-              const isce3::product::Product& refProduct, char frequency = 'A');
+            const isce3::product::Product& refProduct, char frequency = 'A');
 
     /** Constructor from an isce3::product::Swath (no flattening) */
     ResampSlc(const isce3::product::Swath& swath);
@@ -39,33 +39,33 @@ public:
      * (flattening)
      */
     ResampSlc(const isce3::product::Swath& swath,
-              const isce3::product::Swath& refSwath);
+            const isce3::product::Swath& refSwath);
 
     /**
      * Constructor from an isce3::product::RadarGridParameters (no flattening)
      */
     ResampSlc(const isce3::product::RadarGridParameters& rdr_grid,
-              const isce3::core::LUT2d<double>& doppler);
+            const isce3::core::LUT2d<double>& doppler);
 
     /**
      * Constructor from an isce3::product::RadarGridParameters and reference
      * radar grid (flattening)
      */
     ResampSlc(const isce3::product::RadarGridParameters& rdr_grid,
-              const isce3::product::RadarGridParameters& ref_rdr_grid,
-              const isce3::core::LUT2d<double>& doppler, double wvl,
-              double ref_wvl);
+            const isce3::product::RadarGridParameters& ref_rdr_grid,
+            const isce3::core::LUT2d<double>& doppler, double wvl,
+            double ref_wvl);
 
     /** Constructor from individual components (no flattening) */
     ResampSlc(const isce3::core::LUT2d<double>& doppler, double startingRange,
-              double rangePixelSpacing, double sensingStart, double prf,
-              double wvl);
+            double rangePixelSpacing, double sensingStart, double prf,
+            double wvl);
 
     /** Constructor from individual components (flattening) */
     ResampSlc(const isce3::core::LUT2d<double>& doppler, double startingRange,
-              double rangePixelSpacing, double sensingStart, double prf,
-              double wvl, double refStartingRange, double refRangePixelSpacing,
-              double refWvl);
+            double rangePixelSpacing, double sensingStart, double prf,
+            double wvl, double refStartingRange, double refRangePixelSpacing,
+            double refWvl);
 
     /** Destructor */
     ~ResampSlc() {};
@@ -97,8 +97,8 @@ public:
     void doppler(const isce3::core::LUT2d<double>&);
 
     // Set reference product for flattening
-    void referenceProduct(const isce3::product::Product& product,
-                          char frequency = 'A');
+    void referenceProduct(
+            const isce3::product::Product& product, char frequency = 'A');
 
     // Get/set number of lines per processing tile
     size_t linesPerTile() const;
@@ -112,18 +112,18 @@ public:
 
     // Generic resamp entry point from externally created rasters
     void resamp(isce3::io::Raster& inputSlc, isce3::io::Raster& outputSlc,
-                isce3::io::Raster& rgOffsetRaster,
-                isce3::io::Raster& azOffsetRaster, int inputBand = 1,
-                bool flatten = false, bool isComplex = true, int rowBuffer = 40,
-                int chipSize = isce3::core::SINC_ONE);
+            isce3::io::Raster& rgOffsetRaster,
+            isce3::io::Raster& azOffsetRaster, int inputBand = 1,
+            bool flatten = false, bool isComplex = true, int rowBuffer = 40,
+            int chipSize = isce3::core::SINC_ONE);
 
     // Generic resamp entry point: use filenames to create rasters
     void resamp(const std::string& inputFilename,
-                const std::string& outputFilename,
-                const std::string& rgOffsetFilename,
-                const std::string& azOffsetFilename, int inputBand = 1,
-                bool flatten = false, bool isComplex = true, int rowBuffer = 40,
-                int chipSize = isce3::core::SINC_ONE);
+            const std::string& outputFilename,
+            const std::string& rgOffsetFilename,
+            const std::string& azOffsetFilename, int inputBand = 1,
+            bool flatten = false, bool isComplex = true, int rowBuffer = 40,
+            int chipSize = isce3::core::SINC_ONE);
 
 protected:
     // Number of lines per tile
@@ -154,17 +154,16 @@ protected:
 
     // Tile initialization for input offsets
     void _initializeOffsetTiles(Tile_t&, isce3::io::Raster&, isce3::io::Raster&,
-                                Tile<float>&, Tile<float>&, int);
+            Tile<float>&, Tile<float>&, int);
 
     // Tile initialization for input SLC data
-    void _initializeTile(Tile_t&, isce3::io::Raster&, const Tile<float>&, int,
-                         int, int);
+    void _initializeTile(
+            Tile_t&, isce3::io::Raster&, const Tile<float>&, int, int, int);
 
     // Tile transformation
     void _transformTile(Tile_t& tile, isce3::io::Raster& outputSlc,
-                        const Tile<float>& rgOffTile,
-                        const Tile<float>& azOffTile, int inLength,
-                        bool flatten, int chipSize);
+            const Tile<float>& rgOffTile, const Tile<float>& azOffTile,
+            int inLength, bool flatten, int chipSize);
 
     // Convenience functions
     int _computeNumberOfTiles(int, int);

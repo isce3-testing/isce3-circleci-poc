@@ -17,7 +17,7 @@ isce3::image::Tile<T>::Tile() {}
 
 // Copy constructor
 template <typename T>
-isce3::image::Tile<T>::Tile(const Tile & refTile) : 
+isce3::image::Tile<T>::Tile(const Tile & refTile) :
     _width(refTile.width()),
     _rowStart(refTile.rowStart()), _rowEnd(refTile.rowEnd()),
     _firstImageRow(refTile.firstImageRow()), _lastImageRow(refTile.lastImageRow()) {}

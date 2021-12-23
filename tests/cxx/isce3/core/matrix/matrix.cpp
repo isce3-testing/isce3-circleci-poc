@@ -7,34 +7,38 @@
 
 #include <cmath>
 #include <cstdio>
-#include <string>
 #include <iostream>
+#include <string>
 #include <vector>
+
 #include "gtest/gtest.h"
 
 // isce3::core
 #include "isce3/core/Constants.h"
-#include "isce3/core/Utilities.h"
 #include "isce3/core/Matrix.h"
+#include "isce3/core/Utilities.h"
 
-TEST(MatrixTest, SimpleConstructor) {
+TEST(MatrixTest, SimpleConstructor)
+{
     // Make a matrix with a fixed shape
     isce3::core::Matrix<double> M(3, 3);
     ASSERT_EQ(M.width(), 3);
     ASSERT_EQ(M.length(), 3);
 }
 
-TEST(MatrixTest, Resize) {
+TEST(MatrixTest, Resize)
+{
     // Make a matrix with a fixed shape
     isce3::core::Matrix<double> M(3, 3);
     // Resize it
     M.resize(5, 5);
-    // Check shape 
+    // Check shape
     ASSERT_EQ(M.width(), 5);
     ASSERT_EQ(M.length(), 5);
 }
 
-TEST(MatrixTest, FixedValues) {
+TEST(MatrixTest, FixedValues)
+{
     // Make a matrix with a fixed shape
     isce3::core::Matrix<double> M(3, 3);
 
@@ -51,7 +55,8 @@ TEST(MatrixTest, FixedValues) {
     }
 }
 
-TEST(MatrixTest, VectorConstructor) {
+TEST(MatrixTest, VectorConstructor)
+{
     // Make a vector of values
     std::vector<double> values = isce3::core::arange(0.0, 9.0, 1.0);
     // Make a matrix from the vector
@@ -72,8 +77,9 @@ TEST(MatrixTest, VectorConstructor) {
     }
 }
 
-TEST(MatrixTest, CopyConstructor) {
-    // Make a vector of values 
+TEST(MatrixTest, CopyConstructor)
+{
+    // Make a vector of values
     std::vector<double> values = isce3::core::arange(0.0, 9.0, 1.0);
     // Make a const matrix from the vector
     const isce3::core::Matrix<double> M(values, 3);
@@ -86,8 +92,9 @@ TEST(MatrixTest, CopyConstructor) {
     ASSERT_NEAR(M(1, 1), 4.0, 1.0e-12);
 }
 
-TEST(MatrixTest, MatrixView) {
-    // Make a vector of values 
+TEST(MatrixTest, MatrixView)
+{
+    // Make a vector of values
     std::vector<double> values = isce3::core::arange(0.0, 9.0, 1.0);
     // Make a matrix from the vector
     isce3::core::Matrix<double> M(values, 3);
@@ -95,7 +102,7 @@ TEST(MatrixTest, MatrixView) {
     auto view = M.submat(1, 1, 2, 2);
 
     // Vector of expected values
-    std::vector<double> expected{4.0, 5.0, 7.0, 8.0};
+    std::vector<double> expected {4.0, 5.0, 7.0, 8.0};
 
     // Compare values
     size_t count = 0;
@@ -108,16 +115,17 @@ TEST(MatrixTest, MatrixView) {
     }
 }
 
-TEST(MatrixTest, MatrixViewConstructor) {
-    // Make a vector of values 
+TEST(MatrixTest, MatrixViewConstructor)
+{
+    // Make a vector of values
     std::vector<double> values = isce3::core::arange(0.0, 9.0, 1.0);
     // Make a matrix from the vector
     isce3::core::Matrix<double> M(values, 3);
     // Construct a new matrix from a view of a subset of the matrix
-    isce3::core::Matrix<double>N(M.submat(1, 1, 2, 2));
+    isce3::core::Matrix<double> N(M.submat(1, 1, 2, 2));
 
     // Vector of expected values
-    std::vector<double> expected{4.0, 5.0, 7.0, 8.0};
+    std::vector<double> expected {4.0, 5.0, 7.0, 8.0};
 
     // Check shape
     ASSERT_EQ(N.width(), 2);
@@ -129,8 +137,9 @@ TEST(MatrixTest, MatrixViewConstructor) {
     }
 }
 
-TEST(MatrixTest, MatrixViewSet) {
-    // Make a vector of values 
+TEST(MatrixTest, MatrixViewSet)
+{
+    // Make a vector of values
     std::vector<double> values = isce3::core::arange(0.0, 9.0, 1.0);
     // Make a matrix from the vector
     isce3::core::Matrix<double> M(values, 3);
@@ -143,9 +152,7 @@ TEST(MatrixTest, MatrixViewSet) {
     N.submat(0, 1, 3, 1) = M.submat(1, 0, 1, 3).transpose();
 
     // Vector of expected values
-    std::vector<double> expected{0.0, 3.0, 0.0,
-                                 0.0, 4.0, 0.0,
-                                 0.0, 5.0, 0.0};
+    std::vector<double> expected {0.0, 3.0, 0.0, 0.0, 4.0, 0.0, 0.0, 5.0, 0.0};
 
     // Compare values
     for (int row = 0; row < N.rows(); row++) {
@@ -155,7 +162,8 @@ TEST(MatrixTest, MatrixViewSet) {
     }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

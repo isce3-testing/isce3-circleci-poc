@@ -76,7 +76,7 @@ TEST(Convolve, ConvolveBoxcarKernel)
 
     // two 1D Convolution in time domain
     isce3::signal::convolve2D(filtered_data, data, mask, kernelColumns,
-                              kernelRows, width, width_padded);
+            kernelRows, width, width_padded);
 
     // error
     double max_err = 0.0;
@@ -87,9 +87,9 @@ TEST(Convolve, ConvolveBoxcarKernel)
         for (int col = pad_cols / 2; col < pad_cols / 2 + width; ++col) {
             int kk = 0;
             for (int ii = -kernel_length / 2; ii < kernel_length / 2 + 1;
-                 ++ii) {
+                    ++ii) {
                 for (int jj = -kernel_width / 2; jj < kernel_width / 2 + 1;
-                     ++jj) {
+                        ++jj) {
                     d[kk] = data[(line + ii) * (width + pad_cols) + col + jj];
                     kk += 1;
                 }
@@ -131,8 +131,8 @@ TEST(Convolve, ConvolveDecimate)
     int length_decimated = length / kernel_length;
     int width_decimated = width / kernel_width;
 
-    isce3::core::EArray2D<double> filtered_data(length_decimated,
-                                                width_decimated);
+    isce3::core::EArray2D<double> filtered_data(
+            length_decimated, width_decimated);
 
     // buffer for padded data and mask
     isce3::core::EArray2D<double> data(length_padded, width_padded);
@@ -155,14 +155,14 @@ TEST(Convolve, ConvolveDecimate)
     kernelRows = 1.0 / 3.0;
 
     // two 1D Convolution in time domain and simultaneously decimate the output
-    isce3::signal::convolve2D(filtered_data, data, mask, kernelColumns,
-                              kernelRows);
+    isce3::signal::convolve2D(
+            filtered_data, data, mask, kernelColumns, kernelRows);
 
     // convolution with box car kernel + decimation is equivalent to
     // multi-looking
     isce3::core::EArray2D<double> data_looked =
             isce3::signal::multilookAveraged(data.block(1, 1, length, width),
-                                             kernel_length, kernel_width);
+                    kernel_length, kernel_width);
 
     // max error
     double max_err = 0.0;

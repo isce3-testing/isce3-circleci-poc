@@ -25,7 +25,9 @@ struct GeoTransform {
      * \param[in] dx Pixel width
      * \param[in] dy Line height
      */
-    GeoTransform(double x0, double y0, double dx, double dy) : x0(x0), y0(y0), dx(dx), dy(dy) {}
+    GeoTransform(double x0, double y0, double dx, double dy)
+        : x0(x0), y0(y0), dx(dx), dy(dy)
+    {}
 
     /**
      * Construct from GDAL affine transform coefficients.
@@ -33,11 +35,13 @@ struct GeoTransform {
      * Only separable, axis-aligned transforms are supported,
      * ( \code coeffs[2] == 0. \endcode and \code coeffs[4] == 0. \endcode )
      *
-     * \throws isce3::except::InvalidArgument if the supplied transform is unsupported
+     * \throws isce3::except::InvalidArgument if the supplied transform is
+     * unsupported
      *
-     * \param[in] coeffs Affine transform coefficients such as those produced by GDALGetGeoTransform()
+     * \param[in] coeffs Affine transform coefficients such as those produced by
+     * GDALGetGeoTransform()
      */
-    GeoTransform(const std::array<double, 6> & coeffs);
+    GeoTransform(const std::array<double, 6>& coeffs);
 
     /**
      * Get equivalent GDAL affine transform coefficients.
@@ -51,7 +55,10 @@ struct GeoTransform {
     double transformY(int line) const { return y0 + (line + 0.5) * dy; }
 
     /** True if the transform is identity. */
-    bool isIdentity() const { return x0 == 0. && y0 == 0. && dx == 1. && dy == 1.; }
+    bool isIdentity() const
+    {
+        return x0 == 0. && y0 == 0. && dx == 1. && dy == 1.;
+    }
 
     double x0 = 0.;
     double y0 = 0.;
@@ -59,7 +66,7 @@ struct GeoTransform {
     double dy = 1.;
 };
 
-bool operator==(const GeoTransform &, const GeoTransform &);
-bool operator!=(const GeoTransform &, const GeoTransform &);
+bool operator==(const GeoTransform&, const GeoTransform&);
+bool operator!=(const GeoTransform&, const GeoTransform&);
 
-}}}
+}}} // namespace isce3::io::gdal

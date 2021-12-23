@@ -1,8 +1,9 @@
+from pathlib import Path
+
 import iscetest
+import nisar
 import numpy as np
 import numpy.testing as npt
-from pathlib import Path
-import nisar
 
 
 def test_raw():
@@ -40,5 +41,5 @@ def test_raw():
     tref = (t[0] + t[-1]) / 2
     x, v = orbit.interpolate(tref)
     R = attitude.interpolate(tref).to_rotation_matrix()
-    elevation_axis = R[:,1]
+    elevation_axis = R[:, 1]
     npt.assert_allclose(v.dot(elevation_axis) / np.linalg.norm(v), -1.0)

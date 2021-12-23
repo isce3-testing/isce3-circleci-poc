@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
-'''
+"""
 unit tests for CUDA pybind Crossmul
-'''
+"""
 
 import os
 
+import iscetest
 import numpy as np
 import numpy.testing as npt
-
-from osgeo import gdal
-
-import iscetest
 import pybind_isce3 as isce
 from nisar.products.readers import SLC
+from osgeo import gdal
 
 
 def common_crossmul_obj():
-    '''
+    """
     instantiate and return common crossmul object for both run tests
-    '''
+    """
     # make SLC object and extract parameters
-    slc_obj = SLC(hdf5file=os.path.join(iscetest.data, 'envisat.h5'))
+    slc_obj = SLC(hdf5file=os.path.join(iscetest.data, "envisat.h5"))
     dopp = isce.core.avg_lut2d_to_lut1d(slc_obj.getDopplerCentroid())
     prf = slc_obj.getRadarGrid().prf
 
@@ -32,10 +30,12 @@ def common_crossmul_obj():
 
 
 def test_run_no_filter():
-    '''
+    """
     run pybind CUDA crossmul module without azimuth filtering
-    '''
-    ref_slc_raster = isce.io.Raster(os.path.join(iscetest.data, 'warped_envisat.slc.vrt'))
+    """
+    ref_slc_raster = isce.io.Raster(
+        os.path.join(iscetest.data, "warped_envisat.slc.vrt")
+    )
 
     crossmul = common_crossmul_obj()
 
@@ -44,18 +44,20 @@ def test_run_no_filter():
     # prepare output rasters
     width = ref_slc_raster.width
     length = ref_slc_raster.length
-    igram = isce.io.Raster('igram.int', width, length, 1, gdal.GDT_CFloat32, "ISCE")
-    coherence = isce.io.Raster('coherence.bin', width, length, 1, gdal.GDT_Float32, "ISCE")
+    igram = isce.io.Raster("igram.int", width, length, 1, gdal.GDT_CFloat32, "ISCE")
+    coherence = isce.io.Raster(
+        "coherence.bin", width, length, 1, gdal.GDT_Float32, "ISCE"
+    )
 
     crossmul.crossmul(ref_slc_raster, ref_slc_raster, igram, coherence)
 
 
 def test_validate_no_filter():
-    '''
+    """
     make sure pybind CPU crossmul results have zero phase
-    '''
+    """
     # convert complex test data to angle
-    data = np.angle(np.fromfile('igram.int', dtype=np.complex64))
+    data = np.angle(np.fromfile("igram.int", dtype=np.complex64))
 
     # check if interferometric phase is very small (should be zero)
     # not as small as CPU due to A*conj(A) in CUDA not yielding 0.0e0 imag component
@@ -63,35 +65,39 @@ def test_validate_no_filter():
 
 
 def test_run_az_filter():
-    '''
+    """
     run pybind CUDA crossmul module with azimuth filtering
-    '''
-    ref_slc_raster = isce.io.Raster(os.path.join(iscetest.data, 'warped_envisat.slc.vrt'))
+    """
+    ref_slc_raster = isce.io.Raster(
+        os.path.join(iscetest.data, "warped_envisat.slc.vrt")
+    )
 
     crossmul = common_crossmul_obj()
 
     # prepare output rasters
     width = ref_slc_raster.width
     length = ref_slc_raster.length
-    igram = isce.io.Raster('igram_az.int', width, length, 1, gdal.GDT_CFloat32, "ISCE")
-    coherence = isce.io.Raster('coherence_az.bin', width, length, 1, gdal.GDT_Float32, "ISCE")
+    igram = isce.io.Raster("igram_az.int", width, length, 1, gdal.GDT_CFloat32, "ISCE")
+    coherence = isce.io.Raster(
+        "coherence_az.bin", width, length, 1, gdal.GDT_Float32, "ISCE"
+    )
 
     crossmul.crossmul(ref_slc_raster, ref_slc_raster, igram, coherence)
 
 
 def test_validate_az_filter():
-    '''
+    """
     make sure pybind CPU crossmul results have zero phase
-    '''
+    """
     # convert complex test data to angle
-    data = np.angle(np.fromfile('igram_az.int', dtype=np.complex64))
+    data = np.angle(np.fromfile("igram_az.int", dtype=np.complex64))
 
     # check if interferometric phase is very small (should be zero)
     # not as small as CPU due to A*conj(A) in CUDA not yielding 0.0e0 imag component
-    npt.assert_allclose(data, 0., atol=1.0e-6)
+    npt.assert_allclose(data, 0.0, atol=1.0e-6)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_init()
     test_run_no_filter()
     test_validate_no_filter()

@@ -34,8 +34,8 @@ public:
      * @param[in] epsgcode epsg code for geocoded grid
      */
     GeoGridParameters(double geoGridStartX, double geoGridStartY,
-                             double geoGridSpacingX, double geoGridSpacingY,
-                             int width, int length, int epsgcode);
+            double geoGridSpacingX, double geoGridSpacingY, int width,
+            int length, int epsgcode);
 
     /**
      * Print GeoGridParameters attributes
@@ -108,8 +108,8 @@ protected:
 };
 
 /**
- * Function to create a GeoGridParameters object by using DEM spacing and EPSG, and
- * by estimating the bounding box of the input radar grid.
+ * Function to create a GeoGridParameters object by using DEM spacing and EPSG,
+ * and by estimating the bounding box of the input radar grid.
  *
  * @param[in] radar_grid Input RadarGridParameters
  * @param[in] orbit Input orbit
@@ -125,20 +125,21 @@ protected:
  * @param[in] numiter Max number of iterations for converence.
  * @param[in] height_threshold Height threshold for convergence.
  */
-GeoGridParameters
-bbox2GeoGrid(const isce3::product::RadarGridParameters& radar_grid,
-             const isce3::core::Orbit& orbit,
-             const isce3::core::LUT2d<double>& doppler, double spacing_x,
-             double spacing_y, int epsg,
-             double min_height = isce3::core::GLOBAL_MIN_HEIGHT,
-             double max_height = isce3::core::GLOBAL_MAX_HEIGHT,
-             const double margin = 0.0, const int points_per_edge = 11,
-             const double threshold = 1.0e-8, const int numiter = 15,
-             const double height_threshold = 100);
+GeoGridParameters bbox2GeoGrid(
+        const isce3::product::RadarGridParameters& radar_grid,
+        const isce3::core::Orbit& orbit,
+        const isce3::core::LUT2d<double>& doppler, double spacing_x,
+        double spacing_y, int epsg,
+        double min_height = isce3::core::GLOBAL_MIN_HEIGHT,
+        double max_height = isce3::core::GLOBAL_MAX_HEIGHT,
+        const double margin = 0.0, const int points_per_edge = 11,
+        const double threshold = 1.0e-8, const int numiter = 15,
+        const double height_threshold = 100);
 
 /**
- * Function to create a GeoGridParameters object by using DEM spacing and EPSG, and
- * by estimating the bounding box of the input radar grid. Spacing can be adjusted by scalar.
+ * Function to create a GeoGridParameters object by using DEM spacing and EPSG,
+ * and by estimating the bounding box of the input radar grid. Spacing can be
+ * adjusted by scalar.
  *
  * @param[in] radar_grid Input RadarGridParameters
  * @param[in] orbit Input orbit
@@ -153,15 +154,14 @@ bbox2GeoGrid(const isce3::product::RadarGridParameters& radar_grid,
  * @param[in] numiter Max number of iterations for converence.
  * @param[in] height_threshold Height threshold for convergence.
  */
-GeoGridParameters
-bbox2GeoGridScaled(const isce3::product::RadarGridParameters& radar_grid,
-                   const isce3::core::Orbit& orbit,
-                   const isce3::core::LUT2d<double>& doppler,
-                   const isce3::io::Raster& dem_raster,
-                   double spacing_scale = 1.0,
-                   double min_height = isce3::core::GLOBAL_MIN_HEIGHT,
-                   double max_height = isce3::core::GLOBAL_MAX_HEIGHT,
-                   const double margin = 0.0, const int points_per_edge = 11,
-                   const double threshold = 1.0e-8, const int numiter = 15,
-                   const double height_threshold = 100);
+GeoGridParameters bbox2GeoGridScaled(
+        const isce3::product::RadarGridParameters& radar_grid,
+        const isce3::core::Orbit& orbit,
+        const isce3::core::LUT2d<double>& doppler,
+        const isce3::io::Raster& dem_raster, double spacing_scale = 1.0,
+        double min_height = isce3::core::GLOBAL_MIN_HEIGHT,
+        double max_height = isce3::core::GLOBAL_MAX_HEIGHT,
+        const double margin = 0.0, const int points_per_edge = 11,
+        const double threshold = 1.0e-8, const int numiter = 15,
+        const double height_threshold = 100);
 }} // namespace isce3::product

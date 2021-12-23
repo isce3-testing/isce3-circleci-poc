@@ -12,13 +12,13 @@ We first generate a synthetic 2D low-resolution image which we wish to interpola
 .. code-block:: python
 
     import numpy as np
-    
+
     # Create test data
     x = np.arange(-5.01, 5.01, 0.25)
     y = np.arange(-5.01, 5.01, 0.25)
     xx, yy = np.meshgrid(x, y)
     z = np.sin(xx**2 + yy**2)
-    
+
     # Create bin indices for the data
     ny, nx = z.shape
     x = np.arange(nx, dtype=float)
@@ -59,11 +59,11 @@ Interpolation simply involves passing these values to the interpolator objects.
     ax0.plot(xnew, z_bilinear, '-', label='Interpolated')
     ax0.set_title('Bilinear')
     leg = ax0.legend(loc='best')
-    
+
     ax1.plot(x, z[ny//2,:], 'o')
     ax1.plot(xnew, z_bicubic, '-')
     ax1.set_title('Bicubic')
-    
+
     ax2.plot(x, z[ny//2,:], 'o')
     ax2.plot(xnew, z_spline, '-')
     ax2.set_title('Spline2d')

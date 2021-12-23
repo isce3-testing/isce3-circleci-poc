@@ -14,14 +14,14 @@ public:
 
     void print() const override { PYBIND11_OVERLOAD_PURE(void, Base, print, ); }
 
-    int forward(const isce3::core::Vec3& llh,
-                isce3::core::Vec3& xyz) const override
+    int forward(
+            const isce3::core::Vec3& llh, isce3::core::Vec3& xyz) const override
     {
         PYBIND11_OVERLOAD_PURE(int, Base, forward, llh, xyz);
     }
 
-    int inverse(const isce3::core::Vec3& xyz,
-                isce3::core::Vec3& llh) const override
+    int inverse(
+            const isce3::core::Vec3& xyz, isce3::core::Vec3& llh) const override
     {
         PYBIND11_OVERLOAD_PURE(int, Base, inverse, xyz, llh);
     }

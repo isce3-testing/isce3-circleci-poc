@@ -39,14 +39,14 @@ using isce3::geometry::detail::Rdr2GeoParams;
 // XXX const gpuDEMInterpolator cannot be copied due to implementation details
 template<class Kernel>
 void backproject(std::complex<float>* out,
-                 const isce3::cuda::container::RadarGeometry& out_geometry,
-                 const std::complex<float>* in,
-                 const isce3::cuda::container::RadarGeometry& in_geometry,
-                 isce3::cuda::geometry::gpuDEMInterpolator& dem, double fc,
-                 double ds, const Kernel& kernel,
-                 DryTroposphereModel dry_tropo_model = DryTroposphereModel::TSX,
-                 const Rdr2GeoParams& rdr2geo_params = {},
-                 const Geo2RdrParams& geo2rdr_params = {}, int batch = 1024);
+        const isce3::cuda::container::RadarGeometry& out_geometry,
+        const std::complex<float>* in,
+        const isce3::cuda::container::RadarGeometry& in_geometry,
+        isce3::cuda::geometry::gpuDEMInterpolator& dem, double fc, double ds,
+        const Kernel& kernel,
+        DryTroposphereModel dry_tropo_model = DryTroposphereModel::TSX,
+        const Rdr2GeoParams& rdr2geo_params = {},
+        const Geo2RdrParams& geo2rdr_params = {}, int batch = 1024);
 
 /**
  * Focus in azimuth via time-domain backprojection
@@ -65,13 +65,13 @@ void backproject(std::complex<float>* out,
  * \param[in]  batch           Number of range-compressed data lines per batch
  */
 void backproject(std::complex<float>* out,
-                 const isce3::container::RadarGeometry& out_geometry,
-                 const std::complex<float>* in,
-                 const isce3::container::RadarGeometry& in_geometry,
-                 const isce3::geometry::DEMInterpolator& dem, double fc,
-                 double ds, const isce3::core::Kernel<float>& kernel,
-                 DryTroposphereModel dry_tropo_model = DryTroposphereModel::TSX,
-                 const Rdr2GeoParams& rdr2geo_params = {},
-                 const Geo2RdrParams& geo2rdr_params = {}, int batch = 1024);
+        const isce3::container::RadarGeometry& out_geometry,
+        const std::complex<float>* in,
+        const isce3::container::RadarGeometry& in_geometry,
+        const isce3::geometry::DEMInterpolator& dem, double fc, double ds,
+        const isce3::core::Kernel<float>& kernel,
+        DryTroposphereModel dry_tropo_model = DryTroposphereModel::TSX,
+        const Rdr2GeoParams& rdr2geo_params = {},
+        const Geo2RdrParams& geo2rdr_params = {}, int batch = 1024);
 
 }}} // namespace isce3::cuda::focus

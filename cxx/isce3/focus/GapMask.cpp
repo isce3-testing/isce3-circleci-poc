@@ -1,29 +1,27 @@
 #include "GapMask.h"
+
 #include <algorithm>
-#include <cmath>
 #include <climits>
+#include <cmath>
+
 #include <isce3/except/Error.h>
 
 namespace isce3 { namespace focus {
 
-GapMask::GapMask(const std::vector<double> & azimuth_time, int samples,
-    double range_window_start, double range_sampling_rate,
-    double chirp_duration, double guard)
-:
-    t(azimuth_time),
-    n(samples),
-    dwp(range_window_start),
-    fs(range_sampling_rate),
-    chirplen(chirp_duration),
-    guard(guard)
+GapMask::GapMask(const std::vector<double>& azimuth_time, int samples,
+        double range_window_start, double range_sampling_rate,
+        double chirp_duration, double guard)
+    : t(azimuth_time), n(samples), dwp(range_window_start),
+      fs(range_sampling_rate), chirplen(chirp_duration), guard(guard)
 {
     if (t.size() > INT_MAX) {
-        throw isce3::except::InvalidArgument(ISCE_SRCINFO(),
-            "require azimuth_time.size() <= INT_MAX");
+        throw isce3::except::InvalidArgument(
+                ISCE_SRCINFO(), "require azimuth_time.size() <= INT_MAX");
     }
     for (int i = 1; i < t.size(); ++i) {
         if (t[i - 1] > t[i]) {
-            std::string errmsg = "azimuth time must be monotonically increasing";
+            std::string errmsg =
+                    "azimuth time must be monotonically increasing";
             throw isce3::except::InvalidArgument(ISCE_SRCINFO(), errmsg);
         }
     }
@@ -32,7 +30,8 @@ GapMask::GapMask(const std::vector<double> & azimuth_time, int samples,
         throw DomainError(ISCE_SRCINFO(), "require range samples > 0");
     }
     if (dwp <= 0.) {
-        throw DomainError(ISCE_SRCINFO(), "range window start time must be > 0");
+        throw DomainError(
+                ISCE_SRCINFO(), "range window start time must be > 0");
     }
     if (fs <= 0.) {
         throw DomainError(ISCE_SRCINFO(), "range sampling rate must be > 0");
@@ -45,8 +44,7 @@ GapMask::GapMask(const std::vector<double> & azimuth_time, int samples,
     }
 }
 
-std::vector<std::pair<int, int>>
-GapMask::gaps(int pulse) const
+std::vector<std::pair<int, int>> GapMask::gaps(int pulse) const
 {
     if ((pulse < 0) || (pulse >= t.size())) {
         throw isce3::except::DomainError(ISCE_SRCINFO(), "pulse out of bounds");
@@ -62,8 +60,8 @@ GapMask::gaps(int pulse) const
             break;
         }
         int j0 = static_cast<int>(std::lround((t[i] - t0 - guard) * fs));
-        int j1 = static_cast<int>(std::lround(
-            (t[i] + chirplen + guard - t0) * fs));
+        int j1 = static_cast<int>(
+                std::lround((t[i] + chirplen + guard - t0) * fs));
         // TX[i] overlaps RX[pulse]
         if ((j0 <= n) && (j1 >= 0)) {
             j0 = std::max(0, j0);
@@ -74,12 +72,11 @@ GapMask::gaps(int pulse) const
     return g;
 }
 
-std::vector<bool>
-GapMask::mask(int pulse) const
+std::vector<bool> GapMask::mask(int pulse) const
 {
     // convert pairs of [start, stop) intervals to boolean mask.
     std::vector<bool> mask(n, false);
-    for (const auto & gap : gaps(pulse)) {
+    for (const auto& gap : gaps(pulse)) {
         for (auto i = gap.first; i < gap.second; ++i) {
             mask[i] = true;
         }

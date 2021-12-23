@@ -19,7 +19,7 @@ public:
      * @param[in] guard                 Additional guard band to blank around
      *                                  pulse (s)
      */
-    GapMask(const std::vector<double> & azimuth_time, int samples,
+    GapMask(const std::vector<double>& azimuth_time, int samples,
             double range_window_start, double range_sampling_rate,
             double chirp_duration, double guard = 0.0);
 
@@ -28,16 +28,14 @@ public:
      * @param[in] pulse Index of desired range line
      * @returns List of [start, stop) range indices blocked by transmit events.
      */
-    std::vector<std::pair<int, int>>
-    gaps(int pulse) const;
+    std::vector<std::pair<int, int>> gaps(int pulse) const;
 
     /** Compute gap locations for a given pulse.
      *
      * @param[in] pulse Index of desired range line
      * @returns Gap mask, true for samples blocked by transmit events.
      */
-    std::vector<bool>
-    mask(int pulse) const;
+    std::vector<bool> mask(int pulse) const;
 
 private:
     std::vector<double> t;

@@ -1,10 +1,10 @@
 #include "io.h"
+
 #include "Raster.h"
+#include "gdal/gdal.h"
 #include "serialization.h"
 
-#include "gdal/gdal.h"
-
-void addsubmodule_io(py::module & m)
+void addsubmodule_io(py::module& m)
 {
     py::module m_io = m.def_submodule("io");
 

@@ -5,8 +5,9 @@
 // Copyright 2018
 //
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+
 #include <gtest/gtest.h>
 
 // isce3::core
@@ -14,11 +15,10 @@
 #include <isce3/core/EulerAngles.h>
 #include <isce3/core/Quaternion.h>
 #include <isce3/core/Serialization.h>
-
 #include <isce3/io/IH5.h>
 
-
-TEST(AttitudeTest, CheckArchive) {
+TEST(AttitudeTest, CheckArchive)
+{
     // Make an attitude
     isce3::core::Attitude attitude;
 
@@ -27,7 +27,8 @@ TEST(AttitudeTest, CheckArchive) {
     isce3::io::IH5File file(h5file);
 
     // Open group containing attitude
-    isce3::io::IGroup group = file.openGroup("/science/LSAR/SLC/metadata/attitude");
+    isce3::io::IGroup group =
+            file.openGroup("/science/LSAR/SLC/metadata/attitude");
 
     // Deserialize the attitude
     isce3::core::DateTime epoch;
@@ -45,37 +46,39 @@ TEST(AttitudeTest, CheckArchive) {
     EXPECT_DOUBLE_EQ(q.z(), expected.z());
 
     // Check date of middle vector
-    isce3::core::DateTime dtime = attitude.referenceEpoch() + attitude.time()[5];
+    isce3::core::DateTime dtime =
+            attitude.referenceEpoch() + attitude.time()[5];
     ASSERT_EQ(dtime.isoformat(), "2003-02-26T17:55:28.000000000");
-
 }
 
-TEST(AttitudeTest, CheckWrite) {
+TEST(AttitudeTest, CheckWrite)
+{
     // Make an attitude
     isce3::core::Attitude attitude;
 
     // Load orbit data
     {
-    // Open the HDF5 product
-    std::string h5file(TESTDATA_DIR "envisat.h5");
-    isce3::io::IH5File file(h5file);
+        // Open the HDF5 product
+        std::string h5file(TESTDATA_DIR "envisat.h5");
+        isce3::io::IH5File file(h5file);
 
-    // Open group containing attitude
-    isce3::io::IGroup group = file.openGroup("/science/LSAR/SLC/metadata/attitude");
+        // Open group containing attitude
+        isce3::io::IGroup group =
+                file.openGroup("/science/LSAR/SLC/metadata/attitude");
 
-    // Deserialize the attitude
-    isce3::core::loadFromH5(group, attitude);
+        // Deserialize the attitude
+        isce3::core::loadFromH5(group, attitude);
     }
 
     // Write attitude data
     {
-    // Create a dummy hdf5 file
-    std::string dummyfile("dummy.h5");
-    isce3::io::IH5File dummy(dummyfile, 'x');
+        // Create a dummy hdf5 file
+        std::string dummyfile("dummy.h5");
+        isce3::io::IH5File dummy(dummyfile, 'x');
 
-    // Write orbit to dataset
-    isce3::io::IGroup group = dummy.createGroup("attitude");
-    isce3::core::saveToH5(group, attitude);
+        // Write orbit to dataset
+        isce3::io::IGroup group = dummy.createGroup("attitude");
+        isce3::core::saveToH5(group, attitude);
     }
 
     // Load a new attitude from created file
@@ -99,8 +102,8 @@ TEST(AttitudeTest, CheckWrite) {
     }
 }
 
-
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

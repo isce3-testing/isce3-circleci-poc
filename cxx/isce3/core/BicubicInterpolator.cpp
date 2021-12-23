@@ -32,18 +32,22 @@ CForm @ FullSimplify @ %
 
  */
 template<typename T>
-T cubicInterpolate(T p0, T p1, T p2, T p3, const double tfrac) {
+T cubicInterpolate(T p0, T p1, T p2, T p3, const double tfrac)
+{
     const auto tconj = 1. - tfrac;
-    return (T(tfrac)*(p2 - p0*T(tconj*tconj) + (p2*T(tconj*3. + 1.) - p3*T(tconj))*T(tfrac)) +
-            p1*T(tfrac*tfrac*(tfrac*3. - 5.) + 2.))/T(2.);
+    return (T(tfrac) * (p2 - p0 * T(tconj * tconj) +
+                               (p2 * T(tconj * 3. + 1.) - p3 * T(tconj)) *
+                                       T(tfrac)) +
+                   p1 * T(tfrac * tfrac * (tfrac * 3. - 5.) + 2.)) /
+           T(2.);
 }
 
 /** @param[in] x X-coordinate to interpolate
-  * @param[in] y Y-coordinate to interpolate
-  * @param[in] z 2D matrix to interpolate. */
+ * @param[in] y Y-coordinate to interpolate
+ * @param[in] z 2D matrix to interpolate. */
 template<class U>
-U isce3::core::BicubicInterpolator<U>::interp_impl(double x, double y,
-                                                  const Map& z) const
+U isce3::core::BicubicInterpolator<U>::interp_impl(
+        double x, double y, const Map& z) const
 {
     // the closest pixel to the point of interest
     const int x0 = std::floor(x);
@@ -52,10 +56,8 @@ U isce3::core::BicubicInterpolator<U>::interp_impl(double x, double y,
     // Compute intermediate interpolation values
     U intp[4];
     for (int i = -1; i < 3; i++) {
-        intp[i+1] = cubicInterpolate<U>(z(y0+i, x0-1),
-                                        z(y0+i, x0  ),
-                                        z(y0+i, x0+1),
-                                        z(y0+i, x0+2), x-x0);
+        intp[i + 1] = cubicInterpolate<U>(z(y0 + i, x0 - 1), z(y0 + i, x0),
+                z(y0 + i, x0 + 1), z(y0 + i, x0 + 2), x - x0);
     }
     // Compute final result
     return cubicInterpolate<U>(intp[0], intp[1], intp[2], intp[3], y - y0);

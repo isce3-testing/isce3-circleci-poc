@@ -2,11 +2,9 @@
 
 using isce3::core::LookSide;
 
-void addbinding(pybind11::enum_<isce3::core::LookSide> & pyLookSide)
+void addbinding(pybind11::enum_<isce3::core::LookSide>& pyLookSide)
 {
-    pyLookSide
-        .value("Left", LookSide::Left)
-        .value("Right", LookSide::Right);
+    pyLookSide.value("Left", LookSide::Left).value("Right", LookSide::Right);
 }
 
 LookSide duck_look_side(pybind11::object pySide)

@@ -7,7 +7,7 @@ namespace isce3::unwrap::icu
 
 inline
 SearchTable::SearchTable(
-    const int maxdist, 
+    const int maxdist,
     const float ratioDxDy)
 {
     // Width of square bounding circle with max radius
@@ -29,7 +29,7 @@ SearchTable::SearchTable(
         ratioSqy = 1.f / (ratioDxDy * ratioDxDy);
     }
 
-    // Calculate squared distance to each point within the square. Distance 
+    // Calculate squared distance to each point within the square. Distance
     // contours are elliptical depending on the relative pixel spacing in x & y.
     auto distSq = new float[w*w];
     for (int y = -maxdist; y <= maxdist; ++y)
@@ -46,7 +46,7 @@ SearchTable::SearchTable(
     for (size_t i = 0; i < w*w; ++i) { visited[i] = false; }
     visited[maxdist * w + maxdist] = true;
 
-    // Populate the search table by finding points within the annulus of each 
+    // Populate the search table by finding points within the annulus of each
     // successive search radius.
     _npts[0] = 0;
     size_t n = 0;
@@ -97,4 +97,3 @@ size_t SearchTable::numPtsInEllipse(
 }
 
 }
-

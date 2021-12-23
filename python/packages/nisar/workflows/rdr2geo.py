@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-'''
+"""
 wrapper for rdr2geo
-'''
+"""
 
 import pathlib
 import time
 
-import journal
 import isce3
+import journal
 from nisar.products.readers import SLC
 from nisar.workflows import gpu_check, runconfig
 from nisar.workflows.rdr2geo_runconfig import Rdr2geoRunConfig
@@ -16,18 +16,18 @@ from nisar.workflows.yaml_argparse import YamlArgparse
 
 
 def run(cfg):
-    '''
+    """
     run rdr2geo
-    '''
+    """
     # pull parameters from cfg
-    input_hdf5 = cfg['InputFileGroup']['InputFilePath']
-    dem_file = cfg['DynamicAncillaryFileGroup']['DEMFile']
-    scratch_path = pathlib.Path(cfg['ProductPathGroup']['ScratchPath'])
-    freq_pols = cfg['processing']['input_subset']['list_of_frequencies']
-    threshold = cfg['processing']['rdr2geo']['threshold']
-    numiter = cfg['processing']['rdr2geo']['numiter']
-    extraiter = cfg['processing']['rdr2geo']['extraiter']
-    lines_per_block = cfg['processing']['rdr2geo']['lines_per_block']
+    input_hdf5 = cfg["InputFileGroup"]["InputFilePath"]
+    dem_file = cfg["DynamicAncillaryFileGroup"]["DEMFile"]
+    scratch_path = pathlib.Path(cfg["ProductPathGroup"]["ScratchPath"])
+    freq_pols = cfg["processing"]["input_subset"]["list_of_frequencies"]
+    threshold = cfg["processing"]["rdr2geo"]["threshold"]
+    numiter = cfg["processing"]["rdr2geo"]["numiter"]
+    extraiter = cfg["processing"]["rdr2geo"]["extraiter"]
+    lines_per_block = cfg["processing"]["rdr2geo"]["lines_per_block"]
 
     # get params from SLC
     slc = SLC(hdf5file=input_hdf5)
@@ -46,11 +46,10 @@ def run(cfg):
     info_channel.log("starting geocode SLC")
 
     # check if gpu ok to use
-    use_gpu = gpu_check.use_gpu(cfg['worker']['gpu_enabled'],
-                                cfg['worker']['gpu_id'])
+    use_gpu = gpu_check.use_gpu(cfg["worker"]["gpu_enabled"], cfg["worker"]["gpu_id"])
     if use_gpu:
         # Set the current CUDA device.
-        device = isce3.cuda.core.Device(cfg['worker']['gpu_id'])
+        device = isce3.cuda.core.Device(cfg["worker"]["gpu_id"])
         isce3.cuda.core.set_device(device)
 
     t_all = time.time()
@@ -59,7 +58,7 @@ def run(cfg):
         radargrid = slc.getRadarGrid(freq)
 
         # create seperate directory within scratch dir for rdr2geo run
-        rdr2geo_scratch_path = scratch_path / 'rdr2geo' / f'freq{freq}'
+        rdr2geo_scratch_path = scratch_path / "rdr2geo" / f"freq{freq}"
         rdr2geo_scratch_path.mkdir(parents=True, exist_ok=True)
 
         # init CPU or CUDA object accordingly
@@ -68,10 +67,16 @@ def run(cfg):
         else:
             Rdr2Geo = isce3.geometry.Rdr2Geo
 
-        rdr2geo_obj = Rdr2Geo(radargrid, orbit, ellipsoid, grid_doppler,
-                              threshold=threshold, numiter=numiter,
-                              extraiter=extraiter,
-                              lines_per_block=lines_per_block)
+        rdr2geo_obj = Rdr2Geo(
+            radargrid,
+            orbit,
+            ellipsoid,
+            grid_doppler,
+            threshold=threshold,
+            numiter=numiter,
+            extraiter=extraiter,
+            lines_per_block=lines_per_block,
+        )
 
         # run
         rdr2geo_obj.topo(dem_raster, str(rdr2geo_scratch_path))
@@ -81,9 +86,9 @@ def run(cfg):
 
 
 if __name__ == "__main__":
-    '''
+    """
     run rdr2geo from command line
-    '''
+    """
     # load command line args
     rdr2geo_parser = YamlArgparse()
     args = rdr2geo_parser.parse()

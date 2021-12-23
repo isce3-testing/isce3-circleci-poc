@@ -5,24 +5,25 @@
 // Copyright 2018
 //
 
+#include "isce3/cuda/core/gpuPoly2d.h"
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
+#include <stdio.h>
 #include <vector>
+
+#include "gtest/gtest.h"
+
 #include "isce3/core/Constants.h"
 #include "isce3/core/Poly2d.h"
-#include "isce3/cuda/core/gpuPoly2d.h"
-#include "gtest/gtest.h"
-#include <stdio.h>
 
-using isce3::cuda::core::gpuPoly2d;
 using isce3::core::Poly2d;
+using isce3::cuda::core::gpuPoly2d;
 
 struct gpuPoly2dTest : public ::testing::Test {
-    virtual void SetUp() {
-        fails = 0;
-    }
-    virtual void TearDown() {
+    virtual void SetUp() { fails = 0; }
+    virtual void TearDown()
+    {
         if (fails > 0) {
             std::cerr << "Poly2d::TearDown sees failures" << std::endl;
         }
@@ -30,38 +31,35 @@ struct gpuPoly2dTest : public ::testing::Test {
     unsigned fails;
 };
 
-
-TEST_F(gpuPoly2dTest, Constant) {
+TEST_F(gpuPoly2dTest, Constant)
+{
 
     const double refval = 10.0;
 
     // Interpolate N values in x and y
-    for (size_t i = 1; i < 5; ++i)
-    {
-        //Mean and norm should not matter
-        Poly2d poly(0, 0, i*1.0, 0, i*i*1.0, 1.0);
+    for (size_t i = 1; i < 5; ++i) {
+        // Mean and norm should not matter
+        Poly2d poly(0, 0, i * 1.0, 0, i * i * 1.0, 1.0);
         poly.setCoeff(0, 0, refval);
         gpuPoly2d gpu_poly(poly);
 
-        double value = gpu_poly.eval_h(0.0, i*1.0);
+        double value = gpu_poly.eval_h(0.0, i * 1.0);
         EXPECT_DOUBLE_EQ(value, refval);
     }
 
     fails += ::testing::Test::HasFailure();
 }
 
-
 TEST_F(gpuPoly2dTest, MeanShift)
 {
-    //Use identity polynomial for testing
+    // Use identity polynomial for testing
     Poly2d refpoly(2, 0, 0.0, 0.0, 1.0, 1.0);
     refpoly.setCoeff(0, 0, 0.0);
     refpoly.setCoeff(0, 1, 1.0);
     refpoly.setCoeff(0, 2, 0.0);
     gpuPoly2d ref_gpu_poly(refpoly);
 
-    for(size_t i=0; i<5; i++)
-    {
+    for (size_t i = 0; i < 5; i++) {
         Poly2d newpoly(refpoly);
         newpoly.xMean = 0.5 * i * i;
         gpuPoly2d new_gpu_poly(newpoly);
@@ -74,18 +72,16 @@ TEST_F(gpuPoly2dTest, MeanShift)
     fails += ::testing::Test::HasFailure();
 }
 
-
 TEST_F(gpuPoly2dTest, NormShift)
 {
-    //Use square polynomial for testing
+    // Use square polynomial for testing
     Poly2d refpoly(2, 0, 0.0, 0.0, 1.0, 1.0);
     refpoly.setCoeff(0, 0, 0.0);
     refpoly.setCoeff(0, 1, 0.0);
     refpoly.setCoeff(0, 2, 1.0);
     gpuPoly2d gpu_refpoly(refpoly);
 
-    for(size_t i=1; i<6; i++)
-    {
+    for (size_t i = 1; i < 6; i++) {
         Poly2d newpoly(refpoly);
         newpoly.xNorm = i * i * 1.0;
         gpuPoly2d gpu_newpoly(newpoly);
@@ -99,9 +95,8 @@ TEST_F(gpuPoly2dTest, NormShift)
     fails += ::testing::Test::HasFailure();
 }
 
-
-
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
 
     ::testing::InitGoogleTest(&argc, argv);
 

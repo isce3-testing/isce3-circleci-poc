@@ -64,9 +64,9 @@ void addbinding(py::class_<ElPatternEst>& pyElPatternEst)
                     py::arg("az_time") = std::nullopt, py::arg("size_avg") = 8,
                     py::arg("inc_corr") = true)
             .doc() = R"(
-A class for estimating one-way or two-way elevation (EL) power 
-pattern from 2-D raw echo data over quasi-homogenous scene 
-and provide bunch of meta data. The final power in dB scale is 
+A class for estimating one-way or two-way elevation (EL) power
+pattern from 2-D raw echo data over quasi-homogenous scene
+and provide bunch of meta data. The final power in dB scale is
 fit into N-order polynomials as a function of look angle in radians.
 )";
 }

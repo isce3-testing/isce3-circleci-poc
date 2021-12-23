@@ -30,7 +30,6 @@ protected:
     virtual U interp_impl(double x, double y, const Map& map) const = 0;
 
 public:
-
     /** Interpolate at a given coordinate for an input Eigen::Map */
     U interpolate(double x, double y, const Map& map) const
     {
@@ -44,22 +43,22 @@ public:
     }
 
     /** Interpolate at a given coordinate for data passed as a valarray */
-    U interpolate(double x, double y, std::valarray<U>& z_data,
-                  size_t width) const
+    U interpolate(
+            double x, double y, std::valarray<U>& z_data, size_t width) const
     {
         const Map z {&z_data[0],
-                     static_cast<Eigen::Index>(z_data.size() / width),
-                     static_cast<Eigen::Index>(width)};
+                static_cast<Eigen::Index>(z_data.size() / width),
+                static_cast<Eigen::Index>(width)};
         return interp_impl(x, y, z);
     }
 
     /** Interpolate at a given coordinate for data passed as a vector */
-    U interpolate(double x, double y, std::vector<U>& z_data,
-                  size_t width) const
+    U interpolate(
+            double x, double y, std::vector<U>& z_data, size_t width) const
     {
         const Map z {&z_data[0],
-                     static_cast<Eigen::Index>(z_data.size() / width),
-                     static_cast<Eigen::Index>(width)};
+                static_cast<Eigen::Index>(z_data.size() / width),
+                static_cast<Eigen::Index>(width)};
         return interp_impl(x, y, z);
     }
 
@@ -151,10 +150,10 @@ private:
     // Utility spline functions
 private:
     void _initSpline(const std::valarray<U>&, int, std::valarray<U>&,
-                     std::valarray<U>&) const;
+            std::valarray<U>&) const;
 
     U _spline(double, const std::valarray<U>&, int,
-              const std::valarray<U>&) const;
+            const std::valarray<U>&) const;
 };
 
 /** Definition of Sinc2dInterpolator */
@@ -177,12 +176,11 @@ public:
 private:
     // Compute sinc coefficients
     void _sinc_coef(double beta, double relfiltlen, int decfactor,
-                    double pedestal, int weight,
-                    std::valarray<double>& filter) const;
+            double pedestal, int weight, std::valarray<double>& filter) const;
 
     // Evaluate sinc
-    U _sinc_eval_2d(const Map& z, int intpx, int intpy, double frpx,
-                    double frpy) const;
+    U _sinc_eval_2d(
+            const Map& z, int intpx, int intpy, double frpx, double frpy) const;
 
 private:
     Matrix<double> _kernel;
@@ -195,9 +193,8 @@ namespace isce3 { namespace core {
 /** Utility function to create interpolator pointer given an interpolator enum
  * type */
 template<typename U>
-inline Interpolator<U>*
-createInterpolator(dataInterpMethod method, size_t order = 6,
-                   int sincLen = SINC_LEN, int sincSub = SINC_SUB)
+inline Interpolator<U>* createInterpolator(dataInterpMethod method,
+        size_t order = 6, int sincLen = SINC_LEN, int sincSub = SINC_SUB)
 {
     if (method == BILINEAR_METHOD) {
         return new BilinearInterpolator<U>();

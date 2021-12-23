@@ -13,7 +13,7 @@ DATA=$4    # must be inside DATADIR directory
 IMAGE=nisar/isce-ops-qa
 
 CONTAINERTAG=qa-${TAG}
-CONTAINER_DATADIR=/home/conda/data 
+CONTAINER_DATADIR=/home/conda/data
 
 echo "IMAGE is $IMAGE"
 echo "IMAGE TAG is $TAG"

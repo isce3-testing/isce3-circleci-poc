@@ -9,7 +9,7 @@
 
 namespace py = pybind11;
 
-void addbinding_metadata_cubes(py::module & m)
+void addbinding_metadata_cubes(py::module& m)
 {
     m.def("make_radar_grid_cubes", &isce3::geometry::makeRadarGridCubes,
             py::arg("radar_grid"), py::arg("geogrid"), py::arg("heights"),
@@ -32,15 +32,15 @@ void addbinding_metadata_cubes(py::module & m)
              Metadata radar grid cubes describe the radar geometry
              over a three-dimensional grid, defined by
              a reference geogrid and a vector of heights.
-            
+
              The representation as cubes, rather than two-dimensional rasters,
              is intended to reduce the amount of disk space required to
              store radar geometry values within NISAR L2 products.
-            
+
              This is possible because each cube contains slow-varying values
              in space, that can be described by a low-resolution
              three-dimensional grid with sufficient accuracy.
-            
+
              These values, however, are usually required at the
              terrain height, often characterized by a fast-varying surface
              representing the local topography. A high-resolution DEM can
@@ -48,8 +48,8 @@ void addbinding_metadata_cubes(py::module & m)
              high-resolution maps of the corresponding radar geometry variable.
 
              The line-of-sight (LOS) and along-track unit vectors are referenced to
-             the projection defined by the epsg_los_and_along_track_vectors code. 
-             In the case of ENU, i.e. epsg_los_and_along_track_vectors equals to 0 
+             the projection defined by the epsg_los_and_along_track_vectors code.
+             In the case of ENU, i.e. epsg_los_and_along_track_vectors equals to 0
              or 4326, ENU coordinates are computed wrt targets.
 
         Parameters
@@ -67,14 +67,14 @@ void addbinding_metadata_cubes(py::module & m)
               grid_doppler : isce3.core.LUT2d
                   Grid Doppler
               epsg_los_and_along_track_vectors : int, optional
-                  EPSG code for LOS and along-track unit vectors 
+                  EPSG code for LOS and along-track unit vectors
                   (0 or 4326 for ENU coordinates)
               slant_range_raster : isce3.io.Raster, optional
                   Slant-range (in meters) cube raster
               azimuth_time_raster : isce3.io.Raster, optional
                   Azimuth time (in seconds) cube raster
               incidence_angle_raster : isce3.io.Raster, optional
-                  Incidence angle (in degrees wrt ellipsoid normal at target) 
+                  Incidence angle (in degrees wrt ellipsoid normal at target)
                   cube raster
               los_unit_vector_x_raster : isce3.io.Raster, optional
                   LOS (target-to-sensor) unit vector X cube raster
@@ -113,28 +113,28 @@ void addbinding_metadata_cubes(py::module & m)
             py::arg("threshold_geo2rdr") = 1.0e-8,
             py::arg("numiter_geo2rdr") = 100, py::arg("delta_range") = 1.0e-6,
             R"(Make metadata geolocation grid cubes
- 
-           Metadata geolocation grid cubes describe the radar geometry 
-           over a three-dimensional grid, defined by 
-           a reference radar grid and a vector of heights. 
-           
+
+           Metadata geolocation grid cubes describe the radar geometry
+           over a three-dimensional grid, defined by
+           a reference radar grid and a vector of heights.
+
            The representation as cubes, rather than two-dimensional rasters,
-           is intended to reduce the amount of disk space required to 
+           is intended to reduce the amount of disk space required to
            store radar geometry values within NISAR L1 products.
-           
+
            This is possible because each cube contains slow-varying values
-           in space, that can be described by a low-resolution 
-           three-dimensional grid with sufficient accuracy. 
-           
-           These values, however, are usually required at the 
+           in space, that can be described by a low-resolution
+           three-dimensional grid with sufficient accuracy.
+
+           These values, however, are usually required at the
            terrain height, often characterized by a fast-varying surface
            representing the local topography. A high-resolution DEM can
-           then be used to interpolate the metadata cubes and generate 
+           then be used to interpolate the metadata cubes and generate
            high-resolution maps of the corresponding radar geometry variable.
 
            The line-of-sight (LOS) and along-track unit vectors are referenced to
-           the projection defined by the epsg_los_and_along_track_vectors code. 
-           In the case of ENU, i.e. epsg_los_and_along_track_vectors equals to 0 
+           the projection defined by the epsg_los_and_along_track_vectors code.
+           In the case of ENU, i.e. epsg_los_and_along_track_vectors equals to 0
            or 4326, ENU coordinates are computed wrt targets.
 
         Parameters
@@ -152,14 +152,14 @@ void addbinding_metadata_cubes(py::module & m)
               epsg : int
                   Output geolocation EPSG
               epsg_los_and_along_track_vectors : int, optional
-                  EPSG code for LOS and along-track unit vectors 
+                  EPSG code for LOS and along-track unit vectors
                   (0 or 4326 for ENU coordinates)
               coordinate_x_raster : isce3.io.Raster, optional
                  Geolocation coordinate X raster
               coordinate_y_raster : isce3.io.Raster, optional
                   Geolocation coordinate Y raster
               incidence_angle_raster : isce3.io.Raster, optional
-                  Incidence angle (in degrees wrt ellipsoid normal at target) 
+                  Incidence angle (in degrees wrt ellipsoid normal at target)
                   cube raster
               los_unit_vector_x_raster : isce3.io.Raster, optional
                   LOS (target-to-sensor) unit vector X cube raster

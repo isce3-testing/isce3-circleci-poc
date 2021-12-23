@@ -30,7 +30,8 @@ TEST_F(DeviceTest, Device)
                   << "--------" << std::endl
                   << "name: " << device.name() << std::endl
                   << "compute: " << device.computeCapability() << std::endl
-                  << "total mem (bytes): " << device.totalGlobalMem() << std::endl;
+                  << "total mem (bytes): " << device.totalGlobalMem()
+                  << std::endl;
 
         EXPECT_NE(device.name(), "");
         EXPECT_GT(device.totalGlobalMem(), 0);

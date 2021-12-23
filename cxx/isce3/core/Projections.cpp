@@ -37,7 +37,7 @@ static double clens(const double* a, int size, double real)
     const double* p;
     double hr, hr1, hr2;
     for (p = a + size, hr2 = 0., hr1 = *(--p), hr = 0.; a - p;
-         hr2 = hr1, hr1 = hr) {
+            hr2 = hr1, hr1 = hr) {
         hr = -hr2 + (2. * hr1 * std::cos(real)) + *(--p);
     }
     return std::sin(real) * hr;
@@ -54,13 +54,13 @@ static double clens(const double* a, int size, double real)
  * clens(a,len(a),real) to simplify the code space?)
  */
 static double clenS(const double* a, int size, double real, double imag,
-                    double& R, double& I)
+        double& R, double& I)
 {
     const double* p;
     double hr, hr1, hr2, hi, hi1, hi2;
     for (p = a + size, hr2 = 0., hi2 = 0., hi1 = 0., hr1 = *(--p), hi1 = 0.,
         hr = 0., hi = 0.;
-         a - p; hr2 = hr1, hi2 = hi1, hr1 = hr, hi1 = hi) {
+            a - p; hr2 = hr1, hi2 = hi1, hr1 = hr, hi1 = hi) {
         hr = -hr2 + (2. * hr1 * std::cos(real) * std::cosh(imag)) -
              (-2. * hi1 * std::sin(real) * std::sinh(imag)) + *(--p);
         hi = -hi2 + (-2. * hr1 * std::sin(real) * std::sinh(imag)) +
@@ -177,8 +177,7 @@ int UTM::forward(const Vec3& llh, Vec3& utm) const
 
     // Account for longitude and get Spherical N,E
     double Cn = std::atan2(std::sin(gauss), std::cos(lam) * std::cos(gauss));
-    double Ce = std::atan2(
-            std::sin(lam) * std::cos(gauss),
+    double Ce = std::atan2(std::sin(lam) * std::cos(gauss),
             std::hypot(std::sin(gauss), std::cos(gauss) * std::cos(lam)));
 
     // Spherical N,E to Elliptical N,E
@@ -218,8 +217,8 @@ int UTM::inverse(const Vec3& utm, Vec3& llh) const
         double sinCe = std::sin(Ce);
         double cosCe = std::cos(Ce);
         Ce = std::atan2(sinCe, cosCe * std::cos(Cn));
-        Cn = std::atan2(std::sin(Cn) * cosCe,
-                        std::hypot(sinCe, cosCe * std::cos(Cn)));
+        Cn = std::atan2(
+                std::sin(Cn) * cosCe, std::hypot(sinCe, cosCe * std::cos(Cn)));
 
         // Gaussian Lat, Lon to Elliptical Lat, Lon
         llh[0] = Ce + lon0;
@@ -322,7 +321,7 @@ static double pj_qsfn(double sinphi, double e, double one_es)
 {
     double con = e * sinphi;
     return one_es * ((sinphi / (1. - std::pow(con, 2))) -
-                     ((.5 / e) * std::log((1. - con) / (1. + con))));
+                            ((.5 / e) * std::log((1. - con) / (1. + con))));
 }
 
 CEA::CEA() : ProjectionBase(6933)
@@ -387,13 +386,12 @@ ProjectionBase* createProj(int epsgcode)
         return new CEA;
     } else {
         throw isce3::except::RuntimeError(ISCE_SRCINFO(),
-                                          "Unknown EPSG code (in factory): " +
-                                                  std::to_string(epsgcode));
+                "Unknown EPSG code (in factory): " + std::to_string(epsgcode));
     }
 }
 
 int projTransform(ProjectionBase* in, ProjectionBase* out, const Vec3& inpts,
-                  Vec3& outpts)
+        Vec3& outpts)
 {
     if (in->code() == out->code()) {
         // If input/output projections are the same don't even bother processing

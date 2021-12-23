@@ -39,9 +39,10 @@ using cmem_t = pyre::memory::constview_t<value_t>;
 using ctile_t = pyre::grid::grid_t<value_t, clayout_t, cmem_t>;
 
 // driver
-int main() {
+int main()
+{
     // number of gigabytes per byte
-    const auto Gb = 1.0/(1024*1024*1024);
+    const auto Gb = 1.0 / (1024 * 1024 * 1024);
 
     // make a timer
     pyre::timer_t timer("ampcor.cuda.sanity");
@@ -51,24 +52,25 @@ int main() {
     // make a channel for logging progress
     pyre::journal::debug_t channel("ampcor.cuda");
     // show me
-    channel
-        << pyre::journal::at(__HERE__)
-        << "setting up the correlation plan with the cuda ampcor task manager"
-        << pyre::journal::endl;
+    channel << pyre::journal::at(__HERE__)
+            << "setting up the correlation plan with the cuda ampcor task "
+               "manager"
+            << pyre::journal::endl;
 
     // the reference tile extent
     int refDim = 64;
     // the margin around the reference tile
     int margin = 16;
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    auto placements = 2*margin + 1;
+    auto tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    auto placements = 2 * margin + 1;
     //  the dimension of the correlation matrix
     auto corDim = placements;
 
     // the number of pairs
-    auto pairs = placements*placements;
+    auto pairs = placements * placements;
 
     // the number of cells in a reference tile
     auto refCells = refDim * refDim;
@@ -87,9 +89,9 @@ int main() {
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // start the clock
     timer.reset().start();
@@ -98,16 +100,15 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "instantiating the manager: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "instantiating the manager: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // we fill the reference tiles with random numbers
     // make a device
     std::random_device dev {};
     // a random number generator
-    std::mt19937 rng { dev() };
+    std::mt19937 rng {dev()};
     // use them to build a normal distribution
     std::normal_distribution<float> normal {};
 
@@ -123,21 +124,21 @@ int main() {
     // make a view over the reference tile
     auto rview = ref.constview();
     // build the target tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // make a target tile
             slc_t tgt(tgtLayout);
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            auto slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            auto slice = tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             auto tgtView = tgt.view(slice);
             // fill it with the contents of the reference tile for this pair
             std::copy(rview.begin(), rview.end(), tgtView.begin());
 
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
             // add this pair to the correlator
             c.addReferenceTile(pid, rview);
             c.addTargetTile(pid, tgt.constview());
@@ -146,10 +147,9 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "creating synthetic dataset: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "creating synthetic dataset: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // start the clock
     timer.reset().start();
@@ -164,11 +164,9 @@ int main() {
     // compute the transfer rate in Gb/s
     auto rate = footprint / duration * Gb;
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "moving the dataset to the device: " << 1e3 * duration << " ms,"
-        << " at " << rate << " Gb/s"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "moving the dataset to the device: " << 1e3 * duration << " ms,"
+         << " at " << rate << " Gb/s" << pyre::journal::endl;
 
     // start the clock
     timer.reset().start();
@@ -177,10 +175,9 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "computing amplitudes of the signal tiles: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "computing amplitudes of the signal tiles: " << 1e3 * timer.read()
+         << " ms" << pyre::journal::endl;
 
     // start the clock
     timer.reset().start();
@@ -189,11 +186,10 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "computing reference tile statistics: " << 1e3 * timer.read() << " ms,"
-        << " at " << rate << " Gb/s"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "computing reference tile statistics: " << 1e3 * timer.read()
+         << " ms,"
+         << " at " << rate << " Gb/s" << pyre::journal::endl;
 
     // start the clock
     timer.reset().start();
@@ -202,34 +198,34 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "computing sum area tables: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "computing sum area tables: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // start the clock
     timer.reset().start();
-    // compute the average amplitude of all possible ref shaped sub-tiles in the target tile
+    // compute the average amplitude of all possible ref shaped sub-tiles in the
+    // target tile
     auto tgtStats = c._tgtStats(sat, refDim, tgtDim, corDim);
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "computing target tile statistics: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "computing target tile statistics: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // start the clock
     timer.reset().start();
-    // compute the average amplitude of all possible ref shaped sub-tiles in the target tile
-    auto gamma = c._correlate(rArena, refStats, tgtStats, refDim, tgtDim, corDim);
+    // compute the average amplitude of all possible ref shaped sub-tiles in the
+    // target tile
+    auto gamma =
+            c._correlate(rArena, refStats, tgtStats, refDim, tgtDim, corDim);
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "computing the correlation matrix: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "computing the correlation matrix: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // fetch the correlation matrix
     // make room for the correlation hyper-matrix
@@ -239,7 +235,8 @@ int main() {
     // start the clock
     timer.reset().start();
     // copy the results over
-    cudaError_t status = cudaMemcpy(cor, gamma, footprint, cudaMemcpyDeviceToHost);
+    cudaError_t status =
+            cudaMemcpy(cor, gamma, footprint, cudaMemcpyDeviceToHost);
     // stop the clock
     timer.stop();
     // if something went wrong
@@ -249,11 +246,9 @@ int main() {
         // make a channel
         pyre::journal::error_t error("ampcor.cuda");
         // complain
-        error
-            << pyre::journal::at(__HERE__)
-            << "while retrieving the correlation hyper-matrix: "
-            << description << " (" << status << ")"
-            << pyre::journal::endl;
+        error << pyre::journal::at(__HERE__)
+              << "while retrieving the correlation hyper-matrix: "
+              << description << " (" << status << ")" << pyre::journal::endl;
         // and bail
         throw std::runtime_error(description);
     }
@@ -262,24 +257,24 @@ int main() {
     // compute the transfer rate
     rate = footprint / duration * Gb;
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "moving the correlation hyper-matrix to the host: " << 1e3 * duration << " ms"
-        << ", at " << rate << " Gb/s"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "moving the correlation hyper-matrix to the host: "
+         << 1e3 * duration << " ms"
+         << ", at " << rate << " Gb/s" << pyre::journal::endl;
 
-    // the shape of the correlation matrix: the first two indices identify the pair, the last
-    // two indicate the placement of the reference tile within the target search window
+    // the shape of the correlation matrix: the first two indices identify the
+    // pair, the last two indicate the placement of the reference tile within
+    // the target search window
     ctile_t::shape_type corShape = {corDim, corDim, corDim, corDim};
     // the layout of the correlation matrix
-    ctile_t::layout_type corLayout = { corShape };
+    ctile_t::layout_type corLayout = {corShape};
     // adapt the correlation matrix into a grid
-    ctile_t cgrid { corLayout, cor };
+    ctile_t cgrid {corLayout, cor};
 
     // establish a tolerance
     auto tolerance = 10 * std::numeric_limits<value_t>::epsilon();
-    // verify by checking that the correlation is unity for the correct placement of the
-    // reference tile within the target window
+    // verify by checking that the correlation is unity for the correct
+    // placement of the reference tile within the target window
     for (auto idx = 0; idx < corDim; ++idx) {
         for (auto jdx = 0; jdx < corDim; ++jdx) {
             // we expect
@@ -287,18 +282,17 @@ int main() {
             // the magic placement should also have unit correlation
             auto computedCor = cgrid[{idx, jdx, idx, jdx}];
             // compute the mismatch
-            auto mismatch = std::abs(1 - computedCor/expectedCor);
+            auto mismatch = std::abs(1 - computedCor / expectedCor);
             // if there is significant mismatch
             if (mismatch > tolerance) {
                 // make a channel
                 pyre::journal::error_t error("ampcor.cuda");
                 // show me
-                error
-                    << pyre::journal::at(__HERE__)
-                    << "correlation mismatch at {" << idx << ", " << jdx << "}: "
-                    << " expected: " << expectedCor
-                    << ", computed: " << computedCor
-                    << pyre::journal::endl;
+                error << pyre::journal::at(__HERE__)
+                      << "correlation mismatch at {" << idx << ", " << jdx
+                      << "}: "
+                      << " expected: " << expectedCor
+                      << ", computed: " << computedCor << pyre::journal::endl;
                 // and bail
                 throw std::runtime_error("verification error");
             }
@@ -306,7 +300,7 @@ int main() {
     }
 
     // clean up
-    delete [] cor;
+    delete[] cor;
 
     cudaFree(gamma);
     cudaFree(tgtStats);

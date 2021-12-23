@@ -27,11 +27,11 @@ pipeline {
       agent any
       steps {
         //checkout ([
-        //  $class: 'GitSCM', 
-        //  branches: [[name: '*/develop']], 
-        //  doGenerateSubmoduleConfigurations: false, 
-        //  extensions: [[$class: 'WipeWorkspace']], 
-        //  submoduleCfg: [], 
+        //  $class: 'GitSCM',
+        //  branches: [[name: '*/develop']],
+        //  doGenerateSubmoduleConfigurations: false,
+        //  extensions: [[$class: 'WipeWorkspace']],
+        //  submoduleCfg: [],
         //  userRemoteConfigs: [[url: 'git@github-fn.jpl.nasa.gov:isce-3/isce.git']]
         //])
 
@@ -49,7 +49,7 @@ pipeline {
         }
       }
     }
-  } 
+  }
   post {
     always {
       echo "Cleaning up workspace"

@@ -6,8 +6,6 @@
 
 #pragma once
 
-namespace isce3 {
-    namespace math {
-        double bessel_i0(double x);
-    }
-}
+namespace isce3 { namespace math {
+double bessel_i0(double x);
+}} // namespace isce3::math

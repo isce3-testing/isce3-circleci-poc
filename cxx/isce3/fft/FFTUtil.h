@@ -10,7 +10,8 @@ namespace isce3 { namespace fft {
  *
  * The argument is expected to be integral and non-negative.
  */
-template<typename T, typename std::enable_if<std::is_integral<T>::value>::type * = nullptr>
+template<typename T,
+        typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
 T nextPowerOfTwo(T);
 
 /** Return an integer m >= n well suited to FFT sizes.
@@ -21,7 +22,7 @@ T nextPowerOfTwo(T);
  */
 std::int32_t nextFastPower(std::int32_t n);
 
-}}
+}} // namespace isce3::fft
 
 #define ISCE_FFT_FFTUTIL_ICC
 #include "FFTUtil.icc"

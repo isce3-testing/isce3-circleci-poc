@@ -18,10 +18,10 @@ runconfig:
             # SAS writes output product to the following file. PGE may rename.
             # NOTE: For R2 will need to handle mixed-mode case with multiple outputs of RCOV workflow.
             SASOutputFile: to_be_set_within_test_code
-       
+
         PrimaryExecutable:
             ProductType: GCOV
-       
+
         DebugLevelGroup:
             DebugSwitch: false
 

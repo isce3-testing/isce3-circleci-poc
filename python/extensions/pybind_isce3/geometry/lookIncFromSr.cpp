@@ -34,15 +34,15 @@ void addbinding_look_inc_from_sr(pybind11::module& m)
             py::arg_v("dem_interp", DEMInterpolator(), "0.0"),
             py::arg_v("ellips", Ellipsoid(), "WGS84"),
             R"(
-Estimate look angle (off-nadir angle) and local incidence angle at a desired slant range 
+Estimate look angle (off-nadir angle) and local incidence angle at a desired slant range
 from orbit(spacecraft/antenna statevector) and at a certain relative azimuth time.
 
 Parameters
 ----------
 slant_range : float
-    true slant range in meters from antenna phase center (or spacecraft position) to the ground. 
+    true slant range in meters from antenna phase center (or spacecraft position) to the ground.
 orbit : isce3.core.orbit
-az_time : float, optional 
+az_time : float, optional
     relative azimuth time in seconds w.r.t reference epoch time of orbit object.
     If not speficied, the mid time of orbit will be used as azimuth time.
 dem_interp : isce3.geometry.DEMInterpolator, default=0.0
@@ -52,7 +52,7 @@ Returns
 -------
 float
     Look angle or off-nadir angle in (rad)
-float 
+float
     Incidence angle in (rad)
 
 Raises
@@ -62,7 +62,7 @@ RuntimeError
 
 Notes
 -----
-See references [1]_ and [2]_ for the equations to calculate 
+See references [1]_ and [2]_ for the equations to calculate
 look angle and incidence angle, respectivelty.
 
 References
@@ -91,9 +91,9 @@ from orbit(spacecraft/antenna statevector) and at a certain relative azimuth tim
 Parameters
 ----------
 slant_range : numpy.ndarray(float)
-    Array of slant ranges in meters from antenna phase center (or spacecraft position) to the ground. 
+    Array of slant ranges in meters from antenna phase center (or spacecraft position) to the ground.
 orbit : isce3.core.orbit
-az_time : float, optional 
+az_time : float, optional
     relative azimuth time in seconds w.r.t reference epoch time of orbit object.
     If not speficied, the mid time of orbit will be used as azimuth time.
 dem_interp : isce3.geometry.DEMInterpolator, default=0.0
@@ -103,7 +103,7 @@ Returns
 -------
 numpy.ndarray(float)
     Look angles or off-nadir angles in (rad)
-numpy.ndarray(float) 
+numpy.ndarray(float)
     Incidence angles in (rad)
 
 Raises
@@ -113,7 +113,7 @@ RuntimeError
 
 Notes
 -----
-See references [1]_ and [2]_ for the equations to calculate 
+See references [1]_ and [2]_ for the equations to calculate
 look angle and incidence angle, respectivelty.
 
 References

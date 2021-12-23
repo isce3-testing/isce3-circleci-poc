@@ -49,75 +49,71 @@ TEST_F(RSDTest, RSD)
 {
     Raster signal_data(iq.data(), samples, lines);
 
-    RSD rsd(signal_data, reference_epoch, azimuth_time,
-            range_window_start_time, range_sampling_rate,
-            look_side);
+    RSD rsd(signal_data, reference_epoch, azimuth_time, range_window_start_time,
+            range_sampling_rate, look_side);
 
-    EXPECT_EQ( rsd.lines(), lines );
-    EXPECT_EQ( rsd.samples(), samples );
-    EXPECT_EQ( rsd.referenceEpoch(), reference_epoch );
-    EXPECT_DOUBLE_EQ( rsd.azimuthStartTime(), azimuth_start_time );
-    EXPECT_DOUBLE_EQ( rsd.azimuthMidTime(), azimuth_mid_time );
-    EXPECT_DOUBLE_EQ( rsd.azimuthEndTime(), azimuth_end_time );
-    EXPECT_DOUBLE_EQ( rsd.rangeWindowStartTime(), range_window_start_time );
-    EXPECT_DOUBLE_EQ( rsd.rangeWindowMidTime(), range_window_mid_time );
-    EXPECT_DOUBLE_EQ( rsd.rangeWindowEndTime(), range_window_end_time );
-    EXPECT_DOUBLE_EQ( rsd.rangeSamplingRate(), range_sampling_rate );
-    EXPECT_EQ( rsd.lookSide(), look_side );
+    EXPECT_EQ(rsd.lines(), lines);
+    EXPECT_EQ(rsd.samples(), samples);
+    EXPECT_EQ(rsd.referenceEpoch(), reference_epoch);
+    EXPECT_DOUBLE_EQ(rsd.azimuthStartTime(), azimuth_start_time);
+    EXPECT_DOUBLE_EQ(rsd.azimuthMidTime(), azimuth_mid_time);
+    EXPECT_DOUBLE_EQ(rsd.azimuthEndTime(), azimuth_end_time);
+    EXPECT_DOUBLE_EQ(rsd.rangeWindowStartTime(), range_window_start_time);
+    EXPECT_DOUBLE_EQ(rsd.rangeWindowMidTime(), range_window_mid_time);
+    EXPECT_DOUBLE_EQ(rsd.rangeWindowEndTime(), range_window_end_time);
+    EXPECT_DOUBLE_EQ(rsd.rangeSamplingRate(), range_sampling_rate);
+    EXPECT_EQ(rsd.lookSide(), look_side);
 }
 
 TEST_F(RSDTest, ReadLine)
 {
     Raster signal_data(iq.data(), samples, lines);
 
-    RSD rsd(signal_data, reference_epoch, azimuth_time,
-            range_window_start_time, range_sampling_rate,
-            look_side);
+    RSD rsd(signal_data, reference_epoch, azimuth_time, range_window_start_time,
+            range_sampling_rate, look_side);
 
     int line = 5;
     std::vector<std::complex<float>> out(samples);
     rsd.readLine(out.data(), line);
 
-    std::vector<std::complex<float>> expected(&iq[line * samples],
-                                              &iq[(line + 1) * samples]);
+    std::vector<std::complex<float>> expected(
+            &iq[line * samples], &iq[(line + 1) * samples]);
 
-    EXPECT_EQ( out, expected );
+    EXPECT_EQ(out, expected);
 }
 
 TEST_F(RSDTest, ReadLines)
 {
     Raster signal_data(iq.data(), samples, lines);
 
-    RSD rsd(signal_data, reference_epoch, azimuth_time,
-            range_window_start_time, range_sampling_rate,
-            look_side);
+    RSD rsd(signal_data, reference_epoch, azimuth_time, range_window_start_time,
+            range_sampling_rate, look_side);
 
     int first_line = 3;
     int num_lines = 4;
     std::vector<std::complex<float>> out(num_lines * samples);
     rsd.readLines(out.data(), first_line, num_lines);
 
-    std::vector<std::complex<float>> expected(&iq[first_line * samples],
-                                              &iq[(first_line + num_lines) * samples]);
+    std::vector<std::complex<float>> expected(
+            &iq[first_line * samples], &iq[(first_line + num_lines) * samples]);
 
-    EXPECT_EQ( out, expected );
+    EXPECT_EQ(out, expected);
 }
 
 TEST_F(RSDTest, ReadAll)
 {
     Raster signal_data(iq.data(), samples, lines);
 
-    RSD rsd(signal_data, reference_epoch, azimuth_time,
-            range_window_start_time, range_sampling_rate,
-            look_side);
+    RSD rsd(signal_data, reference_epoch, azimuth_time, range_window_start_time,
+            range_sampling_rate, look_side);
 
     std::vector<std::complex<float>> out(lines * samples);
     rsd.readAll(out.data());
 
-    EXPECT_EQ( out, iq );
+    EXPECT_EQ(out, iq);
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

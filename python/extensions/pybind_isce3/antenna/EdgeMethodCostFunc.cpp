@@ -28,34 +28,34 @@ void addbinding_edge_method_cost_func(py::module& m)
             py::arg("polyfit_echo"), py::arg("polyfit_ant"),
             py::arg("look_ang"), py::arg("polyfit_weight") = std::nullopt,
             R"(
-Estimate roll angle offset via edge method from poly-fitted 
+Estimate roll angle offset via edge method from poly-fitted
 power patterns obtained from echo raw data and antenna pattern.
 The cost function is solved via Newton method and final solution
-is the weighted average of individual solution within look 
+is the weighted average of individual solution within look
 (off-nadir) angles [near, far] with desired angle precision all
 defined by isce3 Linspace.
 See equations for cost function in section 1.1 of the reference [1]_.
 The only difference is that the look angles are in (rad) rather than in (deg).
-Note that the respective magnitudes for both echo and antenna can be 
+Note that the respective magnitudes for both echo and antenna can be
 either 2-way or 1-way power patterns.
 
 Parameters
 ----------
 polyfit_echo : isce3.core.Poly1d
-    to represent polyfitted magnitude of echo (range compressed or raw) data. 
-    It must be third-order polynomial of relative magnitude/power in (dB) 
+    to represent polyfitted magnitude of echo (range compressed or raw) data.
+    It must be third-order polynomial of relative magnitude/power in (dB)
     as a function of look angle in (rad).
 polyfit_ant : isce3.core.Poly1d
-    to represent polyfitted magnitude of antenna EL power pattern. 
-    It must be third-order polynomial of relative magnitude/power in (dB) 
+    to represent polyfitted magnitude of antenna EL power pattern.
+    It must be third-order polynomial of relative magnitude/power in (dB)
     as a function of look angle in (rad).
-    It must have the same mean and std as that of polyfit_echo.    
+    It must have the same mean and std as that of polyfit_echo.
 look_ang : isce3.core.Linspace
     to cover desired range of look angles with desired precision/spacing.
 polyfit_weight : isce3.core.Poly1d , optional
-    to represent weightings used in final weighted averaged of individual 
-    solutions over desired look angle coverage. 
-    It shall represent relative magnitude/power in (dB) as a function 
+    to represent weightings used in final weighted averaged of individual
+    solutions over desired look angle coverage.
+    It shall represent relative magnitude/power in (dB) as a function
     of look angle in (rad). The order of polynom must be at least 0 (constant weights).
 
 Returns
@@ -101,27 +101,27 @@ References
             py::arg("look_ang_near"), py::arg("look_ang_far"),
             py::arg("look_ang_prec"), py::arg("polyfit_weight") = std::nullopt,
             R"(
-Estimate roll angle offset via edge method from poly-fitted 
+Estimate roll angle offset via edge method from poly-fitted
 power patterns obtained from echo raw data and antenna pattern.
 The cost function is solved via Newton method and final solution
-is the weighted average of individual solution within look 
+is the weighted average of individual solution within look
 (off-nadir) angles [near, far] with desired angle precision .
 See equations for cost function in section 1.1 of the reference [1]_.
 The only difference is that the look angles are in (rad) rather than in (deg).
-Note that the respective magnitudes for both echo and antenna can be 
+Note that the respective magnitudes for both echo and antenna can be
 either 2-way or 1-way power patterns.
 
 Parameters
 ----------
 polyfit_echo : isce3.core.Poly1d
-    to represent polyfitted magnitude of echo (range compressed or raw) data. 
-    It must be third-order polynomial of relative magnitude/power in (dB) 
+    to represent polyfitted magnitude of echo (range compressed or raw) data.
+    It must be third-order polynomial of relative magnitude/power in (dB)
     as a function of look angle in (rad).
 polyfit_ant : isce3.core.Poly1d
-    to represent polyfitted magnitude of antenna EL power pattern. 
-    It must be third-order polynomial of relative magnitude/power in (dB) 
+    to represent polyfitted magnitude of antenna EL power pattern.
+    It must be third-order polynomial of relative magnitude/power in (dB)
     as a function of look angle in (rad).
-    It must have the same mean and std as that of polyfit_echo.    
+    It must have the same mean and std as that of polyfit_echo.
 look_ang_near : float
     look angle for near range in (rad)
 look_ang_far : float
@@ -129,9 +129,9 @@ look_ang_far : float
 look_ang_prec : float
     look angle precision/resolution in (rad)
 polyfit_weight : isce3.core.Poly1d , optional
-    to represent weightings used in final weighted averaged of individual 
-    solutions over desired look angle coverage. 
-    It shall represent relative magnitude/power in (dB) as a function 
+    to represent weightings used in final weighted averaged of individual
+    solutions over desired look angle coverage.
+    It shall represent relative magnitude/power in (dB) as a function
     of look angle in (rad). The order of polynom must be at least 0 (constant weights).
 
 Returns

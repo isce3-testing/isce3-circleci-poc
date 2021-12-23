@@ -28,16 +28,16 @@ Similarly for double precision real or complex data, one can instantiate an obje
 isce3::signal::Signal<double> sig;
 \endcode
 
-\subsection signalconstructmulti  Multi-threaded 
-For instantiating Signal to use the multi-threaded FFTW library, one can simply add the number of threads as follows: 
+\subsection signalconstructmulti  Multi-threaded
+For instantiating Signal to use the multi-threaded FFTW library, one can simply add the number of threads as follows:
 
 \code{.cpp}
 int numThreads = 8;
 isce3::signal::Signal<float> sig(numThreads);
 \endcode
 
-\section forward Forward FFT 
-For a forward transofrmation of a block of data, one needs to create the forward FFT plan which can be re-used many times for the actual transformation. To set up the FFT plans one need to have buffers defined for a block of data. For our applications we usually work on a two dimensional array of data. Given a block of data with number of lines of "length" and number of samples of "width" the required buffer can be defined as a std::valarray or as a raw pointer array:  
+\section forward Forward FFT
+For a forward transofrmation of a block of data, one needs to create the forward FFT plan which can be re-used many times for the actual transformation. To set up the FFT plans one need to have buffers defined for a block of data. For our applications we usually work on a two dimensional array of data. Given a block of data with number of lines of "length" and number of samples of "width" the required buffer can be defined as a std::valarray or as a raw pointer array:
 
 \code{.cpp}
 // reserve memory for a block of data
@@ -63,7 +63,7 @@ sig.forwardAzimuthFFT(data, spectrum, width, length);
 
 
 \subsection forward2d Forward 2D FFT
-Similarly to create forward 2D FFT plan one can call the  
+Similarly to create forward 2D FFT plan one can call the
 
 \code{.cpp}
 sig.forward2DFFT(data, spectrum, width, length);
@@ -110,7 +110,7 @@ sig.inverse(spectrum, data);
 \endcode
 
 \section normalization Un-normalized transformations
-Signal, follows FFTW3 convention and keeps the un-normalized FFT transformations as computed by FFTW3. This means that a forward FFT followed by an inverse FFT or vise versa results in the original signal scaled by length of fft. Depending on 1D transformation in range, azimuth or 2D transformation one may normalize the final results by dividing by length of FFT. 
+Signal, follows FFTW3 convention and keeps the un-normalized FFT transformations as computed by FFTW3. This means that a forward FFT followed by an inverse FFT or vise versa results in the original signal scaled by length of fft. Depending on 1D transformation in range, azimuth or 2D transformation one may normalize the final results by dividing by length of FFT.
 
 Assuming the data and spectrum blocks with a shape of (length x width) as introduced above, normalizing the results of forwrd and backward  FFT computations in range, azimuth or 2D the final results should be divided by width, length or (widthxlength) respectively.
 
@@ -163,7 +163,7 @@ int main() {
     // instantiate a signal object
     isce3::signal::Signal<double> sig;
 
-    //compute FFT length     
+    //compute FFT length
     sig.nextPowerOfTwo(width, nfft);
 
     // reserve memory for a block of data with the size of nfft
@@ -175,7 +175,7 @@ int main() {
     // buffer for data after inverse transformation
     std::valarray<std::complex<double>> dataInv(nfft);
 
-    // fill in the data 
+    // fill in the data
     for (size_t i=0; i<width; ++i){
         double phase = std::sin(10*M_PI*i/width);
         data[i] = std::complex<double> (std::cos(phase), std::sin(phase));
@@ -184,15 +184,15 @@ int main() {
     // create the forward and backward plans
     sig.forwardRangeFFT(data, spec, nfft, length);
     sig.inverseRangeFFT(spec, dataInv, nfft, length);
-    
+
     // forward transforming the data. Result will be in spec
     sig.forward(data, spec);
 
-    // backward transformation of spec. Result will be dataInv. 
+    // backward transformation of spec. Result will be dataInv.
     sig.inverse(spec, dataInv);
 
-    // normalize dataInv by length of fft. After this normalization, dataInv should be comparable with original data. 
-    dataInv /=nfft; 
+    // normalize dataInv by length of fft. After this normalization, dataInv should be comparable with original data.
+    dataInv /=nfft;
 
     return 0;
 }
@@ -201,7 +201,3 @@ int main() {
 For more examples see isce3::signal::Crossmul and also multiple unit tests in isce/tests/lib/isce/signal.
 
 */
-
-
-
-

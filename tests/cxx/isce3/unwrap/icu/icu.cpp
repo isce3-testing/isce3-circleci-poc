@@ -1,10 +1,12 @@
-#include <cmath> // cos, sin, sqrt, fmod
-#include <complex> // std::complex, std::arg
-#include <cstdint> // uint8_t
-#include <gtest/gtest.h> // TEST, ASSERT_EQ, ASSERT_TRUE, testing::InitGoogleTest, RUN_ALL_TESTS
+#include "isce3/unwrap/icu/ICU.h" // isce3::unwrap::icu::ICU
+
+#include <cmath>    // cos, sin, sqrt, fmod
+#include <complex>  // std::complex, std::arg
+#include <cstdint>  // uint8_t
 #include <valarray> // std::valarray, std::abs
 
-#include "isce3/unwrap/icu/ICU.h" // isce3::unwrap::icu::ICU
+#include <gtest/gtest.h> // TEST, ASSERT_EQ, ASSERT_TRUE, testing::InitGoogleTest, RUN_ALL_TESTS
+
 #include "isce3/io/Raster.h" // isce3::io::Raster
 
 TEST(ICU, GetSetters)
@@ -52,13 +54,13 @@ TEST(ICU, GetSetters)
 TEST(ICU, ResidueCalculation)
 {
     // (Example taken from Appendix B of Sean Buckley's Dissertation)
-    std::valarray<float> phase({ 0.0f, 0.3f, 0.4f, 0.1f, 
-                                 0.8f, 0.6f, 0.7f, 0.7f });
+    std::valarray<float> phase(
+            {0.0f, 0.3f, 0.4f, 0.1f, 0.8f, 0.6f, 0.7f, 0.7f});
     phase *= 2.f * M_PI;
 
     constexpr size_t l = 2;
     constexpr size_t w = 4;
-    std::valarray<signed char> charge(l*w), refcharge(l*w);
+    std::valarray<signed char> charge(l * w), refcharge(l * w);
     refcharge[0] = 1;
     refcharge[2] = -1;
 
@@ -75,15 +77,16 @@ TEST(ICU, PhaseGradNeutronCalculation)
 
     constexpr size_t l = 4;
     constexpr size_t w = 4;
-    std::valarray<std::complex<float>> intf(l*w);
-    std::valarray<bool> neut(l*w), refneut(l*w);
+    std::valarray<std::complex<float>> intf(l * w);
+    std::valarray<bool> neut(l * w), refneut(l * w);
 
     // Interferogram with phase slope = 2.9 rad/sample (below threshold)
     float dphi = 2.9f;
-    for (size_t i = 0; i < w; ++i)
-    {
-        std::complex<float> z{cosf(dphi * float(i)), sinf(dphi * float(i))};
-        for (size_t j = 0; j < l; ++j) { intf[j * w + i] = z; }
+    for (size_t i = 0; i < w; ++i) {
+        std::complex<float> z {cosf(dphi * float(i)), sinf(dphi * float(i))};
+        for (size_t j = 0; j < l; ++j) {
+            intf[j * w + i] = z;
+        }
     }
 
     icuobj.genNeutrons(&neut[0], &intf[0], nullptr, l, w);
@@ -91,10 +94,11 @@ TEST(ICU, PhaseGradNeutronCalculation)
 
     // Interferogram with phase slope = 3.1 rad/sample (above threshold)
     dphi = 3.1f;
-    for (size_t i = 0; i < w; ++i)
-    {
-        std::complex<float> z{cosf(dphi * float(i)), sinf(dphi * float(i))};
-        for (size_t j = 0; j < l; ++j) { intf[j * w + i] = z; }
+    for (size_t i = 0; i < w; ++i) {
+        std::complex<float> z {cosf(dphi * float(i)), sinf(dphi * float(i))};
+        for (size_t j = 0; j < l; ++j) {
+            intf[j * w + i] = z;
+        }
     }
     refneut[2 * w + 2] = true;
 
@@ -109,12 +113,12 @@ TEST(ICU, IntensityNeutronCalculation)
 
     constexpr size_t l = 64;
     constexpr size_t w = 128;
-    std::valarray<std::complex<float>> intf(l*w);
-    std::valarray<float> corr(0.9f, l*w);
-    std::valarray<bool> neut(l*w), refneut(l*w);
+    std::valarray<std::complex<float>> intf(l * w);
+    std::valarray<float> corr(0.9f, l * w);
+    std::valarray<bool> neut(l * w), refneut(l * w);
 
     // High intensity, high correlation (not neutron)
-    std::complex<float> z{sqrtf(5.f), sqrtf(5.f)};
+    std::complex<float> z {sqrtf(5.f), sqrtf(5.f)};
     intf[0] = z;
 
     // Low intensity, low correlation (not neutron)
@@ -137,28 +141,28 @@ TEST(ICU, TreeGrowing)
 
     constexpr size_t l = 100;
     constexpr size_t w = 100;
-    std::valarray<signed char> charge(l*w);
-    std::valarray<bool> neut(l*w), tree(l*w), reftree(l*w);
+    std::valarray<signed char> charge(l * w);
+    std::valarray<bool> neut(l * w), tree(l * w), reftree(l * w);
 
     // Load reference raster.
     isce3::io::Raster refRaster(TESTDATA_DIR "icu/tree");
     ASSERT_TRUE(refRaster.length() == l && refRaster.width() == w);
-    refRaster.getBlock(reinterpret_cast<uint8_t *>(&reftree[0]), 0, 0, w, l);
+    refRaster.getBlock(reinterpret_cast<uint8_t*>(&reftree[0]), 0, 0, w, l);
 
-    // One residue near each of the four edges that each discharge via a branch 
+    // One residue near each of the four edges that each discharge via a branch
     // cut to the nearest edge
-    charge[ 5 * w + 50] = 1;
+    charge[5 * w + 50] = 1;
     charge[95 * w + 50] = -1;
-    charge[50 * w +  5] = -1;
+    charge[50 * w + 5] = -1;
     charge[50 * w + 95] = 1;
 
-    // Two residues connected by a single branch cut which neutralize each other 
+    // Two residues connected by a single branch cut which neutralize each other
     // (twig should discharge before reaching neutron)
     charge[40 * w + 35] = 1;
     charge[50 * w + 35] = -1;
     neut[62 * w + 35] = true;
-    
-    // Two residues connected via neutrons (twig reaches max search radius 
+
+    // Two residues connected via neutrons (twig reaches max search radius
     // without discharging)
     charge[65 * w + 75] = 1;
     neut[65 * w + 65] = true;
@@ -179,30 +183,36 @@ TEST(ICU, RunICU)
     constexpr size_t w = 256;
 
     // Interferogram with simple vertical phase gradient
-    std::valarray<std::complex<float>> intf(l*w);
-    for (size_t j = 0; j < l; ++j)
-    {
+    std::valarray<std::complex<float>> intf(l * w);
+    for (size_t j = 0; j < l; ++j) {
         float y = float(j) / float(l) * 50.f;
-        std::complex<float> z{cosf(y), sinf(y)};
-        for (size_t i = 0; i < w; ++i) { intf[j * w + i] = z; }
+        std::complex<float> z {cosf(y), sinf(y)};
+        for (size_t i = 0; i < w; ++i) {
+            intf[j * w + i] = z;
+        }
     }
 
-    // Correlation (results in one tall connected component with "U" shape and 
+    // Correlation (results in one tall connected component with "U" shape and
     // a separate rectangular component)
-    std::valarray<float> corr(l*w);
-    for (size_t j = 100; j < 900; ++j)
-    {
-        for (size_t i = 50; i < 100; ++i) { corr[j * w + i] = 1.f; }
-        for (size_t i = 150; i < 200; ++i) { corr[j * w + i] = 1.f; }
+    std::valarray<float> corr(l * w);
+    for (size_t j = 100; j < 900; ++j) {
+        for (size_t i = 50; i < 100; ++i) {
+            corr[j * w + i] = 1.f;
+        }
+        for (size_t i = 150; i < 200; ++i) {
+            corr[j * w + i] = 1.f;
+        }
     }
-    for (size_t j = 900; j < 950; ++j)
-    {
-        for (size_t i = 50; i < 200; ++i) { corr[j * w + i] = 1.f; }
+    for (size_t j = 900; j < 950; ++j) {
+        for (size_t i = 50; i < 200; ++i) {
+            corr[j * w + i] = 1.f;
+        }
     }
 
-    for (size_t j = 1000; j < 1050; ++j)
-    {
-        for (size_t i = 50; i < 200; ++i) { corr[j * w + i] = 1.f; }
+    for (size_t j = 1000; j < 1050; ++j) {
+        for (size_t i = 50; i < 200; ++i) {
+            corr[j * w + i] = 1.f;
+        }
     }
 
     // Create interferogram, correlation rasters
@@ -229,31 +239,34 @@ TEST(ICU, CheckUnwrappedPhase)
     isce3::io::Raster intfRaster("./intf");
     const size_t l = intfRaster.length();
     const size_t w = intfRaster.width();
-    std::valarray<std::complex<float>> intf(l*w);
+    std::valarray<std::complex<float>> intf(l * w);
     intfRaster.getBlock(intf, 0, 0, w, l);
 
     // Get wrapped phase.
-    std::valarray<float> phase(l*w);
-    for (size_t i = 0; i < l*w; ++i) { phase[i] = std::arg(intf[i]); }
+    std::valarray<float> phase(l * w);
+    for (size_t i = 0; i < l * w; ++i) {
+        phase[i] = std::arg(intf[i]);
+    }
 
     // Read unwrapped phase from prior test.
     isce3::io::Raster unwRaster("./unw");
     ASSERT_TRUE(unwRaster.length() == l && unwRaster.width() == w);
-    std::valarray<float> unw(l*w);
+    std::valarray<float> unw(l * w);
     unwRaster.getBlock(unw, 0, 0, w, l);
 
     // Read connected component labels from prior test.
     isce3::io::Raster cclRaster("./ccl");
     ASSERT_TRUE(cclRaster.length() == l && cclRaster.width() == w);
-    std::valarray<uint8_t> ccl(l*w);
+    std::valarray<uint8_t> ccl(l * w);
     cclRaster.getBlock(ccl, 0, 0, w, l);
 
-    // Check sine distance between unwrapped and wrapped phase within connected 
+    // Check sine distance between unwrapped and wrapped phase within connected
     // component(s).
-    std::valarray<float> sindist(l*w);
-    for (size_t i = 0; i < l*w; ++i) 
-    { 
-        if (ccl[i] != 0) { sindist[i] = std::abs(sin(unw[i] - phase[i])); }
+    std::valarray<float> sindist(l * w);
+    for (size_t i = 0; i < l * w; ++i) {
+        if (ccl[i] != 0) {
+            sindist[i] = std::abs(sin(unw[i] - phase[i]));
+        }
     }
     ASSERT_TRUE(sindist.max() < 1e-5);
 }
@@ -264,36 +277,40 @@ TEST(ICU, CheckConnCompLabels)
     constexpr size_t w = 256;
 
     // Get reference labels.
-    std::valarray<uint8_t> refccl(l*w);
-    for (size_t j = 100; j < 900; ++j)
-    {
-        for (size_t i = 50; i < 100; ++i) { refccl[j * w + i] = 1; }
-        for (size_t i = 150; i < 200; ++i) { refccl[j * w + i] = 1; }
+    std::valarray<uint8_t> refccl(l * w);
+    for (size_t j = 100; j < 900; ++j) {
+        for (size_t i = 50; i < 100; ++i) {
+            refccl[j * w + i] = 1;
+        }
+        for (size_t i = 150; i < 200; ++i) {
+            refccl[j * w + i] = 1;
+        }
     }
-    for (size_t j = 900; j < 950; ++j)
-    {
-        for (size_t i = 50; i < 200; ++i) { refccl[j * w + i] = 1; }
+    for (size_t j = 900; j < 950; ++j) {
+        for (size_t i = 50; i < 200; ++i) {
+            refccl[j * w + i] = 1;
+        }
     }
 
-    // (Note: connected component with label "2" gets merged with component "1" 
+    // (Note: connected component with label "2" gets merged with component "1"
     // during the labelling process.)
-    for (size_t j = 1000; j < 1050; ++j)
-    {
-        for (size_t i = 50; i < 200; ++i) { refccl[j * w + i] = 3; }
+    for (size_t j = 1000; j < 1050; ++j) {
+        for (size_t i = 50; i < 200; ++i) {
+            refccl[j * w + i] = 3;
+        }
     }
 
     // Read connected component labels from prior test.
     isce3::io::Raster cclRaster("./ccl");
     ASSERT_TRUE(cclRaster.length() == l && cclRaster.width() == w);
-    std::valarray<uint8_t> ccl(l*w);
+    std::valarray<uint8_t> ccl(l * w);
     cclRaster.getBlock(ccl, 0, 0, w, l);
 
     ASSERT_TRUE((ccl == refccl).min());
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
-

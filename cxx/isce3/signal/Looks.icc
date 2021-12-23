@@ -62,4 +62,3 @@ ncolsLooked(int numberOfColumns)
 {
     _ncolsLooked = numberOfColumns;
 }
-

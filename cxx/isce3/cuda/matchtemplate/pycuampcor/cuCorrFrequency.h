@@ -8,29 +8,30 @@
 #define __CUCORRFREQUENCY_H
 
 // dependencies
-#include "cudaUtil.h"
 #include "cuArrays.h"
+#include "cudaUtil.h"
 
-class cuFreqCorrelator
-{
+class cuFreqCorrelator {
 private:
     // handles for forward/backward fft
     cufftHandle forwardPlan;
     cufftHandle backwardPlan;
     // work data
-    cuArrays<float2> *workFM;
-    cuArrays<float2> *workFS;
-    cuArrays<float> *workT;
+    cuArrays<float2>* workFM;
+    cuArrays<float2>* workFS;
+    cuArrays<float>* workT;
     // cuda stream
     cudaStream_t stream;
 
 public:
     // constructor
-    cuFreqCorrelator(int imageNX, int imageNY, int nImages, cudaStream_t stream_);
+    cuFreqCorrelator(
+            int imageNX, int imageNY, int nImages, cudaStream_t stream_);
     // destructor
     ~cuFreqCorrelator();
     // executor
-    void execute(cuArrays<float> *templates, cuArrays<float> *images, cuArrays<float> *results);
+    void execute(cuArrays<float>* templates, cuArrays<float>* images,
+            cuArrays<float>* results);
 };
 
 #endif //__CUCORRFREQUENCY_H

@@ -42,7 +42,7 @@ void Baseline::initBasis(double t)
     _vhat = _chat.cross(_rhat).normalized();
 }
 
-Vec3 Baseline::calculateBasisOffset(const Vec3 &position) const
+Vec3 Baseline::calculateBasisOffset(const Vec3& position) const
 {
     const Vec3 dx = position - _refxyz;
     return {dx.dot(_vhat), dx.dot(_rhat), dx.dot(_chat)};
@@ -55,9 +55,9 @@ void Baseline::computeBaselines()
 
     // Start with sensing mid of orbit 2
     t = _orbit2.midTime();
-    for (int iter=0; iter<2; ++iter) {
+    for (int iter = 0; iter < 2; ++iter) {
 
-        //Interpolate orbit to azimuth time
+        // Interpolate orbit to azimuth time
         _orbit2.interpolate(&xyz2, &vel2, t, OrbitInterpBorderMode::FillNaN);
 
         // Compute adjustment to slave time
@@ -87,8 +87,9 @@ void Baseline::calculateLookVector(double t)
     double Ra = ptm.radcur;
     double height = llh[2];
     double R0 = _radar.rangeFirstSample;
-    _coslook = (height * ((2. * Ra) + height) + (R0 * R0)) / (2. * R0 * (Ra + height));
+    _coslook = (height * ((2. * Ra) + height) + (R0 * R0)) /
+               (2. * R0 * (Ra + height));
     _sinlook = sqrt(1. - (_coslook * _coslook));
 }
 
-}}
+}} // namespace isce3::core

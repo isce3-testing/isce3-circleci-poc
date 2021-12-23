@@ -1,5 +1,6 @@
-import iscetest
 import pathlib
+
+import iscetest
 import pybind_isce3 as isce
 
 slc = str(pathlib.Path(iscetest.data) / "envisat.h5")
@@ -7,6 +8,7 @@ slc = str(pathlib.Path(iscetest.data) / "envisat.h5")
 
 def load_orbit():
     import h5py
+
     with h5py.File(slc, "r") as h5:
         g = h5["/science/LSAR/SLC/metadata/orbit"]
         orbit = isce.core.Orbit.load_from_h5(g)

@@ -25,7 +25,8 @@ using slc_t = pyre::grid::simple_t<2, std::complex<float>>;
 using correlator_t = ampcor::cuda::correlators::sequential_t<slc_t>;
 
 // driver
-int main() {
+int main()
+{
     // make a channel
     pyre::journal::debug_t channel("ampcor.cuda");
     // make a timer
@@ -34,17 +35,16 @@ int main() {
     pyre::journal::debug_t tlog("ampcor.cuda.tlog");
 
     // sign in
-    channel
-        << pyre::journal::at(__HERE__)
-        << "test: sanity check for the cuda ampcor task manager"
-        << pyre::journal::endl;
+    channel << pyre::journal::at(__HERE__)
+            << "test: sanity check for the cuda ampcor task manager"
+            << pyre::journal::endl;
 
     // the number of pairs
     correlator_t::size_type pairs = 1;
     // the reference shape
-    correlator_t::shape_type refShape = { 128, 128};
+    correlator_t::shape_type refShape = {128, 128};
     // the search window shape
-    correlator_t::shape_type tgtShape = { 192, 192 };
+    correlator_t::shape_type tgtShape = {192, 192};
 
     // start the clock
     timer.reset().start();
@@ -55,10 +55,9 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "instantiating the manager: " << 1e6 * timer.read() << " μs"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "instantiating the manager: " << 1e6 * timer.read() << " μs"
+         << pyre::journal::endl;
 
     // all done
     return 0;

@@ -2,7 +2,7 @@
 
 \tableofcontents
 
-\section gitstructure Source folder structure 
+\section gitstructure Source folder structure
 
 The directory structure of the ISCE git repository is as shown below.
 The repository might contain other hidden folder like ".cmake", ".mm", ".ci" etc
@@ -37,7 +37,7 @@ that contain configuration files for different build and CI systems.
 │   ├── pybind11
 │   └── pyre
 ├── python                      (Python bindings for ISCE)
-│   ├── CMakeLists.txt              
+│   ├── CMakeLists.txt
 │   ├── extensions                  - C++ extensions using pybind11
 │   └── packages                    - Pure python packages
 └── tests                       (Unit tests)
@@ -54,12 +54,12 @@ that contain configuration files for different build and CI systems.
 \section installstructure Installation folder structure
 
 ISCE tries to follow the same directory structure as used by other open source projects like GDAL, FFTW etc.
-Shown below are the contents of the sub-folders populated by ISCE below the installation folder. 
+Shown below are the contents of the sub-folders populated by ISCE below the installation folder.
 
 \verbatim
 
 .
-├── bin                         (Executables) 
+├── bin                         (Executables)
 │   ├── merlin
 │   ├── pyre
 │   ├── pyre-config

@@ -3,11 +3,11 @@
 #include <iostream>
 #include <memory>
 
+#include <isce3/except/Error.h>
+
 #include "Constants.h"
 #include "Ellipsoid.h"
 #include "Vector.h"
-
-#include <isce3/except/Error.h>
 
 namespace isce3 { namespace core {
 
@@ -69,8 +69,8 @@ public:
         Vec3 xyz;
         const int ret = forward(llh, xyz);
         if (ret != 0) {
-            throw isce3::except::RuntimeError(ISCE_SRCINFO(),
-                    "Forward projection transformation failed");
+            throw isce3::except::RuntimeError(
+                    ISCE_SRCINFO(), "Forward projection transformation failed");
         }
         return xyz;
     }
@@ -96,8 +96,8 @@ public:
         Vec3 llh;
         const int ret = inverse(xyz, llh);
         if (ret != 0) {
-            throw isce3::except::RuntimeError(ISCE_SRCINFO(),
-                    "Inverse projection transformation failed");
+            throw isce3::except::RuntimeError(
+                    ISCE_SRCINFO(), "Inverse projection transformation failed");
         }
         return llh;
     }
@@ -266,6 +266,6 @@ inline std::unique_ptr<ProjectionBase> makeProjection(int epsg)
 
 // This is to transform a point from one coordinate system to another
 int projTransform(ProjectionBase* in, ProjectionBase* out, const Vec3& inpts,
-                  Vec3& outpts);
+        Vec3& outpts);
 
 }} // namespace isce3::core

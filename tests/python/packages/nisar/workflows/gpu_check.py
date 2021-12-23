@@ -1,7 +1,6 @@
 import os
 
 import numpy.testing as npt
-
 import pybind_isce3 as isce3
 from nisar.workflows import gpu_check
 

@@ -270,15 +270,13 @@ public:
      * @param[in]  dem_interp_method   DEM interpolation method
      */
     template<class T_out>
-    void geocodeAreaProj(
-            const isce3::product::RadarGridParameters& radar_grid,
+    void geocodeAreaProj(const isce3::product::RadarGridParameters& radar_grid,
             isce3::io::Raster& input_raster, isce3::io::Raster& output_raster,
-            isce3::io::Raster& dem_raster,
-            double geogrid_upsampling = 1,
-            bool flag_upsample_radar_grid = false,
-            bool flag_apply_rtc = false,
-            isce3::geometry::rtcInputTerrainRadiometry input_terrain_radiometry =
-                    isce3::geometry::rtcInputTerrainRadiometry::BETA_NAUGHT,
+            isce3::io::Raster& dem_raster, double geogrid_upsampling = 1,
+            bool flag_upsample_radar_grid = false, bool flag_apply_rtc = false,
+            isce3::geometry::rtcInputTerrainRadiometry
+                    input_terrain_radiometry = isce3::geometry::
+                            rtcInputTerrainRadiometry::BETA_NAUGHT,
             isce3::geometry::rtcOutputTerrainRadiometry
                     output_terrain_radiometry = isce3::geometry::
                             rtcOutputTerrainRadiometry::GAMMA_NAUGHT,
@@ -319,20 +317,20 @@ public:
      * @param[in]  epsgcode            Output geographic grid EPSG
      */
     void geoGrid(double geoGridStartX, double geoGridStartY,
-                 double geoGridSpacingX, double geoGridSpacingY, int width,
-                 int length, int epsgcode);
+            double geoGridSpacingX, double geoGridSpacingY, int width,
+            int length, int epsgcode);
 
     /** Update the output geogrid with radar grid and DEM attributes
      * @param[in]  radar_grid          Radar grid
      * @param[in]  dem_raster          Input DEM raster
      */
     void updateGeoGrid(const isce3::product::RadarGridParameters& radar_grid,
-                       isce3::io::Raster& dem_raster);
+            isce3::io::Raster& dem_raster);
 
     // Get/set data interpolator
-    isce3::core::dataInterpMethod dataInterpolator() const 
-    { 
-            return _data_interp_method; 
+    isce3::core::dataInterpMethod dataInterpolator() const
+    {
+        return _data_interp_method;
     }
 
     void dataInterpolator(isce3::core::dataInterpMethod method)
@@ -473,9 +471,9 @@ private:
             geocodeMemoryMode geocode_memory_mode, pyre::journal::info_t& info);
 
     void _loadDEM(isce3::io::Raster& demRaster,
-                  isce3::geometry::DEMInterpolator& demInterp,
-                  isce3::core::ProjectionBase* _proj, int lineStart,
-                  int blockLength, int blockWidth, double demMargin);
+            isce3::geometry::DEMInterpolator& demInterp,
+            isce3::core::ProjectionBase* _proj, int lineStart, int blockLength,
+            int blockWidth, double demMargin);
 
     std::string _get_nbytes_str(long nbytes);
 
@@ -604,7 +602,6 @@ private:
 };
 
 }} // namespace isce3::geocode
-
 
 // Get inline implementations for Geocode
 #define ISCE_GEOMETRY_GEOCODE_ICC

@@ -6,13 +6,14 @@
 //
 
 #include <cmath>
-#include <cstdio>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 #include <complex>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <vector>
+
 #include "gtest/gtest.h"
 
 // isce3::core
@@ -20,10 +21,11 @@
 #include "isce3/core/Interpolator.h"
 using isce3::core::Matrix;
 
-void loadInterpData(Matrix<double> &);
+void loadInterpData(Matrix<double>&);
 
 // Function to return a Python style arange vector
-std::vector<double> arange(double low, double high, double increment) {
+std::vector<double> arange(double low, double high, double increment)
+{
     // Instantiate the vector
     std::vector<double> data;
     // Set the first value
@@ -57,55 +59,57 @@ struct InterpolatorTest : public ::testing::Test {
 
     double start, delta;
 
-    protected:
-        // Constructor
-        InterpolatorTest() {
+protected:
+    // Constructor
+    InterpolatorTest()
+    {
 
-            // Create indices
-            xindex = arange(-5.01, 5.01, 0.25);
-            yindex = arange(-5.01, 5.01, 0.25);
-            size_t nx = xindex.size();
-            size_t ny = yindex.size();
+        // Create indices
+        xindex = arange(-5.01, 5.01, 0.25);
+        yindex = arange(-5.01, 5.01, 0.25);
+        size_t nx = xindex.size();
+        size_t ny = yindex.size();
 
-            // Allocate the matrices
-            M.resize(ny, nx);
-            M_cpx.resize(ny, nx);
-            // Also allocate the vectors
-            M_vec.resize(ny * nx);
-            M_vec_cpx.resize(ny * nx);
+        // Allocate the matrices
+        M.resize(ny, nx);
+        M_cpx.resize(ny, nx);
+        // Also allocate the vectors
+        M_vec.resize(ny * nx);
+        M_vec_cpx.resize(ny * nx);
 
-            // Fill matrix values with function z = sin(x**2 + y**2)
-            for (size_t i = 0; i < ny; ++i) {
-                for (size_t j = 0; j < nx; ++j) {
-                    M(i,j) = std::sin(yindex[i]*yindex[i] + xindex[j]*xindex[j]);
-                    M_vec[i*nx + j] = M(i,j);
-                    M_cpx(i,j) = std::complex<double>(
-                        M(i,j),
-                        std::cos(yindex[i]*yindex[i] + xindex[j]*xindex[j])
-                    );
-                    M_vec_cpx[i*nx + j] = M_cpx(i,j);
-                }
+        // Fill matrix values with function z = sin(x**2 + y**2)
+        for (size_t i = 0; i < ny; ++i) {
+            for (size_t j = 0; j < nx; ++j) {
+                M(i, j) =
+                        std::sin(yindex[i] * yindex[i] + xindex[j] * xindex[j]);
+                M_vec[i * nx + j] = M(i, j);
+                M_cpx(i, j) = std::complex<double>(M(i, j),
+                        std::cos(
+                                yindex[i] * yindex[i] + xindex[j] * xindex[j]));
+                M_vec_cpx[i * nx + j] = M_cpx(i, j);
             }
-
-            // Read the truth data
-            loadInterpData(true_values);
-
-            // Starting coordinate and spacing of data
-            start = -5.01;
-            delta = 0.25;
         }
+
+        // Read the truth data
+        loadInterpData(true_values);
+
+        // Starting coordinate and spacing of data
+        start = -5.01;
+        delta = 0.25;
+    }
 };
 
 // Test nearest neighbor interpolation
-TEST_F(InterpolatorTest, Nearest) {
+TEST_F(InterpolatorTest, Nearest)
+{
     size_t N_pts = true_values.length();
     // Create interpolator
     isce3::core::NearestNeighborInterpolator<double> interp;
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
         // Perform interpolation
         const double z = interp.interpolate(x, y, M);
         // Manually get nearest neighbor
@@ -118,7 +122,8 @@ TEST_F(InterpolatorTest, Nearest) {
 }
 
 // Test bilinear interpolation
-TEST_F(InterpolatorTest, Bilinear) {
+TEST_F(InterpolatorTest, Bilinear)
+{
     size_t N_pts = true_values.length();
     double error = 0.0;
     // Create interpolator
@@ -126,22 +131,23 @@ TEST_F(InterpolatorTest, Bilinear) {
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
-        const double zref = true_values(i,2);
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
+        const double zref = true_values(i, 2);
         // Perform interpolation
         double z = interp.interpolate(x, y, M);
         // Check
         ASSERT_NEAR(z, zref, 1.0e-8);
         // Accumulate error
-        error += std::pow(z - true_values(i,5), 2);
+        error += std::pow(z - true_values(i, 5), 2);
     }
     ASSERT_TRUE((error / N_pts) < 0.07);
 }
 
 // Test bicubic interpolation
 // Simply test final sum of square errors
-TEST_F(InterpolatorTest, Bicubic) {
+TEST_F(InterpolatorTest, Bicubic)
+{
     size_t N_pts = true_values.length();
     double error = 0.0;
     // Create interpolator
@@ -149,9 +155,9 @@ TEST_F(InterpolatorTest, Bicubic) {
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
-        const double zref = true_values(i,5);
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
+        const double zref = true_values(i, 5);
         // Avoid out of bounds accesses
         if (x < 1 or y < 1) {
             continue;
@@ -168,7 +174,8 @@ TEST_F(InterpolatorTest, Bicubic) {
 }
 
 // Test biquintic spline interpolation
-TEST_F(InterpolatorTest, Biquintic) {
+TEST_F(InterpolatorTest, Biquintic)
+{
     size_t N_pts = true_values.length();
     double error = 0.0;
     // Create interpolator
@@ -176,9 +183,9 @@ TEST_F(InterpolatorTest, Biquintic) {
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
-        const double zref = true_values(i,5);
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
+        const double zref = true_values(i, 5);
         // Perform interpolation
         double z = interp.interpolate(x, y, M);
         // Accumulate error
@@ -188,7 +195,8 @@ TEST_F(InterpolatorTest, Biquintic) {
 }
 
 // Test biquintic spline interpolation
-TEST_F(InterpolatorTest, BiquinticVector) {
+TEST_F(InterpolatorTest, BiquinticVector)
+{
     size_t N_pts = true_values.length();
     double error = 0.0;
     // Create interpolator
@@ -196,9 +204,9 @@ TEST_F(InterpolatorTest, BiquinticVector) {
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
-        const double zref = true_values(i,5);
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
+        const double zref = true_values(i, 5);
         // Perform interpolation
         double z = interp.interpolate(x, y, M_vec, M.width());
         // Accumulate error
@@ -208,22 +216,23 @@ TEST_F(InterpolatorTest, BiquinticVector) {
 }
 
 // Test sinc interpolation
-TEST_F(InterpolatorTest, Sinc2d) {
+TEST_F(InterpolatorTest, Sinc2d)
+{
     double error = 0.0;
     size_t N_pts = 0;
     // Create interpolator (exercise flexible interpolator creation)
-    isce3::core::Interpolator<double> * interp = isce3::core::createInterpolator<double>(
-        isce3::core::SINC_METHOD, 0, 8, 8192
-    );
+    isce3::core::Interpolator<double>* interp =
+            isce3::core::createInterpolator<double>(
+                    isce3::core::SINC_METHOD, 0, 8, 8192);
     // Loop over test points
     for (size_t i = 0; i < true_values.length(); ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
         // Skip for invalid sinc windows
-        if ((x < 3) || (y < 3) || (x > M.width() -5 ) || (y > M.length() - 5))
+        if ((x < 3) || (y < 3) || (x > M.width() - 5) || (y > M.length() - 5))
             continue;
-        const double zref = true_values(i,5);
+        const double zref = true_values(i, 5);
         // Perform interpolation
         const double z = interp->interpolate(x, y, M);
         // Accumulate error
@@ -236,15 +245,16 @@ TEST_F(InterpolatorTest, Sinc2d) {
 }
 
 // Test nearest neighbor interpolation
-TEST_F(InterpolatorTest, NearestComplex) {
+TEST_F(InterpolatorTest, NearestComplex)
+{
     size_t N_pts = true_values.length();
     // Create interpolator
     isce3::core::NearestNeighborInterpolator<std::complex<double>> interp;
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
         // Perform interpolation
         const std::complex<double> z = interp.interpolate(x, y, M_cpx);
         // Manually get nearest neighbor
@@ -258,7 +268,8 @@ TEST_F(InterpolatorTest, NearestComplex) {
 }
 
 // Test bilinear interpolation
-TEST_F(InterpolatorTest, BilinearComplex) {
+TEST_F(InterpolatorTest, BilinearComplex)
+{
     size_t N_pts = true_values.length();
     double real_error = 0.0;
     double imag_error = 0.0;
@@ -267,26 +278,28 @@ TEST_F(InterpolatorTest, BilinearComplex) {
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
         // Perform interpolation
         const std::complex<double> z = interp.interpolate(x, y, M_cpx);
         // Compute reference
         const std::complex<double> zref = std::complex<double>(
-            std::sin(true_values(i,0)*true_values(i,0) + true_values(i,1)*true_values(i,1)),
-            std::cos(true_values(i,0)*true_values(i,0) + true_values(i,1)*true_values(i,1))
-        );
+                std::sin(true_values(i, 0) * true_values(i, 0) +
+                         true_values(i, 1) * true_values(i, 1)),
+                std::cos(true_values(i, 0) * true_values(i, 0) +
+                         true_values(i, 1) * true_values(i, 1)));
         // Accumulate error
         real_error += std::pow(z.real() - zref.real(), 2);
         imag_error += std::pow(z.imag() - zref.imag(), 2);
     }
-    ASSERT_TRUE((real_error / N_pts) < 0.07);    
+    ASSERT_TRUE((real_error / N_pts) < 0.07);
     ASSERT_TRUE((imag_error / N_pts) < 0.07);
 }
 
 // Test bicubic interpolation
 // Simply test final sum of square errors
-TEST_F(InterpolatorTest, BicubicComplex) {
+TEST_F(InterpolatorTest, BicubicComplex)
+{
     size_t N_pts = true_values.length();
     double real_error = 0.0;
     double imag_error = 0.0;
@@ -295,8 +308,8 @@ TEST_F(InterpolatorTest, BicubicComplex) {
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
         // Avoid out of bounds accesses
         if (x < 1 or y < 1) {
             continue;
@@ -308,9 +321,10 @@ TEST_F(InterpolatorTest, BicubicComplex) {
         const std::complex<double> z = interp.interpolate(x, y, M_cpx);
         // Compute reference
         const std::complex<double> zref = std::complex<double>(
-            std::sin(true_values(i,0)*true_values(i,0) + true_values(i,1)*true_values(i,1)),
-            std::cos(true_values(i,0)*true_values(i,0) + true_values(i,1)*true_values(i,1))
-        );
+                std::sin(true_values(i, 0) * true_values(i, 0) +
+                         true_values(i, 1) * true_values(i, 1)),
+                std::cos(true_values(i, 0) * true_values(i, 0) +
+                         true_values(i, 1) * true_values(i, 1)));
         // Accumulate error
         real_error += std::pow(z.real() - zref.real(), 2);
         imag_error += std::pow(z.imag() - zref.imag(), 2);
@@ -320,7 +334,8 @@ TEST_F(InterpolatorTest, BicubicComplex) {
 }
 
 // Test biquintic spline interpolation
-TEST_F(InterpolatorTest, BiquinticComplex) {
+TEST_F(InterpolatorTest, BiquinticComplex)
+{
     size_t N_pts = true_values.length();
     double real_error = 0.0;
     double imag_error = 0.0;
@@ -329,15 +344,16 @@ TEST_F(InterpolatorTest, BiquinticComplex) {
     // Loop over test points
     for (size_t i = 0; i < N_pts; ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
         // Perform interpolation
         const std::complex<double> z = interp.interpolate(x, y, M_cpx);
         // Compute reference
         const std::complex<double> zref = std::complex<double>(
-            std::sin(true_values(i,0)*true_values(i,0) + true_values(i,1)*true_values(i,1)),
-            std::cos(true_values(i,0)*true_values(i,0) + true_values(i,1)*true_values(i,1))
-        );
+                std::sin(true_values(i, 0) * true_values(i, 0) +
+                         true_values(i, 1) * true_values(i, 1)),
+                std::cos(true_values(i, 0) * true_values(i, 0) +
+                         true_values(i, 1) * true_values(i, 1)));
         // Accumulate error
         real_error += std::pow(z.real() - zref.real(), 2);
         imag_error += std::pow(z.imag() - zref.imag(), 2);
@@ -346,32 +362,32 @@ TEST_F(InterpolatorTest, BiquinticComplex) {
     ASSERT_TRUE((imag_error / N_pts) < 0.058);
 }
 
-
 // Test sinc interpolation
-TEST_F(InterpolatorTest, Sinc2dComplex) {
+TEST_F(InterpolatorTest, Sinc2dComplex)
+{
     double real_error = 0.0;
     double imag_error = 0.0;
     size_t N_pts = 0;
     // Create interpolator (exercise flexible interpolator creation)
-    isce3::core::Interpolator<std::complex<double>> * interp = 
-        isce3::core::createInterpolator<std::complex<double>>(
-            isce3::core::SINC_METHOD, 0, 8, 8192
-        );
+    isce3::core::Interpolator<std::complex<double>>* interp =
+            isce3::core::createInterpolator<std::complex<double>>(
+                    isce3::core::SINC_METHOD, 0, 8, 8192);
     // Loop over test points
     for (size_t i = 0; i < true_values.length(); ++i) {
         // Unpack location to interpolate
-        const double x = (true_values(i,0) - start) / delta;
-        const double y = (true_values(i,1) - start) / delta;
+        const double x = (true_values(i, 0) - start) / delta;
+        const double y = (true_values(i, 1) - start) / delta;
         // Skip for invalid sinc windows
-        if ((x < 3) || (y < 3) || (x > M.width() -5 ) || (y > M.length() - 5))
+        if ((x < 3) || (y < 3) || (x > M.width() - 5) || (y > M.length() - 5))
             continue;
         // Perform interpolation
         const std::complex<double> z = interp->interpolate(x, y, M_cpx);
         // Compute reference
         const std::complex<double> zref = std::complex<double>(
-            std::sin(true_values(i,0)*true_values(i,0) + true_values(i,1)*true_values(i,1)),
-            std::cos(true_values(i,0)*true_values(i,0) + true_values(i,1)*true_values(i,1))
-        );
+                std::sin(true_values(i, 0) * true_values(i, 0) +
+                         true_values(i, 1) * true_values(i, 1)),
+                std::cos(true_values(i, 0) * true_values(i, 0) +
+                         true_values(i, 1) * true_values(i, 1)));
         // Accumulate error
         real_error += std::pow(z.real() - zref.real(), 2);
         imag_error += std::pow(z.imag() - zref.imag(), 2);
@@ -383,12 +399,13 @@ TEST_F(InterpolatorTest, Sinc2dComplex) {
     delete interp;
 }
 
-TEST_F(InterpolatorTest, SimpleRampTest) {
+TEST_F(InterpolatorTest, SimpleRampTest)
+{
 
-    // This test creates a matrix of data whose values form a 
-    // linear ramp in x direction (Values are x indices). 
-    // For a given interpolation point x,y the interpolated value is compared aginst x.
-    // bilinear, bicubic and biquintic methods are tested.
+    // This test creates a matrix of data whose values form a
+    // linear ramp in x direction (Values are x indices).
+    // For a given interpolation point x,y the interpolated value is compared
+    // aginst x. bilinear, bicubic and biquintic methods are tested.
 
     size_t length = 100;
     size_t width = 100;
@@ -401,17 +418,19 @@ TEST_F(InterpolatorTest, SimpleRampTest) {
         }
     }
 
-    double err = 0.0; //interp_val - x;
-      
+    double err = 0.0; // interp_val - x;
+
     isce3::core::dataInterpMethod method = isce3::core::BILINEAR_METHOD;
-    isce3::core::Interpolator<double> * interp = nullptr;
+    isce3::core::Interpolator<double>* interp = nullptr;
     interp = isce3::core::createInterpolator<double>(method);
 
-    isce3::core::Interpolator<double> * interp2 = nullptr;
-    interp2 = isce3::core::createInterpolator<double>(isce3::core::BICUBIC_METHOD);
+    isce3::core::Interpolator<double>* interp2 = nullptr;
+    interp2 = isce3::core::createInterpolator<double>(
+            isce3::core::BICUBIC_METHOD);
 
-    isce3::core::Interpolator<double> * interp3 = nullptr;
-    interp3 = isce3::core::createInterpolator<double>(isce3::core::BIQUINTIC_METHOD);
+    isce3::core::Interpolator<double>* interp3 = nullptr;
+    interp3 = isce3::core::createInterpolator<double>(
+            isce3::core::BIQUINTIC_METHOD);
 
     double y = 40.0;
     double x = 30.0;
@@ -419,12 +438,12 @@ TEST_F(InterpolatorTest, SimpleRampTest) {
     double maxErr = 0.0;
     double maxErr2 = 0.0;
     double maxErr3 = 0.0;
-    while(x<35){
+    while (x < 35) {
 
         x += 0.1;
         p = interp->interpolate(x, y, M);
         err = p - x;
-        
+
         if (std::abs(err) > maxErr)
             maxErr = std::abs(err);
 
@@ -455,30 +474,34 @@ TEST_F(InterpolatorTest, SimpleRampTest) {
     delete interp3;
 }
 
-
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
 
-void loadInterpData(Matrix<double> & M) {
+void loadInterpData(Matrix<double>& M)
+{
     /*
     Load ground truth interpolation data. The test data is the function:
 
     z = sqrt(x^2 + y^2)
 
     The columns of the data are:
-    x_index    y_index    bilinear_interp    bicubic_interp    5thorder_spline    truth
+    x_index    y_index    bilinear_interp    bicubic_interp    5thorder_spline
+    truth
     */
 
     // Open file for reading
     std::ifstream fid(TESTDATA_DIR "interpolator/data.txt");
     // Check if file open was successful
     if (fid.fail()) {
-        std::cout << "Error: Failed to open data file for interpolator test." << std::endl;
+        std::cout << "Error: Failed to open data file for interpolator test."
+                  << std::endl;
     }
 
-    std::vector<double> xvec, yvec, zlinear_vec, zcubic_vec, zquintic_vec, ztrue_vec;
+    std::vector<double> xvec, yvec, zlinear_vec, zcubic_vec, zquintic_vec,
+            ztrue_vec;
 
     // Loop over interpolation data
     while (fid) {
@@ -510,12 +533,12 @@ void loadInterpData(Matrix<double> & M) {
     const size_t N = xvec.size();
     M.resize(N, 6);
     for (size_t i = 0; i < N; ++i) {
-        M(i,0) = xvec[i];
-        M(i,1) = yvec[i];
-        M(i,2) = zlinear_vec[i];
-        M(i,3) = zcubic_vec[i];
-        M(i,4) = zquintic_vec[i];
-        M(i,5) = ztrue_vec[i];
+        M(i, 0) = xvec[i];
+        M(i, 1) = yvec[i];
+        M(i, 2) = zlinear_vec[i];
+        M(i, 3) = zcubic_vec[i];
+        M(i, 4) = zquintic_vec[i];
+        M(i, 5) = ztrue_vec[i];
     }
 }
 

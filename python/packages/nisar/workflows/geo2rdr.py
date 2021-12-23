@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-'''
+"""
 Wrapper for geo2rdr
-'''
+"""
 
 import pathlib
 import time
 
-import journal
 import isce3
+import journal
 from nisar.products.readers import SLC
 from nisar.workflows import gpu_check, runconfig
 from nisar.workflows.geo2rdr_runconfig import Geo2rdrRunConfig
@@ -16,18 +16,18 @@ from nisar.workflows.yaml_argparse import YamlArgparse
 
 
 def run(cfg):
-    '''
+    """
     run geo2rdr
-    '''
+    """
 
     # Pull parameters from cfg dict
-    sec_hdf5 = cfg['InputFileGroup']['SecondaryFilePath']
-    dem_file = cfg['DynamicAncillaryFileGroup']['DEMFile']
-    scratch_path = pathlib.Path(cfg['ProductPathGroup']['ScratchPath'])
-    freq_pols = cfg['processing']['input_subset']['list_of_frequencies']
-    threshold = cfg['processing']['geo2rdr']['threshold']
-    numiter = cfg['processing']['geo2rdr']['maxiter']
-    lines_per_block = cfg['processing']['geo2rdr']['lines_per_block']
+    sec_hdf5 = cfg["InputFileGroup"]["SecondaryFilePath"]
+    dem_file = cfg["DynamicAncillaryFileGroup"]["DEMFile"]
+    scratch_path = pathlib.Path(cfg["ProductPathGroup"]["ScratchPath"])
+    freq_pols = cfg["processing"]["input_subset"]["list_of_frequencies"]
+    threshold = cfg["processing"]["geo2rdr"]["threshold"]
+    numiter = cfg["processing"]["geo2rdr"]["maxiter"]
+    lines_per_block = cfg["processing"]["geo2rdr"]["lines_per_block"]
 
     # Get parameters from SLC
     slc = SLC(hdf5file=sec_hdf5)
@@ -42,16 +42,15 @@ def run(cfg):
     # NISAR RSLC products are always zero doppler
     doppler_grid = isce3.core.LUT2d()
 
-    info_channel = journal.info('geo2rdr.run')
+    info_channel = journal.info("geo2rdr.run")
     info_channel.log("starting geo2rdr")
 
     # check if gpu use if required
-    use_gpu = gpu_check.use_gpu(cfg['worker']['gpu_enabled'],
-                                cfg['worker']['gpu_id'])
+    use_gpu = gpu_check.use_gpu(cfg["worker"]["gpu_enabled"], cfg["worker"]["gpu_id"])
 
     if use_gpu:
         # set CUDA device
-        device = isce3.cuda.core.Device(cfg['worker']['gpu_id'])
+        device = isce3.cuda.core.Device(cfg["worker"]["gpu_id"])
         isce3.cuda.core.set_device(device)
 
     t_all = time.time()
@@ -62,7 +61,7 @@ def run(cfg):
         radar_grid = slc.getRadarGrid(frequency=freq)
 
         # Create geo2rdr directory
-        geo2rdr_scratch_path = scratch_path / 'geo2rdr' / f'freq{freq}'
+        geo2rdr_scratch_path = scratch_path / "geo2rdr" / f"freq{freq}"
         geo2rdr_scratch_path.mkdir(parents=True, exist_ok=True)
 
         # Initialize CPU or GPU geo2rdr object accordingly
@@ -71,12 +70,19 @@ def run(cfg):
         else:
             Geo2Rdr = isce3.geometry.Geo2Rdr
 
-        geo2rdr_obj = Geo2Rdr(radar_grid, orbit, ellipsoid, doppler_grid,
-                              threshold, numiter, lines_per_block)
+        geo2rdr_obj = Geo2Rdr(
+            radar_grid,
+            orbit,
+            ellipsoid,
+            doppler_grid,
+            threshold,
+            numiter,
+            lines_per_block,
+        )
 
         # Opem Topo Raster
-        topo_path = pathlib.Path(cfg['processing']['geo2rdr']['topo_path'])
-        rdr2geo_topo_path = topo_path / 'rdr2geo' / f'freq{freq}' / 'topo.vrt'
+        topo_path = pathlib.Path(cfg["processing"]["geo2rdr"]["topo_path"])
+        rdr2geo_topo_path = topo_path / "rdr2geo" / f"freq{freq}" / "topo.vrt"
         topo_raster = isce3.io.Raster(str(rdr2geo_topo_path))
 
         # Run geo2rdr
@@ -87,9 +93,9 @@ def run(cfg):
 
 
 if __name__ == "__main__":
-    '''
+    """
     run geo2rdr from command line
-    '''
+    """
 
     # load command line args
     geo2rdr_parser = YamlArgparse()

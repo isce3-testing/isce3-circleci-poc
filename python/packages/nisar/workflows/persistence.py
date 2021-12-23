@@ -2,14 +2,27 @@ import os
 
 import journal
 
-class Persistence():
-    '''
+
+class Persistence:
+    """
     basic class that determines InSAR persistence
-    '''
+    """
+
     # init InSAR steps in reverse chronological run order
-    insar_steps = ['geocode', 'unwrap', 'filter_interferogram', 'crossmul', 'fine_resample', 
-                   'rubbersheet', 'dense_offsets', 'coarse_resample', 'geo2rdr', 'rdr2geo', 
-                   'h5_prep', 'bandpass_insar']
+    insar_steps = [
+        "geocode",
+        "unwrap",
+        "filter_interferogram",
+        "crossmul",
+        "fine_resample",
+        "rubbersheet",
+        "dense_offsets",
+        "coarse_resample",
+        "geo2rdr",
+        "rdr2geo",
+        "h5_prep",
+        "bandpass_insar",
+    ]
 
     def __init__(self, restart=False):
         # bool flag that determines if insar.run is called
@@ -34,9 +47,9 @@ class Persistence():
             info_channel.log("No steps to be (re)run.")
 
     def read_log(self):
-        '''
+        """
         determine state of last run to determine this runs steps
-        '''
+        """
         # assume log file small enough to fit into memory for reverse read
         path_log = journal.debug.journal.device.log.name
 
@@ -45,13 +58,13 @@ class Persistence():
             self.__init__(True)
         else:
             # read log in reverse chronological order
-            for log_line in reversed(list(open(path_log, 'r'))):
+            for log_line in reversed(list(open(path_log, "r"))):
                 # check for end of successful run
-                if 'successfully ran INSAR' in log_line:
+                if "successfully ran INSAR" in log_line:
                     break
 
                 # check for message indicating successful run of step
-                if 'Successfully ran' in log_line or 'successfully ran' in log_line:
+                if "Successfully ran" in log_line or "successfully ran" in log_line:
                     # iterate thru reverse chronological steps
                     for insar_step in self.insar_steps:
                         # any step not found in line will be step to run

@@ -9,50 +9,44 @@
 
 // externals
 // STL
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <exception>
 #include <functional>
 #include <numeric>
-#include <exception>
 // cuda
 #include <cuda_runtime.h>
 // pyre
+#include <pyre/grid.h>
 #include <pyre/journal.h>
 #include <pyre/timers.h>
-#include <pyre/grid.h>
 
-namespace ampcor {
-    namespace cuda {
-        namespace correlators {
+namespace ampcor { namespace cuda { namespace correlators {
 
-            // local type aliases
-            // sizes of things
-            using size_t = std::size_t;
+// local type aliases
+// sizes of things
+using size_t = std::size_t;
 
-            // pyre timers
-            using timer_t = pyre::timer_t;
+// pyre timers
+using timer_t = pyre::timer_t;
 
-            // a simple grid on the heap
-            template <size_t dim, typename pixel_t>
-            using heapgrid_t =
-                pyre::grid::grid_t< pixel_t,
-                                    pyre::grid::layout_t<
-                                        pyre::grid::index_t<std::array<size_t, dim>>>,
-                                    pyre::memory::heap_t<pixel_t>
-                                    >;
+// a simple grid on the heap
+template<size_t dim, typename pixel_t>
+using heapgrid_t = pyre::grid::grid_t<pixel_t,
+        pyre::grid::layout_t<pyre::grid::index_t<std::array<size_t, dim>>>,
+        pyre::memory::heap_t<pixel_t>>;
 
-            // forward declarations of local classes
-            // the manager
-            template <typename raster_t> class Sequential;
+// forward declarations of local classes
+// the manager
+template<typename raster_t>
+class Sequential;
 
-            // the public type aliases for the local objects
-            // workers
-            template <typename raster_t>
-            using sequential_t = Sequential<raster_t>;
+// the public type aliases for the local objects
+// workers
+template<typename raster_t>
+using sequential_t = Sequential<raster_t>;
 
-        } // of namespace correlators
-    } // of namespace cuda
-} // of namespace ampcor
+}}} // namespace ampcor::cuda::correlators
 
 // kernels
 #include "kernels.h"

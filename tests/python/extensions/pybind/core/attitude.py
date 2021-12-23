@@ -1,7 +1,9 @@
+from tempfile import mkstemp
+
 import h5py
 import numpy as np
 from pybind_isce3 import core
-from tempfile import mkstemp
+
 
 def test_attitude():
     n = 11
@@ -28,7 +30,7 @@ def test_attitude():
     axis /= np.linalg.norm(axis)
     angles = np.linspace(-1, 1, n)
     w = np.cos(angles / 2)
-    xyz = np.sin(angles / 2)[:,None] * axis[None,:]
+    xyz = np.sin(angles / 2)[:, None] * axis[None, :]
     q = [core.Quaternion(w[i], *xyz[i]) for i in range(n)]
 
     attitude = core.Attitude(t, q, epoch)
@@ -43,7 +45,7 @@ def test_attitude():
 
 def dummy_attitude():
     t = [0.0, 0.1]
-    q = (core.Quaternion(1,0,0,0),) * 2
+    q = (core.Quaternion(1, 0, 0, 0),) * 2
     epoch = core.DateTime(2020, 1, 1)
     return core.Attitude(t, q, epoch)
 
@@ -70,4 +72,3 @@ def test_io():
     # read
     with h5py.File(name, "r") as h5:
         core.Attitude.load_from_h5(h5["/attitude"])
-

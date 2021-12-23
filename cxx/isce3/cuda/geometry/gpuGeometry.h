@@ -18,10 +18,10 @@ using cartesian_t = isce3::core::Vec3;
  * For more information, see its CPU equivalent in isce/geometry/geometry.h.
  * This GPU version is simplified since it cannot perform error checking.
  */
-CUDA_DEV int rdr2geo(double, double, double, const isce3::cuda::core::OrbitView&,
-                     const isce3::core::Ellipsoid&, const gpuDEMInterpolator&,
-                     isce3::core::Vec3&, double, isce3::core::LookSide, double,
-                     int, int);
+CUDA_DEV int rdr2geo(double, double, double,
+        const isce3::cuda::core::OrbitView&, const isce3::core::Ellipsoid&,
+        const gpuDEMInterpolator&, isce3::core::Vec3&, double,
+        isce3::core::LookSide, double, int, int);
 
 /**
  * Radar geometry coordinates to map coordinates transformer
@@ -46,12 +46,11 @@ CUDA_DEV int rdr2geo(double, double, double, const isce3::cuda::core::OrbitView&
  * overview".
  */
 CUDA_DEV int rdr2geo(const isce3::core::Pixel& pixel,
-                     const isce3::core::Basis& TCNbasis,
-                     const isce3::core::Vec3& pos, const isce3::core::Vec3& vel,
-                     const isce3::core::Ellipsoid& ellipsoid,
-                     const gpuDEMInterpolator& demInterp,
-                     isce3::core::Vec3& targetLLH, isce3::core::LookSide side,
-                     double threshold, int maxIter, int extraIter);
+        const isce3::core::Basis& TCNbasis, const isce3::core::Vec3& pos,
+        const isce3::core::Vec3& vel, const isce3::core::Ellipsoid& ellipsoid,
+        const gpuDEMInterpolator& demInterp, isce3::core::Vec3& targetLLH,
+        isce3::core::LookSide side, double threshold, int maxIter,
+        int extraIter);
 
 /**
  * Map coordinates to radar geometry coordinates transformer
@@ -74,12 +73,11 @@ CUDA_DEV int rdr2geo(const isce3::core::Pixel& pixel,
  * overview_geometry "geometry overview".
  */
 CUDA_DEV int geo2rdr(const isce3::core::Vec3& inputLLH,
-                     const isce3::core::Ellipsoid& ellipsoid,
-                     const isce3::cuda::core::OrbitView& orbit,
-                     const isce3::cuda::core::gpuLUT1d<double>& doppler,
-                     double* aztime, double* slantRange, double wavelength,
-                     isce3::core::LookSide side, double threshold, int maxIter,
-                     double deltaRange);
+        const isce3::core::Ellipsoid& ellipsoid,
+        const isce3::cuda::core::OrbitView& orbit,
+        const isce3::cuda::core::gpuLUT1d<double>& doppler, double* aztime,
+        double* slantRange, double wavelength, isce3::core::LookSide side,
+        double threshold, int maxIter, double deltaRange);
 
 /**
  * Map coordinates to radar geometry coordinates transformer
@@ -102,26 +100,22 @@ CUDA_DEV int geo2rdr(const isce3::core::Vec3& inputLLH,
  * overview_geometry "geometry overview".
  */
 CUDA_DEV int geo2rdr(const isce3::core::Vec3& inputLLH,
-                     const isce3::core::Ellipsoid& ellipsoid,
-                     const isce3::cuda::core::OrbitView& orbit,
-                     const isce3::cuda::core::gpuLUT2d<double>& doppler,
-                     double* aztime, double* slantRange, double wavelength,
-                     isce3::core::LookSide side, double threshold, int maxIter,
-                     double deltaRange);
+        const isce3::core::Ellipsoid& ellipsoid,
+        const isce3::cuda::core::OrbitView& orbit,
+        const isce3::cuda::core::gpuLUT2d<double>& doppler, double* aztime,
+        double* slantRange, double wavelength, isce3::core::LookSide side,
+        double threshold, int maxIter, double deltaRange);
 
 /** Radar geometry coordinates to map coordinates transformer (host testing) */
 CUDA_HOST int rdr2geo_h(const isce3::core::Pixel&, const isce3::core::Basis&,
-                        const isce3::core::Vec3& pos,
-                        const isce3::core::Vec3& vel,
-                        const isce3::core::Ellipsoid&,
-                        isce3::geometry::DEMInterpolator&, cartesian_t&,
-                        isce3::core::LookSide, double, int, int);
+        const isce3::core::Vec3& pos, const isce3::core::Vec3& vel,
+        const isce3::core::Ellipsoid&, isce3::geometry::DEMInterpolator&,
+        cartesian_t&, isce3::core::LookSide, double, int, int);
 
 /** Map coordinates to radar geometry coordinates transformer (host testing) */
 CUDA_HOST int geo2rdr_h(const cartesian_t&, const isce3::core::Ellipsoid&,
-                        const isce3::core::Orbit&,
-                        const isce3::core::LUT1d<double>&, double&, double&,
-                        double, isce3::core::LookSide, double, int, double);
+        const isce3::core::Orbit&, const isce3::core::LUT1d<double>&, double&,
+        double&, double, isce3::core::LookSide, double, int, double);
 
 }}} // namespace isce3::cuda::geometry
 

@@ -1,8 +1,9 @@
-import iscetest
-import numpy.testing as npt
 from pathlib import Path
-import nisar
+
 import isce3
+import iscetest
+import nisar
+import numpy.testing as npt
 
 
 def test_load_attitude():

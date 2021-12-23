@@ -4,12 +4,13 @@
 
 namespace py = pybind11;
 
-void addsubmodule_container(py::module & m)
+void addsubmodule_container(py::module& m)
 {
     py::module m_container = m.def_submodule("container");
 
     // forward declare bound classes
-    py::class_<isce3::container::RadarGeometry> pyRadarGeometry(m_container, "RadarGeometry");
+    py::class_<isce3::container::RadarGeometry> pyRadarGeometry(
+            m_container, "RadarGeometry");
 
     // add bindings
     addbinding(pyRadarGeometry);

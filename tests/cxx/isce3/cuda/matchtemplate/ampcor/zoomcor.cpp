@@ -36,12 +36,13 @@ using correlator_t = ampcor::cuda::correlators::sequential_t<slc_t>;
 // #define SHOW_ME
 
 // driver
-int main() {
+int main()
+{
     // pick a devvice
     cudaSetDevice(4);
 
     // number of gigabytes per byte
-    const auto Mb = 1.0/(1024*1024);
+    const auto Mb = 1.0 / (1024 * 1024);
 
     // make a timer
     pyre::timer_t timer("ampcor.cuda.sanity");
@@ -51,10 +52,10 @@ int main() {
     // make a channel for logging progress
     pyre::journal::debug_t channel("ampcor.cuda");
     // show me
-    channel
-        << pyre::journal::at(__HERE__)
-        << "setting up the correlation plan with the cuda ampcor task manager"
-        << pyre::journal::endl;
+    channel << pyre::journal::at(__HERE__)
+            << "setting up the correlation plan with the cuda ampcor task "
+               "manager"
+            << pyre::journal::endl;
 
     // the reference tile extent
     int refDim = 128;
@@ -68,9 +69,9 @@ int main() {
     int zoomFactor = 4;
 
     // therefore, the target tile extent
-    auto tgtDim = refDim + 2*margin;
+    auto tgtDim = refDim + 2 * margin;
     // the shape of the base correlation matrix
-    auto corDim = 2*refineFactor*refineMargin + 1;
+    auto corDim = 2 * refineFactor * refineMargin + 1;
     // the shape of the zoomed correlation matrix
     auto zmdDim = zoomFactor * corDim;
 
@@ -87,9 +88,9 @@ int main() {
     cor_t::shape_type zmdShape {pairs, zmdDim, zmdDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // the number of cells in a reference tile
     auto refCells = refShape.size();
@@ -103,17 +104,17 @@ int main() {
     // start the clock
     timer.reset().start();
     // make a correlator
-    correlator_t c(pairs, refLayout, tgtLayout, refineFactor, refineMargin, zoomFactor);
+    correlator_t c(pairs, refLayout, tgtLayout, refineFactor, refineMargin,
+            zoomFactor);
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "instantiating the manager: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "instantiating the manager: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // make a correlation matrix
-    cor_t cor { corShape };
+    cor_t cor {corShape};
     // fill it
     for (auto idx : cor.layout()) {
         // extract the pair id
@@ -141,7 +142,7 @@ int main() {
     // compute the footprint of the correlation matrix
     auto corFootprint = cor.layout().size() * sizeof(value_t);
     // grab a spot on the device
-    value_t * gamma = nullptr;
+    value_t* gamma = nullptr;
     // allocate some memory
     auto status = cudaMallocManaged(&gamma, corFootprint);
     // if something went wrong
@@ -149,16 +150,16 @@ int main() {
         // make a channel
         pyre::journal::error_t error("ampcor.cuda");
         // complain
-        error
-            << pyre::journal::at(__HERE__)
-            << "while allocating memory for the correlation matrix: "
-            << cudaGetErrorName(status) << " (" << status << ")"
-            << pyre::journal::endl;
+        error << pyre::journal::at(__HERE__)
+              << "while allocating memory for the correlation matrix: "
+              << cudaGetErrorName(status) << " (" << status << ")"
+              << pyre::journal::endl;
         // bail
         throw std::bad_alloc();
     }
     // move the correlation matrix to the device
-    status = cudaMemcpy(gamma, cor.data(), corFootprint, cudaMemcpyHostToDevice);
+    status =
+            cudaMemcpy(gamma, cor.data(), corFootprint, cudaMemcpyHostToDevice);
     // if something went wrong
     if (status != cudaSuccess) {
         // get the error description
@@ -166,11 +167,9 @@ int main() {
         // make a channel
         pyre::journal::error_t error("ampcor.cuda");
         // complain
-        error
-            << pyre::journal::at(__HERE__)
-            << "while moving the correlation matrix to the device: "
-            << description << " (" << status << ")"
-            << pyre::journal::endl;
+        error << pyre::journal::at(__HERE__)
+              << "while moving the correlation matrix to the device: "
+              << description << " (" << status << ")" << pyre::journal::endl;
         // bail
         throw std::runtime_error(description);
     }
@@ -181,13 +180,12 @@ int main() {
     // compute its footprint
     auto zmdFootprint = zoomed.layout().size() * sizeof(value_t);
     // show me
-    channel
-        << pyre::journal::at(__HERE__)
-        << "moving " << zmdFootprint * Mb << " Mb from the device to host memory "
-        << zoomed.data()
-        << pyre::journal::endl;
+    channel << pyre::journal::at(__HERE__) << "moving " << zmdFootprint * Mb
+            << " Mb from the device to host memory " << zoomed.data()
+            << pyre::journal::endl;
     // move the device data into it
-    status = cudaMemcpy(zoomed.data(), zgamma, zmdFootprint, cudaMemcpyDeviceToHost);
+    status = cudaMemcpy(
+            zoomed.data(), zgamma, zmdFootprint, cudaMemcpyDeviceToHost);
     // if something went wrong
     if (status != cudaSuccess) {
         // get the error description
@@ -195,11 +193,9 @@ int main() {
         // make a channel
         pyre::journal::error_t error("ampcor.cuda");
         // complain
-        error
-            << pyre::journal::at(__HERE__)
-            << "while moving the zoomed correlation matrix to the host: "
-            << description << " (" << status << ")"
-            << pyre::journal::endl;
+        error << pyre::journal::at(__HERE__)
+              << "while moving the zoomed correlation matrix to the host: "
+              << description << " (" << status << ")" << pyre::journal::endl;
         // bail
         throw std::runtime_error(description);
     }
@@ -219,7 +215,6 @@ int main() {
     }
     channel << pyre::journal::endl;
 #endif
-
 
     // clean up
     cudaFree(zgamma);

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-import numpy as np
-import numpy.testing as npt
 import os
 
+import iscetest
+import numpy as np
+import numpy.testing as npt
 from nisar.products.readers.Raw import open_rrsd
 from pybind_isce3 import geometry as geom
 from pybind_isce3.core import Ellipsoid
 from pybind_isce3.geometry import DEMInterpolator
-import iscetest
 
 
 class TestLookIncAngles:
@@ -48,27 +48,27 @@ class TestLookIncAngles:
 
     def _est_inc_angle(self, sr, lka):
         r"""Estimate incidence angle from slant range and look angle
-           via Law of Sines [1]_, the incidence angle :math:`\theta_{i}` is
-           .. math::
-               \theta_{i} = \theta_{l} + sin^{-1}(sin(\theta_l)\frac{r}{R+h})
-                where :math:`\theta_{l}` is look angle, 'r' is slant range,
-                `R` is along-track range curvature and `h` is DEM height.
+        via Law of Sines [1]_, the incidence angle :math:`\theta_{i}` is
+        .. math::
+            \theta_{i} = \theta_{l} + sin^{-1}(sin(\theta_l)\frac{r}{R+h})
+             where :math:`\theta_{l}` is look angle, 'r' is slant range,
+             `R` is along-track range curvature and `h` is DEM height.
 
-            Parameters
-            ----------
-                sr : float
-                    Slant range in (m)
-                lka : float
-                    look angle in (rad)
+         Parameters
+         ----------
+             sr : float
+                 Slant range in (m)
+             lka : float
+                 look angle in (rad)
 
-            Returns
-            -------
-                float :
-                    incidecne angle in (deg)
+         Returns
+         -------
+             float :
+                 incidecne angle in (deg)
 
-            References
-            ----------
-            ..[1] https://en.wikipedia.org/wiki/Law_of_sines
+         References
+         ----------
+         ..[1] https://en.wikipedia.org/wiki/Law_of_sines
         """
         # get S/C height at mid azimuth time of echo
         pos_sc, vel_sc = self.orbit_obj.interpolate(self.az_tm_mid)
@@ -94,26 +94,42 @@ class TestLookIncAngles:
     def test_look_inc_ang_from_sr_scalar(self):
         # get min look angles and incidence angles and valdiate them
         lka_min, inca_min = geom.look_inc_ang_from_slant_range(
-            self.sr_vec[0], self.orbit_obj, self.az_tm_mid, self.dem_obj,
-            self.ellips_obj)
+            self.sr_vec[0],
+            self.orbit_obj,
+            self.az_tm_mid,
+            self.dem_obj,
+            self.ellips_obj,
+        )
 
         lka_min_deg = np.rad2deg(lka_min)
         inca_min_deg = np.rad2deg(inca_min)
 
-        npt.assert_allclose(lka_min_deg, self.lka_dwp_deg,
-                            atol=self.atol, rtol=self.rtol,
-                            err_msg="Wrong min look angle")
+        npt.assert_allclose(
+            lka_min_deg,
+            self.lka_dwp_deg,
+            atol=self.atol,
+            rtol=self.rtol,
+            err_msg="Wrong min look angle",
+        )
 
         # get true incidence angle for a given look angle and slant range
         true_inca_deg = self._est_inc_angle(self.sr_vec[0], lka_min)
-        npt.assert_allclose(inca_min_deg, true_inca_deg,
-                            atol=self.atol, rtol=self.rtol,
-                            err_msg="Wrong min incidnece angle")
+        npt.assert_allclose(
+            inca_min_deg,
+            true_inca_deg,
+            atol=self.atol,
+            rtol=self.rtol,
+            err_msg="Wrong min incidnece angle",
+        )
 
         # get max look angles and incidence angles and valdiate them
         lka_max, inca_max = geom.look_inc_ang_from_slant_range(
-            self.sr_vec[-1], self.orbit_obj, self.az_tm_mid, self.dem_obj,
-            self.ellips_obj)
+            self.sr_vec[-1],
+            self.orbit_obj,
+            self.az_tm_mid,
+            self.dem_obj,
+            self.ellips_obj,
+        )
 
         lka_max_deg = np.rad2deg(lka_max)
         inca_max_deg = np.rad2deg(inca_max)
@@ -121,52 +137,81 @@ class TestLookIncAngles:
         # get look angle at around mid-swath in terms of EL angle coverage
         lka_mid_deg = 0.5 * (lka_max_deg + lka_min_deg)
 
-        npt.assert_allclose(lka_mid_deg, self.lka_mb_deg,
-                            atol=self.atol, rtol=self.rtol,
-                            err_msg="Wrong max look angle")
+        npt.assert_allclose(
+            lka_mid_deg,
+            self.lka_mb_deg,
+            atol=self.atol,
+            rtol=self.rtol,
+            err_msg="Wrong max look angle",
+        )
 
         # get true incidence angle for a given look angle and slant range
         true_inca_deg = self._est_inc_angle(self.sr_vec[0], lka_max)
-        npt.assert_allclose(inca_max_deg, true_inca_deg,
-                            atol=self.atol, rtol=self.rtol,
-                            err_msg="Wrong max incidnece angle")
+        npt.assert_allclose(
+            inca_max_deg,
+            true_inca_deg,
+            atol=self.atol,
+            rtol=self.rtol,
+            err_msg="Wrong max incidnece angle",
+        )
 
     def test_look_inc_ang_from_sr_vector(self):
         lka_all, inca_all = geom.look_inc_ang_from_slant_range(
-            self.sr_vec, self.orbit_obj, self.az_tm_mid, self.dem_obj,
-            self.ellips_obj)
+            self.sr_vec, self.orbit_obj, self.az_tm_mid, self.dem_obj, self.ellips_obj
+        )
 
         len_sr = self.sr_vec.size
-        npt.assert_equal(lka_all.size, len_sr,
-                         err_msg="Wrong size for look angle vector")
+        npt.assert_equal(
+            lka_all.size, len_sr, err_msg="Wrong size for look angle vector"
+        )
 
-        npt.assert_equal(inca_all.size, len_sr,
-                         err_msg="Wrong size for incidence angle vector")
+        npt.assert_equal(
+            inca_all.size, len_sr, err_msg="Wrong size for incidence angle vector"
+        )
 
         # check look angle values
         lka_all_deg = np.rad2deg(lka_all)
 
-        npt.assert_allclose(lka_all_deg[0], self.lka_dwp_deg,
-                            atol=self.atol, rtol=self.rtol,
-                            err_msg="Wrong first value in look angle vector")
+        npt.assert_allclose(
+            lka_all_deg[0],
+            self.lka_dwp_deg,
+            atol=self.atol,
+            rtol=self.rtol,
+            err_msg="Wrong first value in look angle vector",
+        )
 
-        npt.assert_array_less(lka_all_deg[0], lka_all_deg[-1],
-                              err_msg="Wrong last value in look angle vector")
+        npt.assert_array_less(
+            lka_all_deg[0],
+            lka_all_deg[-1],
+            err_msg="Wrong last value in look angle vector",
+        )
 
-        npt.assert_allclose(lka_all_deg.mean(), self.lka_mb_deg,
-                            atol=self.atol, rtol=self.rtol,
-                            err_msg="Wrong mean value in look angle vector")
+        npt.assert_allclose(
+            lka_all_deg.mean(),
+            self.lka_mb_deg,
+            atol=self.atol,
+            rtol=self.rtol,
+            err_msg="Wrong mean value in look angle vector",
+        )
 
         # check incidence angle values
         inca_all_deg = np.rad2deg(inca_all)
 
         true_inca_deg = self._est_inc_angle(self.sr_vec[0], lka_all[0])
 
-        npt.assert_allclose(inca_all_deg[0], true_inca_deg,
-                            atol=self.atol, rtol=self.rtol,
-                            err_msg="Wrong first value in incidence vector")
+        npt.assert_allclose(
+            inca_all_deg[0],
+            true_inca_deg,
+            atol=self.atol,
+            rtol=self.rtol,
+            err_msg="Wrong first value in incidence vector",
+        )
 
         true_inca_deg = self._est_inc_angle(self.sr_vec[-1], lka_all[-1])
-        npt.assert_allclose(inca_all_deg[-1], true_inca_deg,
-                            atol=self.atol, rtol=self.rtol,
-                            err_msg="Wrong last value in incidence vector")
+        npt.assert_allclose(
+            inca_all_deg[-1],
+            true_inca_deg,
+            atol=self.atol,
+            rtol=self.rtol,
+            err_msg="Wrong last value in incidence vector",
+        )

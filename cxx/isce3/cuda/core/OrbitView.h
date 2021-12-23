@@ -17,15 +17,17 @@ namespace isce3 { namespace cuda { namespace core {
  */
 class OrbitView {
 public:
-
     OrbitView() = default;
 
     /** Create a non-owning view of the specified orbit object */
-    OrbitView(const Orbit &);
+    OrbitView(const Orbit&);
 
     /** Interpolation method */
     CUDA_DEV
-    isce3::core::OrbitInterpMethod interpMethod() const { return _interp_method; }
+    isce3::core::OrbitInterpMethod interpMethod() const
+    {
+        return _interp_method;
+    }
 
     /** Time of first state vector relative to reference epoch (s) */
     CUDA_DEV
@@ -33,11 +35,14 @@ public:
 
     /** Time of center of orbit relative to reference epoch (s) */
     CUDA_DEV
-    double midTime() const { return startTime() + 0.5 * (size() - 1) * spacing(); }
+    double midTime() const
+    {
+        return startTime() + 0.5 * (size() - 1) * spacing();
+    }
 
     /** Time of last state vector relative to reference epoch (s) */
     CUDA_DEV
-    double endTime() const { return _time[size()-1]; }
+    double endTime() const { return _time[size() - 1]; }
 
     /** Time interval between state vectors (s) */
     CUDA_DEV
@@ -49,15 +54,15 @@ public:
 
     /** Get state vector times relative to reference epoch (s) */
     CUDA_DEV
-    const isce3::core::Linspace<double> & time() const { return _time; }
+    const isce3::core::Linspace<double>& time() const { return _time; }
 
     /** Get state vector positions in ECEF coordinates (m) */
     CUDA_DEV
-    const isce3::core::Vec3 * position() const { return _position; }
+    const isce3::core::Vec3* position() const { return _position; }
 
     /** Get state vector velocities in ECEF coordinates (m/s) */
     CUDA_DEV
-    const isce3::core::Vec3 * velocity() const { return _velocity; }
+    const isce3::core::Vec3* velocity() const { return _velocity; }
 
     /** Get the specified state vector time relative to reference epoch (s) */
     CUDA_DEV
@@ -65,11 +70,11 @@ public:
 
     /** Get the specified state vector position in ECEF coordinates (m) */
     CUDA_DEV
-    const isce3::core::Vec3 & position(int idx) const { return _position[idx]; }
+    const isce3::core::Vec3& position(int idx) const { return _position[idx]; }
 
     /** Get the specified state vector velocity in ECEF coordinates (m/s) */
     CUDA_DEV
-    const isce3::core::Vec3 & velocity(int idx) const { return _velocity[idx]; }
+    const isce3::core::Vec3& velocity(int idx) const { return _velocity[idx]; }
 
     /**
      * Interpolate platform position and/or velocity
@@ -77,24 +82,24 @@ public:
      * \param[out] position Interpolated position
      * \param[out] velocity Interpolated velocity
      * \param[in] t Interpolation time
-     * \param[in] border_mode Mode for handling interpolation outside orbit domain
-     * \return Error code indicating exit status
+     * \param[in] border_mode Mode for handling interpolation outside orbit
+     * domain \return Error code indicating exit status
      */
     CUDA_DEV
-    isce3::error::ErrorCode
-    interpolate(isce3::core::Vec3 * position,
-                isce3::core::Vec3 * velocity,
-                double t,
-                isce3::core::OrbitInterpBorderMode border_mode = isce3::core::OrbitInterpBorderMode::Error) const;
+    isce3::error::ErrorCode interpolate(isce3::core::Vec3* position,
+            isce3::core::Vec3* velocity, double t,
+            isce3::core::OrbitInterpBorderMode border_mode =
+                    isce3::core::OrbitInterpBorderMode::Error) const;
 
 private:
     const isce3::core::Linspace<double> _time;
-    const isce3::core::Vec3 * _position;
-    const isce3::core::Vec3 * _velocity;
-    const isce3::core::OrbitInterpMethod _interp_method = isce3::core::OrbitInterpMethod::Hermite;
+    const isce3::core::Vec3* _position;
+    const isce3::core::Vec3* _velocity;
+    const isce3::core::OrbitInterpMethod _interp_method =
+            isce3::core::OrbitInterpMethod::Hermite;
 };
 
-}}}
+}}} // namespace isce3::cuda::core
 
 #define ISCE_CUDA_CORE_ORBITVIEW_ICC
 #include "OrbitView.icc"

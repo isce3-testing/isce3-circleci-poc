@@ -4,19 +4,22 @@
 // Author: Piyush Agram
 // Copyright 2019
 
-#pragma once 
+#pragma once
 
 #include <ogr_geometry.h>
 
 namespace isce3 { namespace geometry {
-    /** Same as GDAL's OGRLinearRing structure. See: https://gdal.org/doxygen/classOGRLinearRing.html */
-    typedef OGRLinearRing Perimeter;
+/** Same as GDAL's OGRLinearRing structure. See:
+ * https://gdal.org/doxygen/classOGRLinearRing.html */
+typedef OGRLinearRing Perimeter;
 
-    /** Same as GDAL's OGREnvelope structure. See: https://gdal.org/doxygen/ogr__core_8h_source.html */
-    typedef OGREnvelope BoundingBox;
+/** Same as GDAL's OGREnvelope structure. See:
+ * https://gdal.org/doxygen/ogr__core_8h_source.html */
+typedef OGREnvelope BoundingBox;
 
-    /** Same as GDAL's OGRTriangle structure. See: https://gdal.org/doxygen/classOGRTriangle.html */
-    typedef OGRTriangle Triangle;
-}}
+/** Same as GDAL's OGRTriangle structure. See:
+ * https://gdal.org/doxygen/classOGRTriangle.html */
+typedef OGRTriangle Triangle;
+}} // namespace isce3::geometry
 
-//end of file
+// end of file

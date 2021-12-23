@@ -14,8 +14,7 @@ namespace isce3 { namespace signal {
  * \param[in] range_spacing   slant range spacing [meters]
  * \param[in] wavelength      radar wavelength [meters]
  */
-void flatten(
-        Eigen::Ref<isce3::core::EArray2D<std::complex<float>>> ifgram,
+void flatten(Eigen::Ref<isce3::core::EArray2D<std::complex<float>>> ifgram,
         const Eigen::Ref<const isce3::core::EArray2D<double>>& range_offset,
         double range_spacing, double wavelength);
 

@@ -196,7 +196,7 @@ TEST(DateTimeTest, ThrowExceptFromString)
             << "Expect compatible ISO8601 format with date only!";
 
     EXPECT_THROW(isce3::core::DateTime("2017-05-12t01:12:30.141592"),
-                 isce3::except::InvalidArgument)
+            isce3::except::InvalidArgument)
             << "Expected wrong ISO8601 format! Sep is 't'";
 }
 

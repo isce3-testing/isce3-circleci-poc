@@ -1,4 +1,7 @@
+#include <string>
+
 #include <gtest/gtest.h>
+
 #include <isce3/core/Constants.h>
 #include <isce3/core/Orbit.h>
 #include <isce3/geometry/RTC.h>
@@ -6,7 +9,6 @@
 #include <isce3/io/Raster.h>
 #include <isce3/product/Product.h>
 #include <isce3/product/RadarGridParameters.h>
-#include <string>
 
 // Create set of RadarGridParameters to process
 std::set<std::string> radar_grid_str_set = {"cropped", "multilooked"};
@@ -16,7 +18,8 @@ std::set<isce3::geometry::rtcAlgorithm> rtc_algorithm_set = {
         isce3::geometry::rtcAlgorithm::RTC_BILINEAR_DISTRIBUTION,
         isce3::geometry::rtcAlgorithm::RTC_AREA_PROJECTION};
 
-TEST(TestRTC, RunRTC) {
+TEST(TestRTC, RunRTC)
+{
     // Open HDF5 file and load products
     isce3::io::IH5File file(TESTDATA_DIR "envisat.h5");
     isce3::product::Product product(file);
@@ -86,8 +89,7 @@ TEST(TestRTC, RunRTC) {
 
             // Create output raster
             isce3::io::Raster out_raster(filename, radar_grid.width(),
-                                        radar_grid.length(), 1, GDT_Float32,
-                                        "ENVI");
+                    radar_grid.length(), 1, GDT_Float32, "ENVI");
 
             // Call RTC
             isce3::geometry::computeRtc(radar_grid, orbit, dop, dem, out_raster,
@@ -97,7 +99,8 @@ TEST(TestRTC, RunRTC) {
     }
 }
 
-TEST(TestRTC, CheckResults) {
+TEST(TestRTC, CheckResults)
+{
 
     for (auto radar_grid_str : radar_grid_str_set) {
 
@@ -178,7 +181,7 @@ TEST(TestRTC, CheckResults) {
 
             printf("    RMSE = %g\n", rmse);
             printf("    ----------------\n");
-            
+
             // Enforce bound on average pixel-error
             ASSERT_LT(rmse, max_rmse);
 
@@ -189,7 +192,8 @@ TEST(TestRTC, CheckResults) {
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

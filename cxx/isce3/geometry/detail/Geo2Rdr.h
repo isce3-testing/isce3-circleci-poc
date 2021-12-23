@@ -42,11 +42,11 @@ struct Geo2RdrParams {
  * \param[in]  params    Root-finding algorithm parameters
  */
 template<class Orbit, class DopplerModel>
-CUDA_HOSTDEV isce3::error::ErrorCode
-geo2rdr(double* t, double* r, const isce3::core::Vec3& llh,
-        const isce3::core::Ellipsoid& ellipsoid, const Orbit& orbit,
-        const DopplerModel& doppler, double wvl, isce3::core::LookSide side,
-        double t0, const Geo2RdrParams& params = {});
+CUDA_HOSTDEV isce3::error::ErrorCode geo2rdr(double* t, double* r,
+        const isce3::core::Vec3& llh, const isce3::core::Ellipsoid& ellipsoid,
+        const Orbit& orbit, const DopplerModel& doppler, double wvl,
+        isce3::core::LookSide side, double t0,
+        const Geo2RdrParams& params = {});
 
 }}} // namespace isce3::geometry::detail
 

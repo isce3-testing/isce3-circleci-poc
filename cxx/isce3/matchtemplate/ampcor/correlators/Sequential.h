@@ -12,9 +12,9 @@
 
 #include <isce3/signal/Signal.h>
 
-
-// resource management and orchestration of the execution of the correlation plan
-template <typename raster_t>
+// resource management and orchestration of the execution of the correlation
+// plan
+template<typename raster_t>
 class ampcor::correlators::Sequential {
     // types
 public:
@@ -39,24 +39,23 @@ public:
     using size_type = typename raster_type::size_type;
 
     // adapter for tiles within my arena
-    using tile_type = pyre::grid::grid_t<cell_type,
-                                         layout_type,
-                                         pyre::memory::view_t<cell_type>>;
+    using tile_type = pyre::grid::grid_t<cell_type, layout_type,
+            pyre::memory::view_t<cell_type>>;
 
     // interface
 public:
     // add a reference tile to the pile
-    inline void addReferenceTile(size_type pid, const constview_type & ref);
+    inline void addReferenceTile(size_type pid, const constview_type& ref);
     // add a target search window to the pile
-    inline void addTargetTile(size_type pid, const constview_type & tgt);
+    inline void addTargetTile(size_type pid, const constview_type& tgt);
 
     // compute adjustments to the offset map
-    inline auto adjust() -> const value_type *;
+    inline auto adjust() -> const value_type*;
 
     // accessors
     inline auto pairs() const -> size_type;
-    //inline auto arena() const -> const cell_type *;
-    inline auto arena() const -> cell_type *;
+    // inline auto arena() const -> const cell_type *;
+    inline auto arena() const -> cell_type*;
 
     // debugging support
     inline void dump() const;
@@ -64,56 +63,56 @@ public:
     // meta-methods
 public:
     inline ~Sequential();
-    inline Sequential(size_type pairs,
-                      const layout_type & refLayout, const layout_type & tgtLayout,
-                      size_type refineFactor=2, size_type refineMargin=8,
-                      size_type zoomFactor=4);
+    inline Sequential(size_type pairs, const layout_type& refLayout,
+            const layout_type& tgtLayout, size_type refineFactor = 2,
+            size_type refineMargin = 8, size_type zoomFactor = 4);
 
     // implementation details: methods
 public:
-
     // compute the magnitude of the complex signal pixel-by-pixel
-    inline auto _detect(const cell_type * cArena,
-                        size_type refDim, size_type tgtDim) const -> value_type *;
-    // subtract the mean from reference tiles and compute the square root of their variance
-    inline auto _refStats(value_type * rArena,
-                          size_type refDim, size_type tgtDim) const -> value_type *;
+    inline auto _detect(const cell_type* cArena, size_type refDim,
+            size_type tgtDim) const -> value_type*;
+    // subtract the mean from reference tiles and compute the square root of
+    // their variance
+    inline auto _refStats(value_type* rArena, size_type refDim,
+            size_type tgtDim) const -> value_type*;
     // compute the sum area tables for the target tiles
-    inline auto _sat(const value_type * rArena,
-                     size_type refDim, size_type tgtDim) const -> value_type *;
-    // compute the mean of all possible placements of a tile the same size as the reference
-    // tile within the target
-    inline auto _tgtStats(const value_type * sat,
-                          size_type refDim, size_type tgtDim, size_type corDim
-                          ) const -> value_type *;
+    inline auto _sat(const value_type* rArena, size_type refDim,
+            size_type tgtDim) const -> value_type*;
+    // compute the mean of all possible placements of a tile the same size as
+    // the reference tile within the target
+    inline auto _tgtStats(const value_type* sat, size_type refDim,
+            size_type tgtDim, size_type corDim) const -> value_type*;
     // correlate
-    inline auto _correlate(const value_type * rArena,
-                           const value_type * refStats, const value_type * tgtStats,
-                           size_type refDim, size_type tgtDim, size_type corDim
-                           ) const -> value_type *;
+    inline auto _correlate(const value_type* rArena, const value_type* refStats,
+            const value_type* tgtStats, size_type refDim, size_type tgtDim,
+            size_type corDim) const -> value_type*;
     // find the locations of the maxima of the correlation matrix
-    inline auto _maxcor(const value_type * gamma, size_type corDim) const -> int *;
-    // adjust the locations of the maxima so that the refined tile sources fit with the target
-    inline void _nudge(int * locations, size_type refDim, size_type tgtDim) const;
+    inline auto _maxcor(const value_type* gamma, size_type corDim) const
+            -> int*;
+    // adjust the locations of the maxima so that the refined tile sources fit
+    // with the target
+    inline void _nudge(
+            int* locations, size_type refDim, size_type tgtDim) const;
     // allocate memory for a new arena big enough to hold the refined tiles
-    inline auto _refinedArena() const -> cell_type *;
+    inline auto _refinedArena() const -> cell_type*;
     // refine the reference tiles
-    inline void _refRefine(cell_type * coarseArena, cell_type * refinedArena) const;
+    inline void _refRefine(
+            cell_type* coarseArena, cell_type* refinedArena) const;
     // migrate the expanded unrefined target tiles into the {refinedArena}
-    inline void _tgtMigrate(cell_type * coarseArena, int * locations,
-                            cell_type * refinedArena) const;
+    inline void _tgtMigrate(cell_type* coarseArena, int* locations,
+            cell_type* refinedArena) const;
     // refine the target tiles
-    inline void _tgtRefine(cell_type * refinedArena) const;
+    inline void _tgtRefine(cell_type* refinedArena) const;
     // deramp
-    inline void _deramp(cell_type * arena) const;
+    inline void _deramp(cell_type* arena) const;
     // zoom the correlation matrix
-    inline auto _zoomcor(value_type * gamma) const -> value_type *;
+    inline auto _zoomcor(value_type* gamma) const -> value_type*;
     // assemble the offsets
-    inline auto _offsetField(const int * zoomed) -> const value_type *;
+    inline auto _offsetField(const int* zoomed) -> const value_type*;
 
     // unfinished correlation matrix zoom that uses R2C and C2R
-    inline auto _zoomcor_r2r(value_type * gamma) const -> value_type *;
-
+    inline auto _zoomcor_r2r(value_type* gamma) const -> value_type*;
 
     // implementation details: data
 private:
@@ -161,12 +160,11 @@ private:
     const size_type _tgtRefinedFootprint;
 
     // host storage for the tile pairs
-    //cell_type * const _arena;
-    cell_type *  _arena;
+    // cell_type * const _arena;
+    cell_type* _arena;
     // host storage for the offset field
-    value_type * const _offsets;
+    value_type* const _offsets;
 };
-
 
 // code guard
 #endif

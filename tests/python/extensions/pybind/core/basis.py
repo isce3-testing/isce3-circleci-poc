@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import numpy as np
-from numpy.linalg import norm
 import numpy.testing as npt
 import pybind_isce3 as isce3
 import pytest
+from numpy.linalg import norm
 
 np.random.seed(12345)  # I've got the same combination on my luggage!
+
 
 def test_access():
     R = np.eye(3)
@@ -13,6 +14,7 @@ def test_access():
     basis.x0 == R[0]
     basis.x1 == R[1]
     basis.x2 == R[2]
+
 
 def test_unitary():
     # Unit vectors but not orthogonal.
@@ -27,7 +29,7 @@ def test_unitary():
     # Orthogonal but not unit vectors.
     x0 = np.random.normal(scale=100, size=3)
     tmp = np.random.normal(scale=100, size=3)
-    x1 = tmp - tmp.dot(x0) * x0 / norm(x0)**2
+    x1 = tmp - tmp.dot(x0) * x0 / norm(x0) ** 2
     x2 = np.cross(x0, x1)
     assert norm(x0) > 1.0, "Test fixture anomaly.  numpy.random changed?"
     with pytest.raises(Exception):
@@ -45,6 +47,7 @@ def test_unitary():
         assert np.isclose(norm(vin), norm(vout))
         vout = basis.combine(vin)
         assert np.isclose(norm(vin), norm(vout))
+
 
 def test_tcn():
     # geocentric
@@ -65,6 +68,7 @@ def test_tcn():
     tcn = isce3.core.geodetic_tcn(p1, v, ell)
     assert np.isclose(h, (p0 - p1).dot(tcn.x2))
 
+
 def test_factored_ypr():
     # body == tcn == world orientation
     q = isce3.core.Quaternion(1, 0, 0, 0)
@@ -81,12 +85,13 @@ def test_factored_ypr():
     assert np.isclose(angles.pitch, 0)
     assert np.isclose(angles.roll, 0)
 
+
 def test_asarray():
     # orthogonal basis where B != B.transpose()
-    x = np.array([1, 0,  1.0]) / np.sqrt(2)
+    x = np.array([1, 0, 1.0]) / np.sqrt(2)
     y = np.array([1, 0, -1.0]) / np.sqrt(2)
-    z = np.array([0, 1,  0.0])
+    z = np.array([0, 1, 0.0])
     # Check conversion to matrix has expected order.
     b = isce3.core.Basis(x, y, z).asarray()
-    bx = b[:,0]
+    bx = b[:, 0]
     assert np.isclose(bx.dot(x), 1.0)

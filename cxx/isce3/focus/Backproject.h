@@ -11,8 +11,7 @@
 
 #include "DryTroposphereModel.h"
 
-namespace isce3 {
-namespace focus {
+namespace isce3 { namespace focus {
 
 /**
  * Focus in azimuth via time-domain backprojection
@@ -39,5 +38,4 @@ void backproject(std::complex<float>* out,
         const isce3::geometry::detail::Rdr2GeoParams& r2g_params = {},
         const isce3::geometry::detail::Geo2RdrParams& g2r_params = {});
 
-} // namespace focus
-} // namespace isce3
+}} // namespace isce3::focus

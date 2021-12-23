@@ -1,5 +1,7 @@
 #include "Kernels.h"
+
 #include <pybind11/operators.h>
+
 #include <isce3/core/Kernels.h>
 
 template class PyKernel<float>;
@@ -10,70 +12,79 @@ namespace py = pybind11;
 using namespace isce3::core;
 
 // Base class, inherit from "trampoline" class to allow inheritance in python
-template <typename T>
-void addbinding(py::class_<Kernel<T>, PyKernel<T>> & pyKernel)
+template<typename T>
+void addbinding(py::class_<Kernel<T>, PyKernel<T>>& pyKernel)
 {
     pyKernel.doc() = "A function defined over the domain [-width/2, width/2]";
-    pyKernel
-        .def(py::init<double>(), py::arg("width"))
-        .def("__call__", &Kernel<T>::operator())
-        .def_property_readonly("width", &Kernel<T>::width);
+    pyKernel.def(py::init<double>(), py::arg("width"))
+            .def("__call__", &Kernel<T>::operator())
+            .def_property_readonly("width", &Kernel<T>::width);
 }
 
-template void addbinding(py::class_<Kernel<float>, PyKernel<float>> & pyKernel);
-template void addbinding(py::class_<Kernel<double>, PyKernel<double>> & pyKernel);
+template void addbinding(py::class_<Kernel<float>, PyKernel<float>>& pyKernel);
+template void addbinding(
+        py::class_<Kernel<double>, PyKernel<double>>& pyKernel);
 
 // Bartlett
-template <typename T>
-void addbinding(py::class_<BartlettKernel<T>, Kernel<T>> & pyKernel)
+template<typename T>
+void addbinding(py::class_<BartlettKernel<T>, Kernel<T>>& pyKernel)
 {
     pyKernel.doc() = "Bartlett / Triangular kernel";
     pyKernel.def(py::init<double>());
 }
 
-template void addbinding(py::class_<BartlettKernel<float>, Kernel<float>> & pyKernel);
-template void addbinding(py::class_<BartlettKernel<double>, Kernel<double>> & pyKernel);
+template void addbinding(
+        py::class_<BartlettKernel<float>, Kernel<float>>& pyKernel);
+template void addbinding(
+        py::class_<BartlettKernel<double>, Kernel<double>>& pyKernel);
 
 // Linear
-template <typename T>
-void addbinding(py::class_<LinearKernel<T>, Kernel<T>> & pyKernel)
+template<typename T>
+void addbinding(py::class_<LinearKernel<T>, Kernel<T>>& pyKernel)
 {
     pyKernel.doc() = "Linear interpolation kernel.";
     pyKernel.def(py::init<>());
 }
 
-template void addbinding(py::class_<LinearKernel<float>, Kernel<float>> & pyKernel);
-template void addbinding(py::class_<LinearKernel<double>, Kernel<double>> & pyKernel);
+template void addbinding(
+        py::class_<LinearKernel<float>, Kernel<float>>& pyKernel);
+template void addbinding(
+        py::class_<LinearKernel<double>, Kernel<double>>& pyKernel);
 
 // Knab
-template <typename T>
-void addbinding(py::class_<KnabKernel<T>, Kernel<T>> & pyKernel)
+template<typename T>
+void addbinding(py::class_<KnabKernel<T>, Kernel<T>>& pyKernel)
 {
     pyKernel.doc() = "Knab (1983) kernel.  Bandwidth [0,1) in cycles/sample.";
-    pyKernel
-        .def(py::init<double, double>(), py::arg("width"), py::arg("bandwidth"))
-        .def_property_readonly("bandwidth", &KnabKernel<T>::bandwidth);
+    pyKernel.def(py::init<double, double>(), py::arg("width"),
+                    py::arg("bandwidth"))
+            .def_property_readonly("bandwidth", &KnabKernel<T>::bandwidth);
 }
 
-template void addbinding(py::class_<KnabKernel<float>, Kernel<float>> & pyKernel);
-template void addbinding(py::class_<KnabKernel<double>, Kernel<double>> & pyKernel);
+template void addbinding(
+        py::class_<KnabKernel<float>, Kernel<float>>& pyKernel);
+template void addbinding(
+        py::class_<KnabKernel<double>, Kernel<double>>& pyKernel);
 
 // Azimuth autocorrelation
-template <typename T>
-void addbinding(py::class_<AzimuthKernel<T>, Kernel<T>> & pyKernel)
+template<typename T>
+void addbinding(py::class_<AzimuthKernel<T>, Kernel<T>>& pyKernel)
 {
     pyKernel.doc() = "SAR azimuth autocorrelation function."
-        " Scale argument is typically antenna length L if working in distance"
-        " units or L/v if working in time units.";
+                     " Scale argument is typically antenna length L if working "
+                     "in distance"
+                     " units or L/v if working in time units.";
     pyKernel.def(py::init<double>(), py::arg("scale"));
 }
 
-template void addbinding(py::class_<AzimuthKernel<float>, Kernel<float>> & pyKernel);
-template void addbinding(py::class_<AzimuthKernel<double>, Kernel<double>> & pyKernel);
+template void addbinding(
+        py::class_<AzimuthKernel<float>, Kernel<float>>& pyKernel);
+template void addbinding(
+        py::class_<AzimuthKernel<double>, Kernel<double>>& pyKernel);
 
 // NFFT
-template <typename T>
-void addbinding(py::class_<NFFTKernel<T>, Kernel<T>> & pyKernel)
+template<typename T>
+void addbinding(py::class_<NFFTKernel<T>, Kernel<T>>& pyKernel)
 {
     pyKernel.doc() = R"delim(
         NFFT time-domain kernel.
@@ -84,11 +95,13 @@ void addbinding(py::class_<NFFTKernel<T>, Kernel<T>> & pyKernel)
         for x in [0,n) instead of [-0.5,0.5).
     )delim";
     pyKernel.def(py::init<int, int, int>(), py::arg("halfwidth"),
-        py::arg("size_data"), py::arg("size_fft"));
+            py::arg("size_data"), py::arg("size_fft"));
 }
 
-template void addbinding(py::class_<NFFTKernel<float>, Kernel<float>> & pyKernel);
-template void addbinding(py::class_<NFFTKernel<double>, Kernel<double>> & pyKernel);
+template void addbinding(
+        py::class_<NFFTKernel<float>, Kernel<float>>& pyKernel);
+template void addbinding(
+        py::class_<NFFTKernel<double>, Kernel<double>>& pyKernel);
 
 static const auto tabdoc = R"(
     Kernel look-up table.  Initialized from another kernel, which is assumed to
@@ -96,21 +109,20 @@ static const auto tabdoc = R"(
 )";
 
 // Look up table metakernel.  Allow double->float conversion.
-void addbinding(py::class_<TabulatedKernel<float>, Kernel<float>> & pyKernel)
+void addbinding(py::class_<TabulatedKernel<float>, Kernel<float>>& pyKernel)
 {
     pyKernel.doc() = tabdoc;
-    pyKernel
-        .def(py::init<const Kernel<float>&, int>(),
-            py::arg("kernel"), py::arg("table_size"))
-        .def(py::init<const Kernel<double>&, int>(),
-            py::arg("kernel"), py::arg("table_size"));
+    pyKernel.def(py::init<const Kernel<float>&, int>(), py::arg("kernel"),
+                    py::arg("table_size"))
+            .def(py::init<const Kernel<double>&, int>(), py::arg("kernel"),
+                    py::arg("table_size"));
 }
 
-void addbinding(py::class_<TabulatedKernel<double>, Kernel<double>> & pyKernel)
+void addbinding(py::class_<TabulatedKernel<double>, Kernel<double>>& pyKernel)
 {
     pyKernel.doc() = tabdoc;
-    pyKernel.def(py::init<const Kernel<double>&, int>(),
-        py::arg("kernel"), py::arg("table_size"));
+    pyKernel.def(py::init<const Kernel<double>&, int>(), py::arg("kernel"),
+            py::arg("table_size"));
 }
 
 static const auto chebdoc = R"(
@@ -119,19 +131,18 @@ static const auto chebdoc = R"(
 )";
 
 // Chebyshev polynomial metakernel.  Allow double->float conversion.
-void addbinding(py::class_<ChebyKernel<float>, Kernel<float>> & pyKernel)
+void addbinding(py::class_<ChebyKernel<float>, Kernel<float>>& pyKernel)
 {
     pyKernel.doc() = chebdoc;
-    pyKernel
-        .def(py::init<const Kernel<float>&, int>(),
-            py::arg("kernel"), py::arg("num_coeff"))
-        .def(py::init<const Kernel<double>&, int>(),
-            py::arg("kernel"), py::arg("num_coeff"));
+    pyKernel.def(py::init<const Kernel<float>&, int>(), py::arg("kernel"),
+                    py::arg("num_coeff"))
+            .def(py::init<const Kernel<double>&, int>(), py::arg("kernel"),
+                    py::arg("num_coeff"));
 }
 
-void addbinding(py::class_<ChebyKernel<double>, Kernel<double>> & pyKernel)
+void addbinding(py::class_<ChebyKernel<double>, Kernel<double>>& pyKernel)
 {
     pyKernel.doc() = chebdoc;
-    pyKernel.def(py::init<const Kernel<double>&, int>(),
-        py::arg("kernel"), py::arg("num_coeff"));
+    pyKernel.def(py::init<const Kernel<double>&, int>(), py::arg("kernel"),
+            py::arg("num_coeff"));
 }

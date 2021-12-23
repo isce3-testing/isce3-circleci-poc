@@ -32,4 +32,4 @@ auto operator/(const T1& lhs, const std::complex<T2>& rhs)
     return U(lhs) / std::complex<U>(rhs);
 }
 
-}}}
+}}} // namespace isce3::math::complex_operations

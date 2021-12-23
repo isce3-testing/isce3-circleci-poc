@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import pytest
 import pybind_isce3.geometry as m
+import pytest
 from pybind_isce3.core import DataInterpMethod
 
+
 def test_const():
-    href = 10.
+    href = 10.0
 
     dem = m.DEMInterpolator()
     dem.ref_height = href

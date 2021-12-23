@@ -1,6 +1,6 @@
 #pragma once
 
-#include <array> // std::array
+#include <array>   // std::array
 #include <complex> // std::complex
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
@@ -9,8 +9,7 @@
 
 #include "LabelMap.h" // LabelMap
 
-namespace isce3::unwrap::icu
-{
+namespace isce3::unwrap::icu {
 
 // 2-D index type
 typedef std::array<size_t, 2> idx2_t;
@@ -18,8 +17,7 @@ typedef std::array<size_t, 2> idx2_t;
 // 2-D offset type
 typedef std::array<int, 2> offset2_t;
 
-class ICU
-{
+class ICU {
 public:
     /** Constructor */
     ICU() = default;
@@ -52,14 +50,18 @@ public:
     /** Set window size for phase gradient calculation (default: 5). */
     void phaseGradWinSize(const int);
 
-    /** Get range phase gradient threshold for neutron generation (rad/sample). */
+    /** Get range phase gradient threshold for neutron generation (rad/sample).
+     */
     float neutPhaseGradThr() const;
-    /** Set range phase gradient threshold for neutron generation (rad/sample) (default: 3.0). */
+    /** Set range phase gradient threshold for neutron generation (rad/sample)
+     * (default: 3.0). */
     void neutPhaseGradThr(const float);
 
-    /** Get intensity variance threshold for neutron generation (stddevs from mean). */
+    /** Get intensity variance threshold for neutron generation (stddevs from
+     * mean). */
     float neutIntensityThr() const;
-    /** Set intensity variance threshold for neutron generation (stddevs from mean) (default: 8.0). */
+    /** Set intensity variance threshold for neutron generation (stddevs from
+     * mean) (default: 8.0). */
     void neutIntensityThr(const float);
 
     /** Get correlation threshold for neutron generation. */
@@ -79,7 +81,8 @@ public:
 
     /** Get ratio of x:y pixel spacing (for measuring branch cut length). */
     float ratioDxDy() const;
-    /** Set ratio of x:y pixel spacing (for measuring branch cut length) (default: 1.0). */
+    /** Set ratio of x:y pixel spacing (for measuring branch cut length)
+     * (default: 1.0). */
     void ratioDxDy(const float);
 
     /** Get initial correlation threshold. */
@@ -99,7 +102,8 @@ public:
 
     /** Get min connected component size as fraction of tile area. */
     float minCCAreaFrac() const;
-    /** Set min connected component size as fraction of tile area (default: 0.003125). */
+    /** Set min connected component size as fraction of tile area (default:
+     * 0.003125). */
     void minCCAreaFrac(const float);
 
     /** Get number of bootstrap lines. */
@@ -117,7 +121,7 @@ public:
     /** Set bootstrap phase variance threshold (default: 8.0). */
     void bsPhaseVarThr(const float);
 
-    /** 
+    /**
      * \brief Unwrap the target interferogram.
      *
      * @param[out] unw Unwrapped phase
@@ -126,52 +130,29 @@ public:
      * @param[in] corr Correlation
      * @param[in] seed Random state seed (default: 0)
      */
-    void unwrap(
-        isce3::io::Raster & unw,
-        isce3::io::Raster & ccl,
-        isce3::io::Raster & intf,
-        isce3::io::Raster & corr,
-        unsigned int seed = 0);
+    void unwrap(isce3::io::Raster& unw, isce3::io::Raster& ccl,
+            isce3::io::Raster& intf, isce3::io::Raster& corr,
+            unsigned int seed = 0);
 
     // Compute residue charges.
-    void getResidues(
-        signed char * charge, 
-        const float * phase, 
-        const size_t length, 
-        const size_t width);
+    void getResidues(signed char* charge, const float* phase,
+            const size_t length, const size_t width);
 
     // Generate neutrons to guide the tree growing process.
-    void genNeutrons(
-        bool * neut, 
-        const std::complex<float> * intf,
-        const float * corr,
-        const size_t length, 
-        const size_t width);
-    
+    void genNeutrons(bool* neut, const std::complex<float>* intf,
+            const float* corr, const size_t length, const size_t width);
+
     // Grow trees (make branch cuts).
-    void growTrees(
-        bool * tree,
-        const signed char * charge,
-        const bool * neut, 
-        const size_t length,
-        const size_t width,
-        const unsigned int seed = 0);
+    void growTrees(bool* tree, const signed char* charge, const bool* neut,
+            const size_t length, const size_t width,
+            const unsigned int seed = 0);
 
     // Grow grass (find connected components and unwrap phase).
     template<bool DO_BOOTSTRAP>
-    void growGrass(
-        float * unw,
-        uint8_t * ccl,
-        bool * currcc,
-        float * bsunw,
-        uint8_t * bsccl, 
-        LabelMap & labelmap,
-        const float * phase, 
-        const bool * tree, 
-        const float * corr, 
-        float corrthr,
-        const size_t length,
-        const size_t width);
+    void growGrass(float* unw, uint8_t* ccl, bool* currcc, float* bsunw,
+            uint8_t* bsccl, LabelMap& labelmap, const float* phase,
+            const bool* tree, const float* corr, float corrthr,
+            const size_t length, const size_t width);
 
 private:
     // Configuration params
@@ -195,7 +176,7 @@ private:
     float _BsPhaseVarThr = 8.f;
 };
 
-}
+} // namespace isce3::unwrap::icu
 
 // Get inline implementations.
 #define ISCE_UNWRAP_ICU_ICU_ICC

@@ -6,7 +6,7 @@ Projection
 ===========
 
 Projection is a simple data structure that provides coordinate transformation capability.
-Projection systems are uniquely identified by EPSG codes. At present, only altitudes above 
+Projection systems are uniquely identified by EPSG codes. At present, only altitudes above
 the WGS84 Ellipsoid are supported by these data structures.
 
 

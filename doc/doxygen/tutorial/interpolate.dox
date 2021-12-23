@@ -2,7 +2,7 @@
 
 \section interpmain Tutorial
 
-2D interpolation is a fundamental operation for image resampling, oversampling, terrain extraction, etc. ISCE currently implements several basic types of interpolation methods: bilinear, bicubic, spline, and sinc interpolation. For this example, we will test the first three interpolators on a synthetic low-resolution image. 
+2D interpolation is a fundamental operation for image resampling, oversampling, terrain extraction, etc. ISCE currently implements several basic types of interpolation methods: bilinear, bicubic, spline, and sinc interpolation. For this example, we will test the first three interpolators on a synthetic low-resolution image.
 
 \code{.cpp}
 

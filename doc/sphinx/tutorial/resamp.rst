@@ -23,20 +23,20 @@ The following is example code to perform the resampling.
 
     import isceextension
     from osgeo import gdal
-    
+
     # Instantiate a ResampSlc object
     resamp = isceextension.pyResampSlc()
-    
+
     # Open rasters for input files
     inputSlc = isceextension.pyRaster('input.slc')
     rgOff = isceextension.pyRaster('range.off')
     azOff = isceextension.pyRaster('azimuth.off')
-    
+
     # Create raster for output resampled SLC
     outputSlc = isceextension.pyRaster('output.slc', access=1, width=rgOff.width,
                                        length=rgOff.length, numBands=1, driver='ISCE',
                                        dtype=gdal.GDT_CFloat32)
-    
+
     # Run resamp
     resamp.resamp(inSlc=inputSlc, outSlc=outputSlc, rgoffRaster=rgOff, azoffRaster=azOff)
 
@@ -46,7 +46,7 @@ First, we created pyRaster objects for all input rasters: the input SLC image, t
    :scale: 100%
    :align: center
    :figclass: align-center
-                                      
+
 Example 2: SLC resampling with carrier phase and flattening
 ===========================================================
 
@@ -56,12 +56,12 @@ If the user wishes to account for SLCs with native Doppler frequencies in the az
 
     import isceextension
     from osgeo import gdal
-    
+
     # Create a polynomial for native Doppler
     # Note: 0th order in azimuth, 2nd order in range
     doppler = isceextension.pyPoly2d(azimuthOrder=0, rangeOrder=2)
     doppler.coeffs = [301.35306906319204, -0.04633312447837377, 2.044436266418998e-06]
-    
+
     # Create an ImageMode for the input image using Envisat parameters
     mode = isceextension.pyImageMode()
     # Set relevant parameters
@@ -69,7 +69,7 @@ If the user wishes to account for SLCs with native Doppler frequencies in the az
     mode.startingRange = 826988.69
     mode.rangePixelSpacing = 7.80
     mode.prf = 1652.416
-    
+
     # Create an ImageMode for the reference master image
     modeRef = isceextension.pyImageMode()
     # Set relevant parameters for reference
@@ -77,21 +77,21 @@ If the user wishes to account for SLCs with native Doppler frequencies in the az
     modeRef.startingRange = 826991.0
     modeRef.rangePixelSpacing = 7.80
     modeRef.prf = 1652.416
-    
+
     # Instantiate a ResampSlc object
     resamp = isceextension.pyResampSlc(doppler=doppler, mode=mode)
     resamp.refImageMode = modeRef
-    
+
     # Open rasters for input files
     inputSlc = isceextension.pyRaster('input.slc')
     rgOff = isceextension.pyRaster('range.off')
     azOff = isceextension.pyRaster('azimuth.off')
-    
+
     # Create raster for output resampled SLC
     outputSlc = isceextension.pyRaster('output.slc', access=1, width=rgOff.width,
                                        length=rgOff.length, numBands=1, driver='ISCE',
                                        dtype=gdal.GDT_CFloat32)
-    
+
     # Run resamp
     resamp.resamp(inSlc=inputSlc, outSlc=outputSlc, rgoffRaster=rgOff, azoffRaster=azOff)
 
@@ -106,37 +106,35 @@ As we saw in the raster tutorials, rasters can be created from NumPy arrays via 
     import numpy as np
     from osgeo import gdal_array
     from osgeo import gdal
-    
+
     # Instantiate a ResampSlc object
     resamp = isceextension.pyResampSlc()
-    
+
     # Open rasters for input files
     inputSlc = isceextension.pyRaster('input.slc')
-    
+
     # Meshgrids for coordinates for offsets
     xvals = np.arange(500)
     yvals = np.arange(500)
     X, Y = np.meshgrid(xvals, yvals)
-    
+
     # Create offsets
     roff = (Y - 250.0) / 5.0
     aoff = (Y - 250.0) / 2.5
-    
+
     # Dress offset numpy arrays with gdalarray
     roff_ds = gdal_array.OpenNumPyArray(roff)
     aoff_ds = gdal_array.OpenNumPyArray(aoff)
-    
+
     # Pass gdal datasets to pyRaster
     roff_raster = isceextension.pyRaster('', dataset=roff_ds)
     aoff_raster = isceextension.pyRaster('', dataset=aoff_ds)
-    
+
     # Create raster for output resampled SLC
     outputSlc = isceextension.pyRaster('output.slc', access=1, width=roff_raster.width,
                                        length=roff_raster.length, numBands=1, driver='ISCE',
                                        dtype=gdal.GDT_CFloat32)
-    
+
     # Run resamp
     resamp.resamp(inSlc=inputSlc, outSlc=outputSlc, rgoffRaster=roff_raster,
                   azoffRaster=aoff_raster)
-
-

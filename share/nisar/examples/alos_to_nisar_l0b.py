@@ -2,88 +2,109 @@
 import argparse
 import datetime
 import glob
+import os
+
 import h5py
 import numpy
-import os
-from isce3.stripmap.readers.l0raw.ALOS.CEOS import ImageFile, LeaderFile
 import pybind_isce3 as isce3
+from isce3.stripmap.readers.l0raw.ALOS.CEOS import ImageFile, LeaderFile
 from nisar.products.readers.Raw import Raw
 from nisar.workflows.focus import make_doppler_lut
 
+
 def cmdLineParse():
-    '''
+    """
     Command line parser.
-    '''
-    parser = argparse.ArgumentParser(description="Package ALOS L0 stripmap data into NISAR L0B HDF5")
-    parser.add_argument('-i', '--indir', dest='indir', type=str,
-                        help="Folder containing one ALOS L0 module",
-                        required=True)
-    parser.add_argument('-o', '--outh5', dest='outh5', type=str,
-                        help="Name of output file. If not provided, will be determined from ALOS granule",
-                        default=None)
-    parser.add_argument('-d', '--debug', dest='debug', action='store_true',
-                        help="Use more rigorous parser to check magic bytes aggresively",
-                        default=False)
+    """
+    parser = argparse.ArgumentParser(
+        description="Package ALOS L0 stripmap data into NISAR L0B HDF5"
+    )
+    parser.add_argument(
+        "-i",
+        "--indir",
+        dest="indir",
+        type=str,
+        help="Folder containing one ALOS L0 module",
+        required=True,
+    )
+    parser.add_argument(
+        "-o",
+        "--outh5",
+        dest="outh5",
+        type=str,
+        help="Name of output file. If not provided, will be determined from ALOS granule",
+        default=None,
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        dest="debug",
+        action="store_true",
+        help="Use more rigorous parser to check magic bytes aggresively",
+        default=False,
+    )
 
     inps = parser.parse_args()
     if not os.path.isdir(inps.indir):
-        raise ValueError('{0} does not appear to be a directory'.format(inps.indir))
+        raise ValueError("{0} does not appear to be a directory".format(inps.indir))
 
     if inps.outh5 is None:
-        print('HDF5 output granule name will be determined on fly and created in cwd')
+        print("HDF5 output granule name will be determined on fly and created in cwd")
 
     return inps
 
+
 def getALOSFilenames(indir):
-    '''
+    """
     Parse the contents of a given directory to separate out leader and image files.
-    '''
+    """
     filenames = {}
 
     ##First look for the leader file
-    flist = glob.glob(os.path.join(indir, 'LED-ALPSRP*1.0__*'))
+    flist = glob.glob(os.path.join(indir, "LED-ALPSRP*1.0__*"))
     if len(flist) == 0:
-        raise ValueError('No leader files found in folder {0}'.format(indir))
+        raise ValueError("No leader files found in folder {0}".format(indir))
     elif len(flist) > 1:
-        raise ValueError('Multiple leader files in folder {0}'.format(indir))
+        raise ValueError("Multiple leader files in folder {0}".format(indir))
 
-    filenames['leaderfile']  = flist[0]
+    filenames["leaderfile"] = flist[0]
     pattern = os.path.basename(flist[0])[4:]
 
-
     ##Look for polarizations
-    for pol in ['HH', 'HV', 'VV', 'VH']:
-        flist = glob.glob(os.path.join(indir, 'IMG-{0}-{1}'.format(pol, pattern)))
+    for pol in ["HH", "HV", "VV", "VH"]:
+        flist = glob.glob(os.path.join(indir, "IMG-{0}-{1}".format(pol, pattern)))
         if len(flist) == 1:
-            print('Found Polarization: {0}'.format(pol))
+            print("Found Polarization: {0}".format(pol))
             filenames[pol] = flist[0]
 
-
-    #If no image files were found
+    # If no image files were found
     if len(filenames) == 1:
-        raise ValueError('No image files were found in folder: {0}'.format(indir))
+        raise ValueError("No image files were found in folder: {0}".format(indir))
 
-    filenames['defaulth5'] = '{0}.h5'.format(pattern)
+    filenames["defaulth5"] = "{0}.h5".format(pattern)
 
     return filenames
 
 
 def parseLeaderFile(filenames):
-    '''
+    """
     Parse leader file and check values against polarizations.
-    '''
+    """
 
     try:
-        ldr = LeaderFile.LeaderFile(filenames['leaderfile'])
+        ldr = LeaderFile.LeaderFile(filenames["leaderfile"])
     except AssertionError as msg:
         print(msg)
-        raise AssertionError('Error parsing ALOS raw leader file: {0}'.format(filenames['leaderfile']))
-
+        raise AssertionError(
+            "Error parsing ALOS raw leader file: {0}".format(filenames["leaderfile"])
+        )
 
     ##Checks to ensure that the number of polarizations is consistent
-    numpol = len(filenames) - 2 #Subtract leader and defaulth5 name
+    numpol = len(filenames) - 2  # Subtract leader and defaulth5 name
     if numpol != ldr.summary.NumberOfSARChannels:
-        raise ValueError('Number of image files discovered is inconsistent with Leader File')
+        raise ValueError(
+            "Number of image files discovered is inconsistent with Leader File"
+        )
 
     return ldr
 
@@ -115,19 +136,26 @@ def alos_quaternion(t, euler_ypr_deg, orbit):
 
 def get_alos_orbit(ldr: LeaderFile.LeaderFile) -> isce3.core.Orbit:
     hdr = ldr.platformPosition.header
-    tref = datetime.datetime(hdr.YearOfDataPoint, hdr.MonthOfDataPoint,
-                             hdr.DayOfDataPoint)
+    tref = datetime.datetime(
+        hdr.YearOfDataPoint, hdr.MonthOfDataPoint, hdr.DayOfDataPoint
+    )
     t0, dt = hdr.SecondsOfDay, hdr.TimeIntervalBetweenDataPointsInSec
     times, svs = [], []
     for i, sv in enumerate(ldr.platformPosition.statevectors):
         t = t0 + i * dt * 1.0
         times.append(t)
         timestamp = isce3.core.DateTime(tref) + isce3.core.TimeDelta(seconds=t)
-        svs.append(isce3.core.StateVector(
-            datetime = timestamp,
-            position = [sv.PositionXInm, sv.PositionYInm, sv.PositionZInm],
-            velocity = [sv.VelocityXInmpers, sv.VelocityYInmpers, sv.VelocityZInmpers]
-        ))
+        svs.append(
+            isce3.core.StateVector(
+                datetime=timestamp,
+                position=[sv.PositionXInm, sv.PositionYInm, sv.PositionZInm],
+                velocity=[
+                    sv.VelocityXInmpers,
+                    sv.VelocityYInmpers,
+                    sv.VelocityZInmpers,
+                ],
+            )
+        )
     # Use tref as epoch, not time of first sample.
     return isce3.core.Orbit(svs, isce3.core.DateTime(tref))
 
@@ -135,15 +163,15 @@ def get_alos_orbit(ldr: LeaderFile.LeaderFile) -> isce3.core.Orbit:
 def set_h5_orbit(group: h5py.Group, orbit: isce3.core.Orbit):
     orbit.save_to_h5(group)
     # orbitType and acceleration not used/contained in Orbit object
-    group.create_dataset('orbitType', data=numpy.string_('DOE'))
-    dset = group.create_dataset("acceleration",
-                                data=numpy.zeros_like(orbit.velocity))
+    group.create_dataset("orbitType", data=numpy.string_("DOE"))
+    dset = group.create_dataset("acceleration", data=numpy.zeros_like(orbit.velocity))
     dset.attrs["units"] = numpy.string_("meters per second squared")
     dset.attrs["description"] = numpy.string_("GPS state vector acceleration")
 
 
-def getset_attitude(group: h5py.Group, ldr: LeaderFile.LeaderFile,
-                    orbit: isce3.core.Orbit):
+def getset_attitude(
+    group: h5py.Group, ldr: LeaderFile.LeaderFile, orbit: isce3.core.Orbit
+):
     """Read attitude from LeaderFile and write to NISAR HDF5 group.
     Assumes orbit.reference_epoch is in same year as attitude data.
     """
@@ -154,12 +182,14 @@ def getset_attitude(group: h5py.Group, ldr: LeaderFile.LeaderFile,
     assert all(numpy.diff(days) >= 0), "Unexpected roll over in day of year."
 
     times = []  # time stamps, seconds rel orbit epoch
-    rpys = []   # (roll, pitch, yaw) Euler angle tuples, degrees
-    qs = []     # (q0,q1,q2,q3) quaternion arrays
+    rpys = []  # (roll, pitch, yaw) Euler angle tuples, degrees
+    qs = []  # (q0,q1,q2,q3) quaternion arrays
     for sv in ldr.attitude.statevectors:
-        dt = isce3.core.TimeDelta(datetime.timedelta(
-            days = sv.DayOfYear - 1,
-            seconds = 0.001 * sv.MillisecondsOfDay))
+        dt = isce3.core.TimeDelta(
+            datetime.timedelta(
+                days=sv.DayOfYear - 1, seconds=0.001 * sv.MillisecondsOfDay
+            )
+        )
         t = isce3.core.DateTime(orbit.reference_epoch.year, 1, 1) + dt
         rpy = (sv.RollInDegrees, sv.PitchInDegrees, sv.YawInDegrees)
         rpys.append(rpy)
@@ -172,7 +202,8 @@ def getset_attitude(group: h5py.Group, ldr: LeaderFile.LeaderFile,
     # so don't bother constructing it.
     ds = group.create_dataset("angularVelocity", data=numpy.zeros((len(qs), 3)))
     ds.attrs["description"] = numpy.string_(
-        "Attitude angular velocity vectors (wx, wy, wz)")
+        "Attitude angular velocity vectors (wx, wy, wz)"
+    )
     ds.attrs["units"] = numpy.string_("radians per second")
 
     ds = group.create_dataset("attitudeType", data=numpy.string_("Custom"))
@@ -188,9 +219,11 @@ def getset_attitude(group: h5py.Group, ldr: LeaderFile.LeaderFile,
 
     ds = group.create_dataset("time", data=numpy.array(times))
     ds.attrs["description"] = numpy.string_(
-        "Time vector record. This record contains the time")
+        "Time vector record. This record contains the time"
+    )
     ds.attrs["units"] = numpy.string_(
-        f"seconds since {orbit.reference_epoch.isoformat()}")
+        f"seconds since {orbit.reference_epoch.isoformat()}"
+    )
 
 
 def populateIdentification(ident: h5py.Group, ldr: LeaderFile.LeaderFile):
@@ -198,16 +231,19 @@ def populateIdentification(ident: h5py.Group, ldr: LeaderFile.LeaderFile):
     {"boundingPolygon"," zeroDopplerStartTime", "zeroDopplerEndTime"}
     are populated with dummy values.
     """
-    ident.create_dataset('diagnosticModeFlag', data=numpy.string_("False"))
-    ident.create_dataset('isGeocoded', data=numpy.string_("False"))
-    ident.create_dataset('listOfFrequencies', data=numpy.string_(["A"]))
-    ident.create_dataset('lookDirection', data = numpy.string_("Right"))
-    ident.create_dataset('missionId', data=numpy.string_("ALOS"))
-    ident.create_dataset('orbitPassDirection', data=numpy.string_(ldr.summary.TimeDirectionIndicatorAlongLine))
-    ident.create_dataset('processingType', data=numpy.string_("repackaging"))
-    ident.create_dataset('productType', data=numpy.string_("RRSD"))
-    ident.create_dataset('productVersion', data=numpy.string_("0.1"))
-    ident.create_dataset('absoluteOrbitNumber', data=numpy.array(0, dtype='u4'))
+    ident.create_dataset("diagnosticModeFlag", data=numpy.string_("False"))
+    ident.create_dataset("isGeocoded", data=numpy.string_("False"))
+    ident.create_dataset("listOfFrequencies", data=numpy.string_(["A"]))
+    ident.create_dataset("lookDirection", data=numpy.string_("Right"))
+    ident.create_dataset("missionId", data=numpy.string_("ALOS"))
+    ident.create_dataset(
+        "orbitPassDirection",
+        data=numpy.string_(ldr.summary.TimeDirectionIndicatorAlongLine),
+    )
+    ident.create_dataset("processingType", data=numpy.string_("repackaging"))
+    ident.create_dataset("productType", data=numpy.string_("RRSD"))
+    ident.create_dataset("productVersion", data=numpy.string_("0.1"))
+    ident.create_dataset("absoluteOrbitNumber", data=numpy.array(0, dtype="u4"))
     # shape = numberOfObservations
     ident.create_dataset("plannedObservationId", data=numpy.string_(["0"]))
     ident.create_dataset("isUrgentObservation", data=numpy.string_(["False"]))
@@ -215,29 +251,33 @@ def populateIdentification(ident: h5py.Group, ldr: LeaderFile.LeaderFile):
     ident.create_dataset("plannedDatatakeId", data=numpy.string_(["0"]))
     # Will override these three later.
     ident.create_dataset("boundingPolygon", data=numpy.string_("POLYGON EMPTY"))
-    ident.create_dataset("zeroDopplerStartTime", data=numpy.string_(
-        "2007-01-01 00:00:00.0000000"))
-    ident.create_dataset("zeroDopplerEndTime", data=numpy.string_(
-        "2007-01-01 00:00:01.0000000"))
+    ident.create_dataset(
+        "zeroDopplerStartTime", data=numpy.string_("2007-01-01 00:00:00.0000000")
+    )
+    ident.create_dataset(
+        "zeroDopplerEndTime", data=numpy.string_("2007-01-01 00:00:01.0000000")
+    )
 
 
 def constructNISARHDF5(args, ldr):
-    '''
+    """
     Build skeleton of HDF5 file using leader file information.
-    '''
-    with h5py.File(args.outh5, 'w-') as fid:
-        lsar = fid.create_group('/science/LSAR')
+    """
+    with h5py.File(args.outh5, "w-") as fid:
+        lsar = fid.create_group("/science/LSAR")
         ##Fill up Identification
-        ident = lsar.create_group('identification')
+        ident = lsar.create_group("identification")
         populateIdentification(ident, ldr)
 
         ##Start populating metadata parts
-        rrsd = lsar.create_group('RRSD')
-        inps = rrsd.create_group('metadata/processingInformation/inputs')
-        inps.create_dataset('l0aGranules', data=numpy.string_([os.path.basename(args.indir)]))
+        rrsd = lsar.create_group("RRSD")
+        inps = rrsd.create_group("metadata/processingInformation/inputs")
+        inps.create_dataset(
+            "l0aGranules", data=numpy.string_([os.path.basename(args.indir)])
+        )
 
-        #Start populating telemetry
-        orbit_group = rrsd.create_group('telemetry/orbit')
+        # Start populating telemetry
+        orbit_group = rrsd.create_group("telemetry/orbit")
         orbit = get_alos_orbit(ldr)
         set_h5_orbit(orbit_group, orbit)
         attitude_group = rrsd.create_group("telemetry/attitude")
@@ -245,110 +285,129 @@ def constructNISARHDF5(args, ldr):
 
 
 def addImagery(h5file, ldr, imgfile, pol):
-    '''
+    """
     Populate swaths segment of HDF5 file.
-    '''
+    """
 
-    #Speed of light - expose in isce3
+    # Speed of light - expose in isce3
     SOL = 299792458.0
 
-    fid = h5py.File(h5file, 'r+')
-    assert(len(pol) == 2)
+    fid = h5py.File(h5file, "r+")
+    assert len(pol) == 2
     txP = pol[0]
     rxP = pol[1]
 
-
-    #Parse imagefile descriptor and first record.
+    # Parse imagefile descriptor and first record.
     image = ImageFile.ImageFile(imgfile)
     firstrec = image.readNextLine()
 
-
-    #Range related parameters
+    # Range related parameters
     fsamp = ldr.summary.SamplingRateInMHz * 1.0e6
     r0 = firstrec.SlantRangeToFirstSampleInm
     dr = SOL / (2 * fsamp)
-    nPixels = image.description.NumberOfBytesOfSARDataPerRecord // image.description.NumberOfSamplesPerDataGroup
+    nPixels = (
+        image.description.NumberOfBytesOfSARDataPerRecord
+        // image.description.NumberOfSamplesPerDataGroup
+    )
     nLines = image.description.NumberOfSARDataRecords
 
+    freqA = "/science/LSAR/RRSD/swaths/frequencyA"
 
-    freqA = '/science/LSAR/RRSD/swaths/frequencyA'
-
-    #If this is first pol being written, add common information as well
+    # If this is first pol being written, add common information as well
     if freqA not in fid:
         freqA = fid.create_group(freqA)
-        freqA.create_dataset('centerFrequency', data=SOL / (ldr.summary.RadarWavelengthInm))
-        freqA.create_dataset('rangeBandwidth', data=ldr.calibration.header.BandwidthInMHz * 1.0e6)
-        freqA.create_dataset('chirpDuration', data=firstrec.ChirpLengthInns * 1.0e-9)
-        freqA.create_dataset('chirpSlope', data=-((freqA['rangeBandwidth'][()])/(freqA['chirpDuration'][()])))
-        freqA.create_dataset('nominalAcquisitionPRF', data=firstrec.PRFInmHz / 1000./ (1 + (ldr.summary.NumberOfSARChannels == 4)))
-        freqA.create_dataset('slantRangeSpacing', data=dr)
-        freqA.create_dataset('slantRange', data=r0 + numpy.arange(nPixels) * dr)
+        freqA.create_dataset(
+            "centerFrequency", data=SOL / (ldr.summary.RadarWavelengthInm)
+        )
+        freqA.create_dataset(
+            "rangeBandwidth", data=ldr.calibration.header.BandwidthInMHz * 1.0e6
+        )
+        freqA.create_dataset("chirpDuration", data=firstrec.ChirpLengthInns * 1.0e-9)
+        freqA.create_dataset(
+            "chirpSlope",
+            data=-((freqA["rangeBandwidth"][()]) / (freqA["chirpDuration"][()])),
+        )
+        freqA.create_dataset(
+            "nominalAcquisitionPRF",
+            data=firstrec.PRFInmHz
+            / 1000.0
+            / (1 + (ldr.summary.NumberOfSARChannels == 4)),
+        )
+        freqA.create_dataset("slantRangeSpacing", data=dr)
+        freqA.create_dataset("slantRange", data=r0 + numpy.arange(nPixels) * dr)
     else:
         freqA = fid[freqA]
 
-        #Add bunch of assertions here if you want to be super sure that values are not different between pols
-
+        # Add bunch of assertions here if you want to be super sure that values are not different between pols
 
     ##Now add in transmit specific information
-    txgrpstr = '/science/LSAR/RRSD/swaths/frequencyA/tx{0}'.format(txP)
+    txgrpstr = "/science/LSAR/RRSD/swaths/frequencyA/tx{0}".format(txP)
     firstInPol = False
     if txgrpstr not in fid:
         firstInPol = True
-        tstart = datetime.datetime(firstrec.SensorAcquisitionYear, 1, 1) +\
-                 datetime.timedelta(days=int(firstrec.SensorAcquisitionDayOfYear-1))
+        tstart = datetime.datetime(
+            firstrec.SensorAcquisitionYear, 1, 1
+        ) + datetime.timedelta(days=int(firstrec.SensorAcquisitionDayOfYear - 1))
         txgrp = fid.create_group(txgrpstr)
-        time = txgrp.create_dataset('UTCtime', dtype='f8', shape=(nLines,))
-        time.attrs['units'] = "seconds since {0} 00:00:00".format(tstart.strftime('%Y-%m-%d'))
-        txgrp.create_dataset('numberOfSubSwaths', data=1)
-        txgrp.create_dataset('radarTime', dtype='f8', shape=(nLines,))
-        txgrp.create_dataset('rangeLineIndex', dtype='i8', shape=(nLines,))
-        txgrp.create_dataset('validSamplesSubSwath1', dtype='i8', shape=(nLines,2))
+        time = txgrp.create_dataset("UTCtime", dtype="f8", shape=(nLines,))
+        time.attrs["units"] = "seconds since {0} 00:00:00".format(
+            tstart.strftime("%Y-%m-%d")
+        )
+        txgrp.create_dataset("numberOfSubSwaths", data=1)
+        txgrp.create_dataset("radarTime", dtype="f8", shape=(nLines,))
+        txgrp.create_dataset("rangeLineIndex", dtype="i8", shape=(nLines,))
+        txgrp.create_dataset("validSamplesSubSwath1", dtype="i8", shape=(nLines, 2))
     else:
         txgrp = fid[txgrpstr]
 
     ###Create imagery group
-    rximgstr = os.path.join(txgrpstr, 'rx{0}'.format(rxP))
+    rximgstr = os.path.join(txgrpstr, "rx{0}".format(rxP))
     if rximgstr in fid:
         fid.close()
-        raise ValueError('Reparsing polarization {0}. Array already exists {1}'.format(pol, rximgstr))
+        raise ValueError(
+            "Reparsing polarization {0}. Array already exists {1}".format(pol, rximgstr)
+        )
 
-    print('Dimensions: {0}L x {1}P'.format(nLines, nPixels))
+    print("Dimensions: {0}L x {1}P".format(nLines, nPixels))
     fid.create_group(rximgstr)
 
     ##Set up BFPQLUT
     assert firstrec.SARRawSignalData.dtype.itemsize <= 2
-    lut = numpy.arange(2**16, dtype=numpy.float32)
+    lut = numpy.arange(2 ** 16, dtype=numpy.float32)
     assert numpy.issubdtype(firstrec.SARRawSignalData.dtype, numpy.signedinteger)
-    lut[-2**15:] -= 2**16
+    lut[-(2 ** 15) :] -= 2 ** 16
     assert ldr.summary.DCBiasIComponent == ldr.summary.DCBiasQComponent
     lut -= ldr.summary.DCBiasIComponent
-    BAD_VALUE = -2**15
+    BAD_VALUE = -(2 ** 15)
     lut[BAD_VALUE] = numpy.nan
-    rxlut = fid.create_dataset(os.path.join(rximgstr, 'BFPQLUT'), data=lut)
+    rxlut = fid.create_dataset(os.path.join(rximgstr, "BFPQLUT"), data=lut)
 
-
-    #Create imagery layer
-    compress = dict(chunks=(4, 512), compression="gzip", compression_opts=9, shuffle=True)
-    cpxtype = numpy.dtype([('r', numpy.int16), ('i', numpy.int16)])
-    rximg = fid.create_dataset(os.path.join(rximgstr, pol), dtype=cpxtype, shape=(nLines,nPixels), **compress)
+    # Create imagery layer
+    compress = dict(
+        chunks=(4, 512), compression="gzip", compression_opts=9, shuffle=True
+    )
+    cpxtype = numpy.dtype([("r", numpy.int16), ("i", numpy.int16)])
+    rximg = fid.create_dataset(
+        os.path.join(rximgstr, pol), dtype=cpxtype, shape=(nLines, nPixels), **compress
+    )
 
     ##Start populating the imagery
 
     rec = firstrec
-    for linnum in range(1, nLines+1):
-        if (linnum % 1000 == 0):
-            print('Parsing Line number: {0} out of {1}'.format(linnum, nLines))
+    for linnum in range(1, nLines + 1):
+        if linnum % 1000 == 0:
+            print("Parsing Line number: {0} out of {1}".format(linnum, nLines))
 
         if firstInPol:
-            txgrp['UTCtime'][linnum-1] = rec.SensorAcquisitionmsecsOfDay * 1.0e-3
-            txgrp['rangeLineIndex'][linnum-1] = rec.SARImageDataLineNumber
-            txgrp['radarTime'][linnum-1] = rec.SensorAcquisitionmsecsOfDay * 1.0e-3
+            txgrp["UTCtime"][linnum - 1] = rec.SensorAcquisitionmsecsOfDay * 1.0e-3
+            txgrp["rangeLineIndex"][linnum - 1] = rec.SARImageDataLineNumber
+            txgrp["radarTime"][linnum - 1] = rec.SensorAcquisitionmsecsOfDay * 1.0e-3
 
-        #Adjust range line
+        # Adjust range line
         rshift = int(numpy.rint((rec.SlantRangeToFirstSampleInm - r0) / dr))
-        write_arr = numpy.full((2*nPixels), BAD_VALUE, dtype=numpy.int16)
+        write_arr = numpy.full((2 * nPixels), BAD_VALUE, dtype=numpy.int16)
 
-        inarr = rec.SARRawSignalData[0,:].astype(numpy.int16)
+        inarr = rec.SARRawSignalData[0, :].astype(numpy.int16)
 
         left = 2 * rec.ActualCountOfLeftFillPixels
         right = 2 * rec.ActualCountOfRightFillPixels
@@ -356,43 +415,42 @@ def addImagery(h5file, ldr, imgfile, pol):
         inarr[-right:] = BAD_VALUE
 
         if rshift >= 0:
-            write_arr[2*rshift:] = inarr[:2*(nPixels - rshift)]
+            write_arr[2 * rshift :] = inarr[: 2 * (nPixels - rshift)]
         else:
-            write_arr[:2*rshift] = inarr[-2*rshift:]
+            write_arr[: 2 * rshift] = inarr[-2 * rshift :]
 
         if firstInPol:
             inds = numpy.where(write_arr != BAD_VALUE)[0]
             if len(inds) > 1:
-                txgrp['validSamplesSubSwath1'][linnum-1] = [inds[0], inds[-1]+1]
+                txgrp["validSamplesSubSwath1"][linnum - 1] = [inds[0], inds[-1] + 1]
 
-        #Complex float 16 writes work with write_direct only
-        rximg.write_direct(write_arr.view(cpxtype), dest_sel=numpy.s_[linnum-1])
+        # Complex float 16 writes work with write_direct only
+        rximg.write_direct(write_arr.view(cpxtype), dest_sel=numpy.s_[linnum - 1])
 
         ##Read next record
         if linnum != nLines:
             rec = image.readNextLine()
 
-
     if firstInPol:
-        #Adjust time records - ALOS provides this only to nearest millisec - not good enough
-        tinp = txgrp['UTCtime'][:]
-        prf = freqA['nominalAcquisitionPRF'][()]
+        # Adjust time records - ALOS provides this only to nearest millisec - not good enough
+        tinp = txgrp["UTCtime"][:]
+        prf = freqA["nominalAcquisitionPRF"][()]
         tarr = (tinp - tinp[0]) * 1000
         ref = numpy.arange(tinp.size) / prf
 
         ####Check every 20 microsecs
-        off = numpy.arange(-50,50)*2.0e-5
+        off = numpy.arange(-50, 50) * 2.0e-5
         res = numpy.zeros(off.size)
 
         ###Check which offset produces the same millisec truncation
         ###Assumes PRF is correct
         for xx in range(off.size):
-            ttrunc = numpy.floor((ref+off[xx])*1000) #Should be round / floor?
-            res[xx] = numpy.sum(tarr-ttrunc)
+            ttrunc = numpy.floor((ref + off[xx]) * 1000)  # Should be round / floor?
+            res[xx] = numpy.sum(tarr - ttrunc)
 
-        delta = (numpy.argmin(numpy.abs(res)) - 50)*2.0e-5
-        print('Start time correction in usec: ', delta*1e6)
-        txgrp['UTCtime'][:] = ref + tinp[0] + delta
+        delta = (numpy.argmin(numpy.abs(res)) - 50) * 2.0e-5
+        print("Start time correction in usec: ", delta * 1e6)
+        txgrp["UTCtime"][:] = ref + tinp[0] + delta
 
 
 def computeBoundingPolygon(h5file: str, h: float = 0.0):
@@ -420,45 +478,50 @@ def finalizeIdentification(h5file: str):
     t1 = (epoch + isce3.core.TimeDelta(t[-1])).isoformat()
     poly = computeBoundingPolygon(h5file)
 
-    with h5py.File(h5file, 'r+') as fid:
+    with h5py.File(h5file, "r+") as fid:
         ident = fid["/science/LSAR/identification"]
         # Unlink datasets and create new ones to avoid silent truncation.
         del ident["boundingPolygon"]
         del ident["zeroDopplerStartTime"]
         del ident["zeroDopplerEndTime"]
+
         def additem(name, value, description):
             ds = ident.create_dataset(name, data=numpy.string_(value))
             ds.attrs["description"] = numpy.string_(description)
-        additem("boundingPolygon", poly,
-            "OGR compatible WKT representation of bounding polygon of the image")
+
+        additem(
+            "boundingPolygon",
+            poly,
+            "OGR compatible WKT representation of bounding polygon of the image",
+        )
         additem("zeroDopplerStartTime", t0, "Azimuth start time of product")
         additem("zeroDopplerEndTime", t1, "Azimuth stop time of product")
 
 
 def process(args=None):
-    '''
+    """
     Main processing workflow.
-    '''
-    #Discover file names
+    """
+    # Discover file names
     filenames = getALOSFilenames(args.indir)
 
-    #Parse the leader file
+    # Parse the leader file
     leader = parseLeaderFile(filenames)
 
-    #Set up output file name
+    # Set up output file name
     if args.outh5 is None:
-        args.outh5 = filenames['defaulth5']
+        args.outh5 = filenames["defaulth5"]
 
     if os.path.exists(args.outh5):
-        raise ValueError('Output HDF5 file {0} already exists. Exiting ...'.format(args.outh5))
+        raise ValueError(
+            "Output HDF5 file {0} already exists. Exiting ...".format(args.outh5)
+        )
 
-
-    #Setup HDF5 skeleton
+    # Setup HDF5 skeleton
     constructNISARHDF5(args, leader)
 
-
-    #Iterate over polarizations for imagery layers
-    for pol in ['HH', 'HV', 'VV', 'VH']:
+    # Iterate over polarizations for imagery layers
+    for pol in ["HH", "HV", "VV", "VH"]:
         if pol in filenames:
             addImagery(args.outh5, leader, filenames[pol], pol)
 
@@ -466,12 +529,12 @@ def process(args=None):
 
 
 if __name__ == "__main__":
-    '''
+    """
     Main driver.
-    '''
+    """
 
-    #Parse command line
+    # Parse command line
     inps = cmdLineParse()
 
-    #Process the data
+    # Process the data
     process(args=inps)

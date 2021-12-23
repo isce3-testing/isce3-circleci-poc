@@ -5,15 +5,15 @@
 Map Projections Tutorial
 ========================
 
-ISCE's Projection support is designed using `PROJ <https://proj4.org>`_ as a reference. 
+ISCE's Projection support is designed using `PROJ <https://proj4.org>`_ as a reference.
 We expose ISCE's projection library under isce3.core.Projection but this is meant to only inform
-processing modules of projection choice. We encourage users to use 
+processing modules of projection choice. We encourage users to use
 `pyproj <https://jswhit.github.io/pyproj/>`_ or GDAL's Python bindings itself
 to transform coordinates at the Python level.
 
 For this tutorial, we assume a minimum version of 2.4 for pyProj and 3.0 for GDAL.
 
-We will present simple examples using GDAL Python bindings and pyproj to accomplish the same 
+We will present simple examples using GDAL Python bindings and pyproj to accomplish the same
 transformations as the ones performed in the C++ tutorial. The tutorial is organized as follows:
 
 
@@ -49,7 +49,7 @@ Create a Projection object
 Coordinate transformation using GDAL
 ------------------------------------
 
-Note that internally, ISCE uses Lon/Lat/Hae (rad) as common projection system that ties all the different 
+Note that internally, ISCE uses Lon/Lat/Hae (rad) as common projection system that ties all the different
 transformers together. At the Python level, we don't need to expose this to the user. GDAL provides methods
 that are similar to isce::core::projTransform method.
 
@@ -60,7 +60,7 @@ Coordinate transformation using GDAL can be accomplished as follows:
 
    from osgeo import osr
    import numpy as np
-   
+
    llh = osr.SpatialReference() #Create Lat/Lon
    llh.ImportFromEPSG(4326)
 

@@ -33,8 +33,7 @@ namespace io {
  * @param[in] type          Type of object to search for. Default: BOTH */
 template<typename H5obj>
 inline bool exists(H5obj& h5obj, const std::string& name,
-                   const std::string start = ".",
-                   const std::string type = "BOTH")
+        const std::string start = ".", const std::string type = "BOTH")
 {
     // Search for objects
     std::vector<std::string> objs = h5obj.find(name, start, type, "FULL");
@@ -66,8 +65,8 @@ inline void loadFromH5(H5obj& h5obj, const std::string& datasetPath, T& v)
  * @param[in] datasetPath   H5 path of dataset relative to h5obj.
  * @param[in] v             Vector to store dataset. */
 template<typename H5obj, typename T>
-inline void loadFromH5(H5obj& h5obj, const std::string& datasetPath,
-                       std::vector<T>& v)
+inline void loadFromH5(
+        H5obj& h5obj, const std::string& datasetPath, std::vector<T>& v)
 {
     // Open dataset
     isce3::io::IDataSet dataset = h5obj.openDataSet(datasetPath);
@@ -81,8 +80,8 @@ inline void loadFromH5(H5obj& h5obj, const std::string& datasetPath,
  * @param[in] datasetPath   H5 path of dataset relative to h5obj.
  * @param[in] v             Valarray to store dataset. */
 template<typename H5obj, typename T>
-inline void loadFromH5(H5obj& h5obj, const std::string& datasetPath,
-                       std::valarray<T>& v)
+inline void loadFromH5(
+        H5obj& h5obj, const std::string& datasetPath, std::valarray<T>& v)
 {
     // Open dataset
     isce3::io::IDataSet dataset = h5obj.openDataSet(datasetPath);
@@ -96,8 +95,8 @@ inline void loadFromH5(H5obj& h5obj, const std::string& datasetPath,
  * @param[in] datasetPath   H5 path of dataset relative to h5obj.
  * @param[in] m             Matrix to store dataset. */
 template<typename H5obj, typename T>
-inline void loadFromH5(H5obj& h5obj, const std::string& datasetPath,
-                       isce3::core::Matrix<T>& m)
+inline void loadFromH5(
+        H5obj& h5obj, const std::string& datasetPath, isce3::core::Matrix<T>& m)
 {
     // Open dataset
     isce3::io::IDataSet dataset = h5obj.openDataSet(datasetPath);
@@ -113,7 +112,7 @@ inline void loadFromH5(H5obj& h5obj, const std::string& datasetPath,
  * @param[in] units         Units of dataset. */
 template<typename H5obj, typename T>
 inline void saveToH5(H5obj& h5obj, const std::string& datasetPath, const T& val,
-                     const std::string& units = "")
+        const std::string& units = "")
 {
     // Check for existence of dataset
     if (exists(h5obj, datasetPath)) {
@@ -135,7 +134,7 @@ inline void saveToH5(H5obj& h5obj, const std::string& datasetPath, const T& val,
  * @param[in] units         Units of dataset. */
 template<typename H5obj, typename T>
 inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
-                     const std::vector<T>& v, const std::string& units = "")
+        const std::vector<T>& v, const std::string& units = "")
 {
     // Check for existence of dataset
     if (exists(h5obj, datasetPath)) {
@@ -157,7 +156,7 @@ inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
  * @param[in] units         Units of dataset. */
 template<typename H5obj, typename T>
 inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
-                     const std::valarray<T>& v, const std::string& units = "")
+        const std::valarray<T>& v, const std::string& units = "")
 {
     // Check for existence of dataset
     if (exists(h5obj, datasetPath)) {
@@ -179,8 +178,8 @@ inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
  * @param[in] units         Units of dataset. */
 template<typename H5obj, typename T, size_t S>
 inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
-                     const std::vector<T>& v, std::array<size_t, S> dims,
-                     const std::string& units = "")
+        const std::vector<T>& v, std::array<size_t, S> dims,
+        const std::string& units = "")
 {
     // Check for existence of dataset
     if (exists(h5obj, datasetPath)) {
@@ -202,8 +201,8 @@ inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
  * @param[in] units         Units of dataset. */
 template<typename H5obj, typename T, size_t S>
 inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
-                     const std::valarray<T>& v, std::array<size_t, S> dims,
-                     const std::string& units = "")
+        const std::valarray<T>& v, std::array<size_t, S> dims,
+        const std::string& units = "")
 {
     // Check for existence of dataset
     if (exists(h5obj, datasetPath)) {
@@ -225,8 +224,7 @@ inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
  * @param[in] units         Units of dataset. */
 template<typename H5obj, typename T>
 inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
-                     const isce3::core::Matrix<T>& mat,
-                     const std::string& units = "")
+        const isce3::core::Matrix<T>& mat, const std::string& units = "")
 {
     // Check for existence of dataset
     if (exists(h5obj, datasetPath)) {
@@ -247,8 +245,8 @@ inline void saveToH5(H5obj& h5obj, const std::string& datasetPath,
  * @param[in] h5obj         HDF5 file or group object.
  * @param[in] datasetPath   H5 path of image dataset relative to h5obj. */
 template<typename H5obj>
-inline std::vector<int> getImageDims(H5obj& h5obj,
-                                     const std::string& datasetPath)
+inline std::vector<int> getImageDims(
+        H5obj& h5obj, const std::string& datasetPath)
 {
     // Open dataset
     isce3::io::IDataSet dataset = h5obj.openDataSet(datasetPath);
@@ -265,8 +263,8 @@ inline std::vector<int> getImageDims(H5obj& h5obj,
  */
 
 template<typename H5obj>
-inline isce3::core::DateTime getRefEpoch(H5obj& h5obj,
-                                         const std::string& datasetPath)
+inline isce3::core::DateTime getRefEpoch(
+        H5obj& h5obj, const std::string& datasetPath)
 {
 
     // Open the dataset
@@ -300,7 +298,7 @@ inline isce3::core::DateTime getRefEpoch(H5obj& h5obj,
  * @param[in] epoch        isce3::core::DateTime of reference epoch. */
 template<typename H5obj>
 inline void setRefEpoch(H5obj& h5obj, const std::string& datasetPath,
-                        const isce3::core::DateTime& refEpoch)
+        const isce3::core::DateTime& refEpoch)
 {
 
     // Open the dataset

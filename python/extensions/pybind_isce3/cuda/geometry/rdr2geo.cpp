@@ -14,7 +14,7 @@ using isce3::cuda::geometry::Topo;
 
 namespace py = pybind11;
 
-void addbinding(py::class_<Topo> & pyRdr2Geo)
+void addbinding(py::class_<Topo>& pyRdr2Geo)
 {
     pyRdr2Geo
             .def(py::init([](const isce3::product::RadarGridParameters&
@@ -102,6 +102,5 @@ void addbinding(py::class_<Topo> & pyRdr2Geo)
                     py::overload_cast<bool>(&Topo::computeMask))
             .def_property("lines_per_block",
                     py::overload_cast<>(&Topo::linesPerBlock, py::const_),
-                    py::overload_cast<size_t>(&Topo::linesPerBlock))
-            ;
+                    py::overload_cast<size_t>(&Topo::linesPerBlock));
 }

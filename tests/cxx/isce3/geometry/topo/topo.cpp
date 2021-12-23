@@ -5,11 +5,12 @@
 // Copyright 2018
 //
 
-#include <iostream>
 #include <complex>
-#include <string>
-#include <sstream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+
 #include <gtest/gtest.h>
 
 // isce3::core
@@ -26,9 +27,10 @@
 #include "isce3/geometry/Topo.h"
 
 // Declaration for utility function to read metadata stream from VRT
-std::stringstream streamFromVRT(const char * filename, int bandNum=1);
+std::stringstream streamFromVRT(const char* filename, int bandNum = 1);
 
-TEST(TopoTest, RunTopo) {
+TEST(TopoTest, RunTopo)
+{
 
     // Open the HDF5 product
     std::string h5file(TESTDATA_DIR "envisat.h5");
@@ -52,22 +54,22 @@ TEST(TopoTest, RunTopo) {
 
     // Run topo
     topo.topo(demRaster, ".");
-
 }
 
-TEST(TopoTest, CheckResults) {
-    
+TEST(TopoTest, CheckResults)
+{
+
     // Open generated topo raster
     std::cout << "test file: ./topo.vrt" << std::endl;
     isce3::io::Raster testRaster("topo.vrt");
-    
+
     // Open reference topo raster
     std::string ref_filename = TESTDATA_DIR "topo/topo.vrt";
-    std::cout << "reference file:" << ref_filename << std::endl; 
+    std::cout << "reference file:" << ref_filename << std::endl;
     isce3::io::Raster refRaster(ref_filename);
 
     // The associated tolerances
-    std::vector<double> tols{1.0e-5, 1.0e-5, 0.15, 1.0e-4, 1.0e-4, 0.02, 0.02};
+    std::vector<double> tols {1.0e-5, 1.0e-5, 0.15, 1.0e-4, 1.0e-4, 0.02, 0.02};
 
     // The directories where the data are
     std::string test_dir = "./";
@@ -94,7 +96,8 @@ TEST(TopoTest, CheckResults) {
                 const double refVal = ref[j];
                 // Accumulate the error (skip outliers)
                 const double currentError = std::abs(testVal - refVal);
-                if (currentError > 5.0) continue;
+                if (currentError > 5.0)
+                    continue;
                 error += currentError;
                 ++count;
             }
@@ -104,7 +107,8 @@ TEST(TopoTest, CheckResults) {
     }
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

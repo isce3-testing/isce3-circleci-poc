@@ -8,17 +8,17 @@
 
 #include <isce3/core/LookSide.h>
 #include <isce3/geocode/GeocodeCov.h>
-#include <isce3/geometry/metadataCubes.h>
 #include <isce3/geometry/DEMInterpolator.h>
 #include <isce3/geometry/Topo.h>
+#include <isce3/geometry/metadataCubes.h>
 #include <isce3/io/Raster.h>
 #include <isce3/product/GeoGridParameters.h>
 #include <isce3/product/Product.h>
 #include <isce3/product/RadarGridParameters.h>
 
 template<class T>
-static isce3::core::Matrix<T> _getCubeArray(isce3::io::Raster& cube_raster,
-                                            int length, int width, int band)
+static isce3::core::Matrix<T> _getCubeArray(
+        isce3::io::Raster& cube_raster, int length, int width, int band)
 {
     isce3::core::Matrix<T> data_array;
     data_array.resize(length, width);
@@ -27,16 +27,16 @@ static isce3::core::Matrix<T> _getCubeArray(isce3::io::Raster& cube_raster,
 }
 
 void _check_vectors(const isce3::product::GeoGridParameters& geogrid,
-                    double height, double band, const isce3::core::Orbit& orbit,
-                    isce3::io::Raster& slant_range_raster,
-                    isce3::io::Raster& azimuth_time_raster,
-                    isce3::io::Raster& incidence_angle_raster,
-                    isce3::io::Raster& los_unit_vector_x_raster,
-                    isce3::io::Raster& los_unit_vector_y_raster,
-                    isce3::io::Raster& along_track_unit_vector_x_raster,
-                    isce3::io::Raster& along_track_unit_vector_y_raster,
-                    isce3::io::Raster& elevation_angle_raster,
-                    isce3::io::Raster& ground_track_velocity_raster)
+        double height, double band, const isce3::core::Orbit& orbit,
+        isce3::io::Raster& slant_range_raster,
+        isce3::io::Raster& azimuth_time_raster,
+        isce3::io::Raster& incidence_angle_raster,
+        isce3::io::Raster& los_unit_vector_x_raster,
+        isce3::io::Raster& los_unit_vector_y_raster,
+        isce3::io::Raster& along_track_unit_vector_x_raster,
+        isce3::io::Raster& along_track_unit_vector_y_raster,
+        isce3::io::Raster& elevation_angle_raster,
+        isce3::io::Raster& ground_track_velocity_raster)
 {
     auto proj = isce3::core::makeProjection(geogrid.epsg());
 
@@ -54,15 +54,15 @@ void _check_vectors(const isce3::product::GeoGridParameters& geogrid,
             los_unit_vector_y_raster, geogrid.length(), geogrid.width(), band);
     auto along_track_unit_vector_x_array =
             _getCubeArray<float>(along_track_unit_vector_x_raster,
-                                 geogrid.length(), geogrid.width(), band);
+                    geogrid.length(), geogrid.width(), band);
     auto along_track_unit_vector_y_array =
             _getCubeArray<float>(along_track_unit_vector_y_raster,
-                                 geogrid.length(), geogrid.width(), band);
+                    geogrid.length(), geogrid.width(), band);
     auto elevation_angle_array = _getCubeArray<float>(
             elevation_angle_raster, geogrid.length(), geogrid.width(), band);
-    auto ground_track_velocity_array = _getCubeArray<double>(
-            ground_track_velocity_raster, geogrid.length(), geogrid.width(), 
-            band);
+    auto ground_track_velocity_array =
+            _getCubeArray<double>(ground_track_velocity_raster,
+                    geogrid.length(), geogrid.width(), band);
 
     const double slant_range_error_threshold = 1e-16;
     const double vel_unit_error_threshold = 1e-3;
@@ -92,9 +92,9 @@ void _check_vectors(const isce3::product::GeoGridParameters& geogrid,
             const isce3::core::Mat3 enu2xyz =
                     isce3::core::Mat3::enuToXyz(target_llh[1], target_llh[0]);
 
-            isce3::error::ErrorCode status = orbit.interpolate(
-                    &sat_xyz, &vel_xyz, azimuth_time,
-                    isce3::core::OrbitInterpBorderMode::FillNaN);
+            isce3::error::ErrorCode status =
+                    orbit.interpolate(&sat_xyz, &vel_xyz, azimuth_time,
+                            isce3::core::OrbitInterpBorderMode::FillNaN);
 
             // If interpolation fails, skip
             if (status != isce3::error::ErrorCode::Success) {
@@ -105,7 +105,7 @@ void _check_vectors(const isce3::product::GeoGridParameters& geogrid,
             double slant_range_ref = (sat_xyz - target_xyz).norm();
             double slant_range_test = slant_range_array(i, j);
             ASSERT_NEAR(slant_range_test, slant_range_ref,
-                        slant_range_error_threshold);
+                    slant_range_error_threshold);
 
             // 2. Compute incidence angle in ENU (geodetic)
             const isce3::core::Vec3 look_vector_xyz =
@@ -118,7 +118,7 @@ void _check_vectors(const isce3::product::GeoGridParameters& geogrid,
 
             /* 2. Evaluate incidence angle in degrees */
             ASSERT_NEAR(incidence_angle_test, incidence_angle_ref,
-                        incidence_angle_error_threshold);
+                    incidence_angle_error_threshold);
 
             // 3. Estimate platform position from cube LOS vector
             isce3::core::Vec3 los_unit_test, look_vector_ref;
@@ -137,32 +137,31 @@ void _check_vectors(const isce3::product::GeoGridParameters& geogrid,
             isce3::core::Vec3 sat_xyz_test, sat_llh_test, los_xyz_test;
             if (proj->code() == 4326) {
                 // For epsg == 4326, vectors are given in ENU
-                los_xyz_test =
-                        enu2xyz.dot(los_unit_test).normalized();
+                los_xyz_test = enu2xyz.dot(los_unit_test).normalized();
                 sat_xyz_test = target_xyz + slant_range_test * los_xyz_test;
 
             } else {
                 const isce3::core::Vec3 target_to_sat_next_proj =
                         target_proj + los_unit_test;
-                const isce3::core::Vec3 target_to_sat_next_llh = 
+                const isce3::core::Vec3 target_to_sat_next_llh =
                         proj->inverse(target_to_sat_next_proj);
-                const isce3::core::Vec3 target_to_sat_next_xyz = 
+                const isce3::core::Vec3 target_to_sat_next_xyz =
                         ellipsoid.lonLatToXyz(target_to_sat_next_llh);
-                los_xyz_test = 
+                los_xyz_test =
                         (target_to_sat_next_xyz - target_xyz).normalized();
                 sat_xyz_test = target_xyz + slant_range_test * los_xyz_test;
             }
 
-            /* 
+            /*
             3. Evaluate platform position from LOS vector and slant-range
             distance extracted from metadata cubes (errors are multiplied).
             */
-            ASSERT_NEAR(sat_xyz_test[0], sat_xyz[0],
-                        sat_position_error_threshold);
-            ASSERT_NEAR(sat_xyz_test[1], sat_xyz[1],
-                        sat_position_error_threshold);
-            ASSERT_NEAR(sat_xyz_test[2], sat_xyz[2],
-                        sat_position_error_threshold);
+            ASSERT_NEAR(
+                    sat_xyz_test[0], sat_xyz[0], sat_position_error_threshold);
+            ASSERT_NEAR(
+                    sat_xyz_test[1], sat_xyz[1], sat_position_error_threshold);
+            ASSERT_NEAR(
+                    sat_xyz_test[2], sat_xyz[2], sat_position_error_threshold);
 
             // 4. Estimate velocity from cube along-track vector
             isce3::core::Vec3 along_track_unit_vector_test;
@@ -172,7 +171,7 @@ void _check_vectors(const isce3::product::GeoGridParameters& geogrid,
                     along_track_unit_vector_y_array(i, j);
 
             if (std::isnan(along_track_unit_vector_test[0]) ||
-                std::isnan(along_track_unit_vector_test[1])) {
+                    std::isnan(along_track_unit_vector_test[1])) {
                 continue;
             }
 
@@ -197,32 +196,33 @@ void _check_vectors(const isce3::product::GeoGridParameters& geogrid,
                         proj->inverse(sat_next_proj);
                 const isce3::core::Vec3 sat_next_xyz =
                         ellipsoid.lonLatToXyz(sat_next_llh);
-                along_track_unit_vector_xyz_test = (sat_next_xyz - sat_xyz).normalized();
+                along_track_unit_vector_xyz_test =
+                        (sat_next_xyz - sat_xyz).normalized();
             }
 
             // 4. Check along-track unit vector
             ASSERT_NEAR(along_track_unit_vector_xyz_test[0], vel_unit_xyz[0],
-                        vel_unit_error_threshold);
+                    vel_unit_error_threshold);
             ASSERT_NEAR(along_track_unit_vector_xyz_test[1], vel_unit_xyz[1],
-                        vel_unit_error_threshold);
+                    vel_unit_error_threshold);
             ASSERT_NEAR(along_track_unit_vector_xyz_test[2], vel_unit_xyz[2],
-                        vel_unit_error_threshold);
+                    vel_unit_error_threshold);
 
             // 5. Check ground-track velocity vector
-            double ground_track_velocity_test = ground_track_velocity_array(i, j);
+            double ground_track_velocity_test =
+                    ground_track_velocity_array(i, j);
             const double ground_track_velocity_ref =
-                target_xyz.norm() * vel_xyz.norm() / sat_xyz.norm();
+                    target_xyz.norm() * vel_xyz.norm() / sat_xyz.norm();
             ASSERT_NEAR(ground_track_velocity_test, ground_track_velocity_ref,
-                        ground_track_velocity_error_threshold);
-
+                    ground_track_velocity_error_threshold);
         }
     }
 }
 
 template<class T>
 void _compareArrays(isce3::core::Matrix<T>& topo_array,
-                    isce3::core::Matrix<T>& cube_array, const int width,
-                    const int length, bool flag_geo = false)
+        isce3::core::Matrix<T>& cube_array, const int width, const int length,
+        bool flag_geo = false)
 {
     double square_error_sum = 0;
     double max_abs_error = 0;
@@ -239,7 +239,7 @@ void _compareArrays(isce3::core::Matrix<T>& topo_array,
 
             sum_topo += topo_array(i, j);
             sum_cube += cube_array(i, j);
-            
+
             nvalid += 1;
             square_error_sum += std::pow(error, 2);
             max_abs_error = std::max(max_abs_error, std::abs(error));
@@ -280,7 +280,7 @@ void _compareArrays(isce3::core::Matrix<T>& topo_array,
 
 template<class T>
 void _compareCubeLayer(std::string topo_file, std::string cube_file,
-                       int layer_counter, bool flag_geo = false)
+        int layer_counter, bool flag_geo = false)
 {
 
     std::cout << "evaluating: " << cube_file << " (band: " << layer_counter + 1
@@ -300,17 +300,17 @@ void _compareCubeLayer(std::string topo_file, std::string cube_file,
     isce3::core::Matrix<T> cube_array(length, width);
 
     topo_raster.getBlock(topo_array.data(), 0, 0, width, length, 1);
-    cube_raster.getBlock(cube_array.data(), 0, 0, width, length,
-                         1 + layer_counter);
+    cube_raster.getBlock(
+            cube_array.data(), 0, 0, width, length, 1 + layer_counter);
 
     _compareArrays(topo_array, cube_array, width, length, flag_geo);
 }
 
 template<class T>
 void _compareHeading(std::string topo_file, std::string cube_x_file,
-                     std::string cube_y_file, int layer_counter,
-                     isce3::product::RadarGridParameters& radar_grid,
-                     bool flag_along_track_vector = false)
+        std::string cube_y_file, int layer_counter,
+        isce3::product::RadarGridParameters& radar_grid,
+        bool flag_along_track_vector = false)
 {
     std::cout << "evaluating:" << std::endl;
     std::cout << "    heading file 1: " << cube_x_file
@@ -337,16 +337,16 @@ void _compareHeading(std::string topo_file, std::string cube_x_file,
     isce3::core::Matrix<T> cube_y_array(length, width);
 
     topo_raster.getBlock(topo_array.data(), 0, 0, width, length, 1);
-    cube_x_raster.getBlock(cube_x_array.data(), 0, 0, width, length,
-                           1 + layer_counter);
-    cube_y_raster.getBlock(cube_y_array.data(), 0, 0, width, length,
-                           1 + layer_counter);
+    cube_x_raster.getBlock(
+            cube_x_array.data(), 0, 0, width, length, 1 + layer_counter);
+    cube_y_raster.getBlock(
+            cube_y_array.data(), 0, 0, width, length, 1 + layer_counter);
 
     for (int i = 0; i < length; ++i) {
         for (int j = 0; j < width; ++j) {
             if (std::isnan(topo_array(i, j)) or
-                std::isnan(cube_x_array(i, j)) or
-                std::isnan(cube_y_array(i, j))) {
+                    std::isnan(cube_x_array(i, j)) or
+                    std::isnan(cube_y_array(i, j))) {
                 continue;
             }
             double heading;
@@ -356,11 +356,11 @@ void _compareHeading(std::string topo_file, std::string cube_x_file,
             } else if (radar_grid.lookSide() == isce3::core::LookSide::Right) {
                 // Envisat dataset is right looking
                 heading = (std::atan2(cube_y_array(i, j), cube_x_array(i, j)) +
-                           0.5 * M_PI) *
+                                  0.5 * M_PI) *
                           180 / M_PI;
             } else {
                 heading = (std::atan2(cube_y_array(i, j), cube_x_array(i, j)) -
-                           0.5 * M_PI) *
+                                  0.5 * M_PI) *
                           180 / M_PI;
             }
 
@@ -425,20 +425,15 @@ TEST(radarGridCubeTest, testRadarGridCube)
         }
 
         isce3::io::Raster slant_range_raster("slantRange.rdr", width, length,
-                                             heights.size(), GDT_Float64,
-                                             "ENVI");
+                heights.size(), GDT_Float64, "ENVI");
         isce3::io::Raster azimuth_time_raster("zeroDopplerAzimuthTime.rdr",
-                                              width, length, heights.size(),
-                                              GDT_Float64, "ENVI");
+                width, length, heights.size(), GDT_Float64, "ENVI");
         isce3::io::Raster incidence_angle_raster("incidenceAngle.rdr", width,
-                                                 length, heights.size(),
-                                                 GDT_Float32, "ENVI");
+                length, heights.size(), GDT_Float32, "ENVI");
         isce3::io::Raster los_unit_vector_x_raster("losUnitVectorX.rdr", width,
-                                                   length, heights.size(),
-                                                   GDT_Float32, "ENVI");
+                length, heights.size(), GDT_Float32, "ENVI");
         isce3::io::Raster los_unit_vector_y_raster("losUnitVectorY.rdr", width,
-                                                   length, heights.size(),
-                                                   GDT_Float32, "ENVI");
+                length, heights.size(), GDT_Float32, "ENVI");
         isce3::io::Raster along_track_unit_vector_x_raster(
                 "alongTrackUnitVectorX.rdr", width, length, heights.size(),
                 GDT_Float32, "ENVI");
@@ -446,14 +441,13 @@ TEST(radarGridCubeTest, testRadarGridCube)
                 "alongTrackUnitVectorY.rdr", width, length, heights.size(),
                 GDT_Float32, "ENVI");
         isce3::io::Raster elevation_angle_raster("elevationAngle.rdr", width,
-                                                 length, heights.size(),
-                                                 GDT_Float32, "ENVI");
+                length, heights.size(), GDT_Float32, "ENVI");
         isce3::io::Raster ground_track_velocity_raster(
-            "groundTrackVelocity.rdr", width, length, heights.size(),
-            GDT_Float64, "ENVI");
+                "groundTrackVelocity.rdr", width, length, heights.size(),
+                GDT_Float64, "ENVI");
 
-        isce3::product::GeoGridParameters geogrid(x0, y0, dx, dy, width, length,
-                                                  epsg);
+        isce3::product::GeoGridParameters geogrid(
+                x0, y0, dx, dy, width, length, epsg);
 
         const int epsg_los_and_along_track_vectors = epsg;
 
@@ -466,19 +460,15 @@ TEST(radarGridCubeTest, testRadarGridCube)
                 &incidence_angle_raster, &los_unit_vector_x_raster,
                 &los_unit_vector_y_raster, &along_track_unit_vector_x_raster,
                 &along_track_unit_vector_y_raster, &elevation_angle_raster,
-                &ground_track_velocity_raster,
-                threshold_geo2rdr, numiter_geo2rdr, delta_range);
+                &ground_track_velocity_raster, threshold_geo2rdr,
+                numiter_geo2rdr, delta_range);
 
         // 1. Check geotransform and EPSG
-        std::vector<isce3::io::Raster> raster_vector = {
-                slant_range_raster,
-                azimuth_time_raster,
-                incidence_angle_raster,
-                los_unit_vector_x_raster,
-                los_unit_vector_y_raster,
+        std::vector<isce3::io::Raster> raster_vector = {slant_range_raster,
+                azimuth_time_raster, incidence_angle_raster,
+                los_unit_vector_x_raster, los_unit_vector_y_raster,
                 along_track_unit_vector_x_raster,
-                along_track_unit_vector_y_raster,
-                elevation_angle_raster,
+                along_track_unit_vector_y_raster, elevation_angle_raster,
                 ground_track_velocity_raster};
 
         for (auto cube_raster : raster_vector) {
@@ -486,11 +476,8 @@ TEST(radarGridCubeTest, testRadarGridCube)
             std::vector<double> cube_geotransform(6);
             cube_raster.getGeoTransform(cube_geotransform);
             std::vector<double> geogrid_geotransform = {geogrid.startX(),
-                                                        geogrid.spacingX(),
-                                                        0,
-                                                        geogrid.startY(),
-                                                        0,
-                                                        geogrid.spacingY()};
+                    geogrid.spacingX(), 0, geogrid.startY(), 0,
+                    geogrid.spacingY()};
             for (int count = 0; count < geogrid_geotransform.size(); ++count) {
                 ASSERT_TRUE(cube_geotransform[count] ==
                             geogrid_geotransform[count]);
@@ -500,10 +487,9 @@ TEST(radarGridCubeTest, testRadarGridCube)
         // 2. Reconstruct radar geometry vectors
         std::cout << "checking vectors..." << std::endl;
         for (int height_count = 0; height_count < heights.size();
-             ++height_count) {
-            _check_vectors(
-                    geogrid, heights[height_count], height_count + 1, orbit,
-                    slant_range_raster, azimuth_time_raster,
+                ++height_count) {
+            _check_vectors(geogrid, heights[height_count], height_count + 1,
+                    orbit, slant_range_raster, azimuth_time_raster,
                     incidence_angle_raster, los_unit_vector_x_raster,
                     los_unit_vector_y_raster, along_track_unit_vector_x_raster,
                     along_track_unit_vector_y_raster, elevation_angle_raster,
@@ -530,8 +516,8 @@ TEST(radarGridCubeTest, testRadarGridCube)
         std::vector<std::string> files_to_geocode_vector = {
                 "tempSlantRange.rdr", "tempZeroDopplerAzimuthTime.rdr",
                 "inc.rdr", "hdg.rdr"};
-        std::vector<GDALDataType> dtype_vector = {GDT_Float64, GDT_Float64,
-                                                  GDT_Float32, GDT_Float32};
+        std::vector<GDALDataType> dtype_vector = {
+                GDT_Float64, GDT_Float64, GDT_Float32, GDT_Float32};
 
         // Geocode object
         isce3::geocode::Geocode<double> geo_obj;
@@ -557,19 +543,19 @@ TEST(radarGridCubeTest, testRadarGridCube)
         // Create slantRange file for geocoding
         std::cout << "creating temporary slant-range file" << std::endl;
         std::string temp_slant_range_file = "tempSlantRange.rdr";
-        isce3::io::Raster temp_slant_range_raster(
-                temp_slant_range_file, radar_grid.width(), radar_grid.length(),
-                1, GDT_Float64, "ENVI");
-        isce3::core::Matrix<double> slant_range_array(radar_grid.length(),
-                                                      radar_grid.width());
+        isce3::io::Raster temp_slant_range_raster(temp_slant_range_file,
+                radar_grid.width(), radar_grid.length(), 1, GDT_Float64,
+                "ENVI");
+        isce3::core::Matrix<double> slant_range_array(
+                radar_grid.length(), radar_grid.width());
         // Create zeroDopplerAzimuthTime for geocoding
         std::cout << "creating temporary azimuth time file" << std::endl;
         std::string temp_azimuth_time_file = "tempZeroDopplerAzimuthTime.rdr";
-        isce3::io::Raster temp_azimuth_time_raster(
-                temp_azimuth_time_file, radar_grid.width(), radar_grid.length(),
-                1, GDT_Float64, "ENVI");
-        isce3::core::Matrix<double> azimuth_time_array(radar_grid.length(),
-                                                       radar_grid.width());
+        isce3::io::Raster temp_azimuth_time_raster(temp_azimuth_time_file,
+                radar_grid.width(), radar_grid.length(), 1, GDT_Float64,
+                "ENVI");
+        isce3::core::Matrix<double> azimuth_time_array(
+                radar_grid.length(), radar_grid.width());
 
         for (int i = 0; i < radar_grid.length(); ++i) {
             for (int j = 0; j < radar_grid.width(); ++j) {
@@ -581,12 +567,10 @@ TEST(radarGridCubeTest, testRadarGridCube)
         }
 
         temp_slant_range_raster.setBlock(slant_range_array.data(), 0, 0,
-                                         radar_grid.width(),
-                                         radar_grid.length(), 1);
+                radar_grid.width(), radar_grid.length(), 1);
 
         temp_azimuth_time_raster.setBlock(azimuth_time_array.data(), 0, 0,
-                                          radar_grid.length(),
-                                          radar_grid.width(), 1);
+                radar_grid.length(), radar_grid.width(), 1);
         // DEM for UAVSAR (NISAR) Winipeg
         int epsg_dem = epsg;
         double dem_x0, dem_y0, dem_dx, dem_dy;
@@ -608,7 +592,7 @@ TEST(radarGridCubeTest, testRadarGridCube)
         }
 
         for (std::size_t layer_counter = 0; layer_counter < heights.size();
-             ++layer_counter) {
+                ++layer_counter) {
 
             auto height = heights[layer_counter];
             std::cout << "preparing DEM interpolator for height: " << height
@@ -631,17 +615,17 @@ TEST(radarGridCubeTest, testRadarGridCube)
             // Create DEM for geocoding
             std::string temp_dem_file = "temp_dem.bin";
             isce3::io::Raster dem_raster(temp_dem_file, dem_width, dem_length,
-                                         1, GDT_Float32, "ENVI");
+                    1, GDT_Float32, "ENVI");
             isce3::core::Matrix<float> dem_array(dem_length, dem_width);
             dem_array.fill(height);
-            dem_raster.setBlock(dem_array.data(), 0, 0, dem_width, dem_length,
-                                1);
+            dem_raster.setBlock(
+                    dem_array.data(), 0, 0, dem_width, dem_length, 1);
             double geotransform[] = {dem_x0, dem_dx, 0, dem_y0, 0, dem_dy};
             dem_raster.setGeoTransform(geotransform);
             dem_raster.setEPSG(epsg);
 
             for (int count = 0; count < files_to_geocode_vector.size();
-                 ++count) {
+                    ++count) {
 
                 std::string file_to_geocode = files_to_geocode_vector[count];
 
@@ -667,23 +651,21 @@ TEST(radarGridCubeTest, testRadarGridCube)
 
                 // Run geocode
                 geo_obj.geocode(radar_grid, file_to_geocode_raster,
-                                output_geocoded_raster, dem_raster,
-                                output_mode);
+                        output_geocoded_raster, dem_raster, output_mode);
             }
 
             _compareCubeLayer<float>("incGeo.bin", "incidenceAngle.rdr",
-                                     layer_counter, flag_geo);
+                    layer_counter, flag_geo);
             _compareCubeLayer<double>("tempSlantRangeGeo.bin", "slantRange.rdr",
-                                      layer_counter, flag_geo);
+                    layer_counter, flag_geo);
             _compareCubeLayer<double>("tempZeroDopplerAzimuthTimeGeo.bin",
-                                      "zeroDopplerAzimuthTime.rdr",
-                                      layer_counter, flag_geo);
+                    "zeroDopplerAzimuthTime.rdr", layer_counter, flag_geo);
         }
     }
 }
 
-
-TEST(metadataCubesTest, testMetadataCubes) {
+TEST(metadataCubesTest, testMetadataCubes)
+{
 
     // Open the HDF5 product
     // std::string h5file(TESTDATA_DIR "envisat.h5");
@@ -714,18 +696,15 @@ TEST(metadataCubesTest, testMetadataCubes) {
     int width = radar_grid.width();
 
     isce3::io::Raster coordinate_x_raster("coordinateX.bin", width, length,
-                                          heights.size(), GDT_Float64, "ENVI");
+            heights.size(), GDT_Float64, "ENVI");
     isce3::io::Raster coordinate_y_raster("coordinateY.bin", width, length,
-                                          heights.size(), GDT_Float64, "ENVI");
+            heights.size(), GDT_Float64, "ENVI");
     isce3::io::Raster incidence_angle_raster("incidenceAngle.bin", width,
-                                             length, heights.size(),
-                                             GDT_Float32, "ENVI");
+            length, heights.size(), GDT_Float32, "ENVI");
     isce3::io::Raster los_unit_vector_x_raster("losUnitVectorX.bin", width,
-                                               length, heights.size(),
-                                               GDT_Float32, "ENVI");
+            length, heights.size(), GDT_Float32, "ENVI");
     isce3::io::Raster los_unit_vector_y_raster("losUnitVectorY.bin", width,
-                                               length, heights.size(),
-                                               GDT_Float32, "ENVI");
+            length, heights.size(), GDT_Float32, "ENVI");
     isce3::io::Raster along_track_unit_vector_x_raster(
             "alongTrackUnitVectorX.bin", width, length, heights.size(),
             GDT_Float32, "ENVI");
@@ -733,11 +712,9 @@ TEST(metadataCubesTest, testMetadataCubes) {
             "alongTrackUnitVectorY.bin", width, length, heights.size(),
             GDT_Float32, "ENVI");
     isce3::io::Raster elevation_angle_raster("elevationAngle.bin", width,
-                                             length, heights.size(),
-                                             GDT_Float32, "ENVI");
-    isce3::io::Raster ground_track_velocity_raster(
-        "groundTrackVelocity.bin", width, length, heights.size(),
-        GDT_Float32, "ENVI");
+            length, heights.size(), GDT_Float32, "ENVI");
+    isce3::io::Raster ground_track_velocity_raster("groundTrackVelocity.bin",
+            width, length, heights.size(), GDT_Float32, "ENVI");
 
     // Make cubes
     isce3::geometry::makeGeolocationGridCubes(radar_grid, heights, orbit,
@@ -751,13 +728,10 @@ TEST(metadataCubesTest, testMetadataCubes) {
 
     auto proj = isce3::core::makeProjection(epsg);
 
-    const isce3::core::Ellipsoid &ellipsoid = proj->ellipsoid();
-    
+    const isce3::core::Ellipsoid& ellipsoid = proj->ellipsoid();
+
     // create reference values from topo
-    isce3::geometry::Topo topo(radar_grid,
-                              orbit,
-                              ellipsoid,
-                              zero_doppler);
+    isce3::geometry::Topo topo(radar_grid, orbit, ellipsoid, zero_doppler);
 
     topo.epsgOut(4326);
 
@@ -768,7 +742,7 @@ TEST(metadataCubesTest, testMetadataCubes) {
     }
 
     for (std::size_t layer_counter = 0; layer_counter < heights.size();
-         ++layer_counter) {
+            ++layer_counter) {
         std::cout << "preparing DEM interpolator for height: "
                   << heights[layer_counter] << std::endl;
         isce3::geometry::DEMInterpolator dem(heights[layer_counter]);
@@ -789,16 +763,14 @@ TEST(metadataCubesTest, testMetadataCubes) {
         std::cout << "... done running topo for height: "
                   << heights[layer_counter] << std::endl;
 
-        _compareCubeLayer<float>("inc.rdr", "incidenceAngle.bin",
-                                  layer_counter);
-        _compareCubeLayer<double>("x.rdr", "coordinateX.bin",
-                                  layer_counter);
-        _compareCubeLayer<double>("y.rdr", "coordinateY.bin",
-                                  layer_counter);
+        _compareCubeLayer<float>(
+                "inc.rdr", "incidenceAngle.bin", layer_counter);
+        _compareCubeLayer<double>("x.rdr", "coordinateX.bin", layer_counter);
+        _compareCubeLayer<double>("y.rdr", "coordinateY.bin", layer_counter);
 
         /*
         Uncomment these lines after the estimation of the heading angle
-        from topo is updated. Topo currently derives the heading angle 
+        from topo is updated. Topo currently derives the heading angle
         from the look vector instead of deriving it from the velocity
         vector. This result in a low accuracy that cannot be used to
         evaluate the metadata cubes.
@@ -808,18 +780,16 @@ TEST(metadataCubesTest, testMetadataCubes) {
                                "alongTrackUnitVectorY.bin", layer_counter,
                                radar_grid,
                                flag_along_track_vector);
-        
+
         _compareHeading<float>("hdg.rdr", "losUnitVectorX.bin",
                                "losUnitVectorY.bin", layer_counter,
                                radar_grid);
         */
-        
-                               
     }
 }
 
-
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[])
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

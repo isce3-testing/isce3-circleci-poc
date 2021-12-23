@@ -38,14 +38,14 @@ echo WFPROFILE: $WFPROFILE
 pushd ${ISCE}/.ci/images/centos
 if [ -n "${GCCTAR+set}" ]; then
   cp ${GCCTAR} .  # needed by build-dev.sh
-fi  
+fi
 ./build-base.sh ${TAG}
 ./build-dev.sh ${TAG}
-./build-isce-src.sh ${TAG} ${ISCE} 
+./build-isce-src.sh ${TAG} ${ISCE}
 ./build-isce-ops.sh ${TAG} ${ISCE}
 
 # build ISCE3 image including QA software
-if [ -n "${QA+set}" ]; then 
+if [ -n "${QA+set}" ]; then
   ./build-isce-ops-qa.sh ${TAG} ${ISCE} ${QA}
 fi
 
@@ -53,5 +53,3 @@ fi
 if [ -n "${WFPROFILE+set}" ]; then
   ./build-profile.sh ${TAG} ${ISCE} ${WFPROFILE}
 fi
-
-

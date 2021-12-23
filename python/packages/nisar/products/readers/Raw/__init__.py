@@ -1,2 +1,2 @@
+from .DataDecoder import DataDecoder, complex32
 from .Raw import Raw, open_rrsd
-from .DataDecoder import complex32, DataDecoder

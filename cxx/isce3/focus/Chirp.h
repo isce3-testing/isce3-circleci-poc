@@ -16,12 +16,8 @@ namespace isce3 { namespace focus {
  * \param[in] phi           Phase offset at center of chirp (rad)
  * \returns                 Time-domain I/Q samples
  */
-std::vector<std::complex<float>>
-formLinearChirp(double chirprate,
-                double duration,
-                double samplerate,
-                double centerfreq = 0.,
-                double amplitude = 1.,
-                double phi = 0.);
+std::vector<std::complex<float>> formLinearChirp(double chirprate,
+        double duration, double samplerate, double centerfreq = 0.,
+        double amplitude = 1., double phi = 0.);
 
-}}
+}} // namespace isce3::focus

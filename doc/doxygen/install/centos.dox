@@ -15,7 +15,7 @@ ISCE3 has the following dependencies
 <li> ruamel.yaml
 </ol>
 
-Optional dependencies for unit testing and documentation generation are 
+Optional dependencies for unit testing and documentation generation are
 <ol>
 <li> pytest (for Python unit tests)
 <li> sphinx (for documenting Python code)

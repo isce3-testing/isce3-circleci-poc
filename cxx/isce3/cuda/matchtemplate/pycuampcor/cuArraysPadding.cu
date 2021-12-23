@@ -102,11 +102,3 @@ void cuArraysPaddingMany(cuArrays<float2> *image1, cuArrays<float2> *image2, cud
     getLastCudaError("cuArraysPadding_kernel");
 }
 //end of file
-
-
-
-
-
-
-
-

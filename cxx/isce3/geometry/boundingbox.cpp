@@ -30,123 +30,114 @@
 #include "DEMInterpolator.h"
 
 // pull in some isce3::core namespaces
-using isce3::core::Vec3;
-using isce3::core::ProjectionBase;
 using isce3::core::Basis;
+using isce3::core::ProjectionBase;
+using isce3::core::Vec3;
 
-isce3::geometry::Perimeter
-isce3::geometry::
-getGeoPerimeter(const isce3::product::RadarGridParameters &radarGrid,
-                const isce3::core::Orbit &orbit,
-                const isce3::core::ProjectionBase *proj,
-                const isce3::core::LUT2d<double> &doppler,
-                const isce3::geometry::DEMInterpolator &demInterp,
-                const int pointsPerEdge,
-                const double threshold,
-                const int numiter)
+isce3::geometry::Perimeter isce3::geometry::getGeoPerimeter(
+        const isce3::product::RadarGridParameters& radarGrid,
+        const isce3::core::Orbit& orbit,
+        const isce3::core::ProjectionBase* proj,
+        const isce3::core::LUT2d<double>& doppler,
+        const isce3::geometry::DEMInterpolator& demInterp,
+        const int pointsPerEdge, const double threshold, const int numiter)
 {
 
-    //Check for number of points on edge
-    if (pointsPerEdge <= 2)
-    {
+    // Check for number of points on edge
+    if (pointsPerEdge <= 2) {
         std::string errstr = "At least 2 points per edge should be requested "
                              "for perimeter estimation. " +
                              std::to_string(pointsPerEdge) + " requested. ";
-        throw isce3::except::OutOfRange(ISCE_SRCINFO(), errstr); 
+        throw isce3::except::OutOfRange(ISCE_SRCINFO(), errstr);
     }
 
-    //Journal for warning
+    // Journal for warning
     pyre::journal::warning_t warning("isce.geometry.perimeter");
 
-    //Initialize results
+    // Initialize results
     isce3::geometry::Perimeter perimeter;
 
-    //Ellipsoid being used for processing
-    const isce3::core::Ellipsoid &ellipsoid = proj->ellipsoid();
+    // Ellipsoid being used for processing
+    const isce3::core::Ellipsoid& ellipsoid = proj->ellipsoid();
 
-    //Skip factors along azimuth and range
+    // Skip factors along azimuth and range
     const double azSpacing = (radarGrid.length() - 1.0) / (pointsPerEdge - 1.0);
     const double rgSpacing = (radarGrid.width() - 1.0) / (pointsPerEdge - 1.0);
 
-    //Store indices of image locations
-    //This could potentially be moved to RadarGridParamters.perimeter()
-    //But that would introduce new dependency on shapes.h for RadarGridParameters
+    // Store indices of image locations
+    // This could potentially be moved to RadarGridParamters.perimeter()
+    // But that would introduce new dependency on shapes.h for
+    // RadarGridParameters
     std::vector<double> azInd, rgInd;
 
-    //Top Edge
-    for (int ii = 0; ii < pointsPerEdge; ii++)
-    {
+    // Top Edge
+    for (int ii = 0; ii < pointsPerEdge; ii++) {
         azInd.push_back(0);
-        rgInd.push_back( ii * rgSpacing );
+        rgInd.push_back(ii * rgSpacing);
     }
 
-    //Right Edge
-    for (int ii = 1; ii < pointsPerEdge; ii++)
-    {
-        azInd.push_back( ii * azSpacing );
-        rgInd.push_back( radarGrid.width() - 1);
+    // Right Edge
+    for (int ii = 1; ii < pointsPerEdge; ii++) {
+        azInd.push_back(ii * azSpacing);
+        rgInd.push_back(radarGrid.width() - 1);
     }
 
-    //Bottom Edge
-    for (int ii = pointsPerEdge-2; ii >= 0; ii--)
-    {
-        azInd.push_back( radarGrid.length() - 1 );
-        rgInd.push_back( ii * rgSpacing );
+    // Bottom Edge
+    for (int ii = pointsPerEdge - 2; ii >= 0; ii--) {
+        azInd.push_back(radarGrid.length() - 1);
+        rgInd.push_back(ii * rgSpacing);
     }
 
-    //Left Edge
-    for (int ii = pointsPerEdge-2; ii >= 0; ii--)
-    {
-        azInd.push_back( ii * azSpacing );
+    // Left Edge
+    for (int ii = pointsPerEdge - 2; ii >= 0; ii--) {
+        azInd.push_back(ii * azSpacing);
         rgInd.push_back(0);
     }
 
-    //Loop over indices
-    for (int ii = 0; ii < rgInd.size(); ii++)
-    {
-        //Convert az index to azimuth time
-        double tline = radarGrid.sensingTime( azInd[ii] );
+    // Loop over indices
+    for (int ii = 0; ii < rgInd.size(); ii++) {
+        // Convert az index to azimuth time
+        double tline = radarGrid.sensingTime(azInd[ii]);
 
-        //Get rg index to slant range
-        double rng = radarGrid.slantRange( rgInd[ii] );
+        // Get rg index to slant range
+        double rng = radarGrid.slantRange(rgInd[ii]);
 
-        //Get doppler at pixel of interest
+        // Get doppler at pixel of interest
         double dopp = doppler.eval(tline, rng);
 
-        //Target location
+        // Target location
         Vec3 llh, mapxyz;
 
-        //Run rdr2geo
-        rdr2geo(tline, rng, dopp,
-                orbit, ellipsoid, demInterp, llh,
-                radarGrid.wavelength(), radarGrid.lookSide(),
-                threshold, numiter, 0); 
+        // Run rdr2geo
+        rdr2geo(tline, rng, dopp, orbit, ellipsoid, demInterp, llh,
+                radarGrid.wavelength(), radarGrid.lookSide(), threshold,
+                numiter, 0);
 
-        //Transform point to projection
+        // Transform point to projection
         int status = proj->forward(llh, mapxyz);
-        if (status)
-        {
-            std::string errstr = "Error in transforming point (" + std::to_string(llh[0]) +
-                                 "," + std::to_string(llh[1]) + "," + std::to_string(llh[2]) +
-                                 ") to projection EPSG:" + std::to_string(proj->code());
+        if (status) {
+            std::string errstr =
+                    "Error in transforming point (" + std::to_string(llh[0]) +
+                    "," + std::to_string(llh[1]) + "," +
+                    std::to_string(llh[2]) +
+                    ") to projection EPSG:" + std::to_string(proj->code());
             throw isce3::except::OutOfRange(ISCE_SRCINFO(), errstr);
         }
 
-        //Add transformed point to the perimeter
+        // Add transformed point to the perimeter
         perimeter.addPoint(mapxyz[0], mapxyz[1], mapxyz[2]);
-
     }
 
-    //Ensure polygon is closed
+    // Ensure polygon is closed
     perimeter.closeRings();
 
-    //Return points
+    // Return points
     return perimeter;
 }
 
 static void _addMarginToBoundingBox(isce3::geometry::BoundingBox& bbox,
-                                    const double margin,
-                                    const isce3::core::ProjectionBase* proj) {
+        const double margin, const isce3::core::ProjectionBase* proj)
+{
 
     // Set up margin in meters / degrees
     double delta = margin;
@@ -177,11 +168,13 @@ static void _addMarginToBoundingBox(isce3::geometry::BoundingBox& bbox,
 
 isce3::geometry::BoundingBox isce3::geometry::getGeoBoundingBox(
         const isce3::product::RadarGridParameters& radarGrid,
-        const isce3::core::Orbit& orbit, const isce3::core::ProjectionBase* proj,
+        const isce3::core::Orbit& orbit,
+        const isce3::core::ProjectionBase* proj,
         const isce3::core::LUT2d<double>& doppler,
         const std::vector<double>& hgts, const double margin,
         const int pointsPerEdge, const double threshold, const int numiter,
-        bool ignore_out_of_range_exception) {
+        bool ignore_out_of_range_exception)
+{
 
     // Check for number of points on edge
     if (margin < 0.) {
@@ -202,15 +195,13 @@ isce3::geometry::BoundingBox isce3::geometry::getGeoBoundingBox(
         if (ignore_out_of_range_exception) {
             try {
                 perimeter = getGeoPerimeter(radarGrid, orbit, proj, doppler,
-                                            constDEM, pointsPerEdge, threshold,
-                                            numiter);
+                        constDEM, pointsPerEdge, threshold, numiter);
             } catch (const isce3::except::OutOfRange&) {
                 continue;
             }
         } else {
-            perimeter =
-                    getGeoPerimeter(radarGrid, orbit, proj, doppler, constDEM,
-                                    pointsPerEdge, threshold, numiter);
+            perimeter = getGeoPerimeter(radarGrid, orbit, proj, doppler,
+                    constDEM, pointsPerEdge, threshold, numiter);
         }
 
         // Get bounding box for given height
@@ -242,12 +233,11 @@ isce3::geometry::BoundingBox isce3::geometry::getGeoBoundingBox(
     return bbox;
 }
 
-static bool _isValid(isce3::geometry::BoundingBox bbox) {
-    auto valid = [](double x) {
-        return not (std::isnan(x) or std::isinf(x));
-    };
-    return valid(bbox.MinX) and valid(bbox.MaxX)
-       and valid(bbox.MinY) and valid(bbox.MaxY);
+static bool _isValid(isce3::geometry::BoundingBox bbox)
+{
+    auto valid = [](double x) { return not(std::isnan(x) or std::isinf(x)); };
+    return valid(bbox.MinX) and valid(bbox.MaxX) and valid(bbox.MinY) and
+           valid(bbox.MaxY);
 }
 
 static isce3::geometry::BoundingBox _getGeoBoundingBoxBinarySearch(
@@ -314,11 +304,13 @@ static isce3::geometry::BoundingBox _getGeoBoundingBoxBinarySearch(
 
 isce3::geometry::BoundingBox isce3::geometry::getGeoBoundingBoxHeightSearch(
         const isce3::product::RadarGridParameters& radarGrid,
-        const isce3::core::Orbit& orbit, const isce3::core::ProjectionBase* proj,
+        const isce3::core::Orbit& orbit,
+        const isce3::core::ProjectionBase* proj,
         const isce3::core::LUT2d<double>& doppler, double min_height,
         double max_height, const double margin, const int pointsPerEdge,
         const double threshold, const int numiter,
-        const double height_threshold) {
+        const double height_threshold)
+{
 
     // Check input arguments
     if (max_height < min_height) {
@@ -337,22 +329,19 @@ isce3::geometry::BoundingBox isce3::geometry::getGeoBoundingBoxHeightSearch(
     const double margin_zero = 0;
 
     // Get BBox for min_height
-    BoundingBox bbox_min = getGeoBoundingBox(
-            radarGrid, orbit, proj, doppler, {min_height}, margin_zero,
-            pointsPerEdge, threshold, numiter, true);
+    BoundingBox bbox_min = getGeoBoundingBox(radarGrid, orbit, proj, doppler,
+            {min_height}, margin_zero, pointsPerEdge, threshold, numiter, true);
 
     if (max_height == min_height && !_isValid(bbox_min)) {
         std::string errstr = "Bounding box not found for given parameters.";
         throw isce3::except::InvalidArgument(ISCE_SRCINFO(), errstr);
-    } 
-    else if (max_height == min_height) {
+    } else if (max_height == min_height) {
         return bbox_min;
     }
 
     // Get BBox for max_height
-    BoundingBox bbox_max = getGeoBoundingBox(
-            radarGrid, orbit, proj, doppler, {max_height}, margin_zero,
-            pointsPerEdge, threshold, numiter, true);
+    BoundingBox bbox_max = getGeoBoundingBox(radarGrid, orbit, proj, doppler,
+            {max_height}, margin_zero, pointsPerEdge, threshold, numiter, true);
 
     if (!_isValid(bbox_min) && !_isValid(bbox_max)) {
         // both are invalid
@@ -363,17 +352,17 @@ isce3::geometry::BoundingBox isce3::geometry::getGeoBoundingBoxHeightSearch(
     else if (_isValid(bbox_min) && !_isValid(bbox_max)) {
         // only lower height is valid
         bool find_lowest_valid_height = false;
-        bbox_max = _getGeoBoundingBoxBinarySearch(
-                radarGrid, orbit, proj, doppler, min_height, max_height,
-                margin_zero, pointsPerEdge, threshold, numiter,
-                find_lowest_valid_height, bbox_min, height_threshold);
+        bbox_max = _getGeoBoundingBoxBinarySearch(radarGrid, orbit, proj,
+                doppler, min_height, max_height, margin_zero, pointsPerEdge,
+                threshold, numiter, find_lowest_valid_height, bbox_min,
+                height_threshold);
     } else if (!_isValid(bbox_min) && _isValid(bbox_max)) {
         // only upper height is valid
 
         Vec3 sat_pos_mid, vel_mid, satLLH;
         double az_time_mid = radarGrid.sensingMid();
         orbit.interpolate(&sat_pos_mid, &vel_mid, az_time_mid,
-                          isce3::core::OrbitInterpBorderMode::FillNaN);
+                isce3::core::OrbitInterpBorderMode::FillNaN);
 
         const isce3::core::Ellipsoid& ellipsoid = proj->ellipsoid();
         ellipsoid.xyzToLonLat(sat_pos_mid, satLLH);
@@ -381,18 +370,18 @@ isce3::geometry::BoundingBox isce3::geometry::getGeoBoundingBoxHeightSearch(
                 satLLH[2] - radarGrid.startingRange() + height_threshold * 0.5;
 
         if (new_height > min_height) {
-            bbox_min = getGeoBoundingBox(
-                    radarGrid, orbit, proj, doppler, {new_height}, margin_zero,
-                    pointsPerEdge, threshold, numiter, true);
+            bbox_min = getGeoBoundingBox(radarGrid, orbit, proj, doppler,
+                    {new_height}, margin_zero, pointsPerEdge, threshold,
+                    numiter, true);
             min_height = new_height;
         }
 
         if (!_isValid(bbox_min)) {
             bool find_lowest_valid_height = true;
-            bbox_min = _getGeoBoundingBoxBinarySearch(
-                    radarGrid, orbit, proj, doppler, min_height, max_height,
-                    margin_zero, pointsPerEdge, threshold, numiter,
-                    find_lowest_valid_height, bbox_max, height_threshold);
+            bbox_min = _getGeoBoundingBoxBinarySearch(radarGrid, orbit, proj,
+                    doppler, min_height, max_height, margin_zero, pointsPerEdge,
+                    threshold, numiter, find_lowest_valid_height, bbox_max,
+                    height_threshold);
         }
     }
 
@@ -409,4 +398,4 @@ isce3::geometry::BoundingBox isce3::geometry::getGeoBoundingBoxHeightSearch(
 
     return bbox_min;
 }
-//end of file
+// end of file

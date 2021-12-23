@@ -35,4 +35,4 @@ void _accumulate(T_out& band_value, T a, double b)
     band_value += a2 * b;
 }
 
-}}
+}} // namespace isce3::geocode

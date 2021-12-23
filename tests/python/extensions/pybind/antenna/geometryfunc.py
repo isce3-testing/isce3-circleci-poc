@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
 import numpy.testing as npt
-
 from pybind_isce3 import antenna as ant
 from pybind_isce3.core import Ellipsoid, Quaternion
 from pybind_isce3.geometry import DEMInterpolator as DEMInterp
@@ -49,85 +48,126 @@ class TestGeometryFunc:
 
     def test_ant2rgdop_scalar(self):
         slantrange, doppler, convergence = ant.ant2rgdop(
-            self.el_rad, self.az_rad, self.sc_pos_ecef,
-            self.sc_vel_ecef, self.q_ant2ecef, self.wl,
-            self.dem_interp)
+            self.el_rad,
+            self.az_rad,
+            self.sc_pos_ecef,
+            self.sc_vel_ecef,
+            self.q_ant2ecef,
+            self.wl,
+            self.dem_interp,
+        )
 
-        npt.assert_allclose(slantrange,
-                            self.sc_pos_llh[2] - self.dem_hgt,
-                            rtol=self.rtol*0.5, atol=0.5,
-                            err_msg="Wrong slantrange!")
+        npt.assert_allclose(
+            slantrange,
+            self.sc_pos_llh[2] - self.dem_hgt,
+            rtol=self.rtol * 0.5,
+            atol=0.5,
+            err_msg="Wrong slantrange!",
+        )
 
-        npt.assert_allclose(doppler, 0.0,
-                            rtol=self.rtol, atol=self.atol,
-                            err_msg="Wrong doppler!")
+        npt.assert_allclose(
+            doppler, 0.0, rtol=self.rtol, atol=self.atol, err_msg="Wrong doppler!"
+        )
 
-        npt.assert_equal(convergence, True,
-                         err_msg="Wrong convergence flag!")
+        npt.assert_equal(convergence, True, err_msg="Wrong convergence flag!")
 
     def test_ant2rgdop_vector(self):
         el_vec = np.deg2rad([self.el_deg, self.el_deg + 0.1])
         slantrange, doppler, convergence = ant.ant2rgdop(
-            el_vec, self.az_rad, self.sc_pos_ecef,
-            self.sc_vel_ecef, self.q_ant2ecef, self.wl,
-            self.dem_interp)
+            el_vec,
+            self.az_rad,
+            self.sc_pos_ecef,
+            self.sc_vel_ecef,
+            self.q_ant2ecef,
+            self.wl,
+            self.dem_interp,
+        )
 
-        npt.assert_allclose(slantrange[0],
-                            self.sc_pos_llh[2] - self.dem_hgt,
-                            rtol=self.rtol*0.5, atol=0.5,
-                            err_msg="Wrong first slantrange!")
+        npt.assert_allclose(
+            slantrange[0],
+            self.sc_pos_llh[2] - self.dem_hgt,
+            rtol=self.rtol * 0.5,
+            atol=0.5,
+            err_msg="Wrong first slantrange!",
+        )
 
-        npt.assert_equal(slantrange[1] > slantrange[0],
-                         True, err_msg="Wrong second slantrange")
+        npt.assert_equal(
+            slantrange[1] > slantrange[0], True, err_msg="Wrong second slantrange"
+        )
 
-        npt.assert_allclose(doppler, 0.0,
-                            rtol=self.rtol, atol=self.atol,
-                            err_msg="Wrong doppler!")
+        npt.assert_allclose(
+            doppler, 0.0, rtol=self.rtol, atol=self.atol, err_msg="Wrong doppler!"
+        )
 
-        npt.assert_equal(convergence, True,
-                         err_msg="Wrong convergence flag!")
+        npt.assert_equal(convergence, True, err_msg="Wrong convergence flag!")
 
     def test_ant2geo_scalar(self):
         llh, convergence = ant.ant2geo(
-            self.el_rad, self.az_rad, self.sc_pos_ecef,
-            self.q_ant2ecef, self.dem_interp)
+            self.el_rad, self.az_rad, self.sc_pos_ecef, self.q_ant2ecef, self.dem_interp
+        )
 
         llh[:2] = np.rad2deg(llh[:2])
 
-        npt.assert_allclose(llh[0], self.sc_pos_llh[0],
-                            rtol=self.rtol, atol=self.atol,
-                            err_msg="Wrong longitude!")
+        npt.assert_allclose(
+            llh[0],
+            self.sc_pos_llh[0],
+            rtol=self.rtol,
+            atol=self.atol,
+            err_msg="Wrong longitude!",
+        )
 
-        npt.assert_allclose(llh[1], self.sc_pos_llh[1],
-                            rtol=self.rtol, atol=self.atol,
-                            err_msg="Wrong latitude!")
+        npt.assert_allclose(
+            llh[1],
+            self.sc_pos_llh[1],
+            rtol=self.rtol,
+            atol=self.atol,
+            err_msg="Wrong latitude!",
+        )
 
-        npt.assert_allclose(llh[2], self.dem_hgt,
-                            rtol=self.rtol*0.5, atol=0.5,
-                            err_msg="Wrong dem height!")
+        npt.assert_allclose(
+            llh[2],
+            self.dem_hgt,
+            rtol=self.rtol * 0.5,
+            atol=0.5,
+            err_msg="Wrong dem height!",
+        )
 
-        npt.assert_equal(convergence, True,
-                         err_msg="Wrong convergence flag!")
+        npt.assert_equal(convergence, True, err_msg="Wrong convergence flag!")
 
     def test_ant2geo_vector(self):
         llh_list, convergence = ant.ant2geo(
-            [self.el_rad, self.el_rad], self.az_rad,
-            self.sc_pos_ecef, self.q_ant2ecef, self.dem_interp)
+            [self.el_rad, self.el_rad],
+            self.az_rad,
+            self.sc_pos_ecef,
+            self.q_ant2ecef,
+            self.dem_interp,
+        )
 
         for llh in llh_list:
             llh[:2] = np.rad2deg(llh[:2])
 
-            npt.assert_allclose(llh[0], self.sc_pos_llh[0],
-                                rtol=self.rtol, atol=self.atol,
-                                err_msg="Wrong longitude!")
+            npt.assert_allclose(
+                llh[0],
+                self.sc_pos_llh[0],
+                rtol=self.rtol,
+                atol=self.atol,
+                err_msg="Wrong longitude!",
+            )
 
-            npt.assert_allclose(llh[1], self.sc_pos_llh[1],
-                                rtol=self.rtol, atol=self.atol,
-                                err_msg="Wrong latitude!")
+            npt.assert_allclose(
+                llh[1],
+                self.sc_pos_llh[1],
+                rtol=self.rtol,
+                atol=self.atol,
+                err_msg="Wrong latitude!",
+            )
 
-            npt.assert_allclose(llh[2], self.dem_hgt,
-                                rtol=self.rtol*0.5, atol=0.5,
-                                err_msg="Wrong dem height!")
+            npt.assert_allclose(
+                llh[2],
+                self.dem_hgt,
+                rtol=self.rtol * 0.5,
+                atol=0.5,
+                err_msg="Wrong dem height!",
+            )
 
-        npt.assert_equal(convergence, True,
-                         err_msg="Wrong convergence flag!")
+        npt.assert_equal(convergence, True, err_msg="Wrong convergence flag!")

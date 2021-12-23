@@ -7,11 +7,11 @@
 #include "Interpolator.h"
 
 /** @param[in] x X-coordinate to interpolate
-  * @param[in] y Y-coordinate to interpolate
-  * @param[in] z 2D matrix to interpolate. */
+ * @param[in] y Y-coordinate to interpolate
+ * @param[in] z 2D matrix to interpolate. */
 template<class U>
-U isce3::core::NearestNeighborInterpolator<U>::interp_impl(double x, double y,
-                                                          const Map& z) const
+U isce3::core::NearestNeighborInterpolator<U>::interp_impl(
+        double x, double y, const Map& z) const
 {
 
     // Nearest indices

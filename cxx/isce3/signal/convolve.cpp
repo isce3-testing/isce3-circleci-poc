@@ -8,135 +8,120 @@
 
 template<typename T>
 void isce3::signal::convolve2D(std::valarray<T>& output,
-                               const std::valarray<T>& input,
-                               const std::valarray<double>& kernelColumns,
-                               const std::valarray<double>& kernelRows,
-                               int ncols, int ncols_padded)
+        const std::valarray<T>& input,
+        const std::valarray<double>& kernelColumns,
+        const std::valarray<double>& kernelRows, int ncols, int ncols_padded)
 {
 
     // sanity checks
     if (ncols <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Number of columns should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Number of columns should be > 0");
     }
     if (ncols_padded <= 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Number of columns for padded data should be > 0");
     }
     if (kernelColumns.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in columns direction should have non-zero size");
     }
     if (kernelRows.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in rows direction should have non-zero size");
     }
     if (output.size() == 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Output should have non-zero size");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Output should have non-zero size");
     }
     if (input.size() == 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Input should have non-zero size");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Input should have non-zero size");
     }
 
     // a buffer for weights and fill with 1.0
     std::valarray<double> weights(1.0, input.size());
     convolve2D(output, input, weights, kernelColumns, kernelRows, ncols,
-               ncols_padded);
+            ncols_padded);
 }
 
 template<typename T>
 void isce3::signal::convolve2D(std::valarray<T>& output,
-                               const std::valarray<T>& input,
-                               const T& noDataValue,
-                               const std::valarray<double>& kernelColumns,
-                               const std::valarray<double>& kernelRows,
-                               int ncols, int ncols_padded)
+        const std::valarray<T>& input, const T& noDataValue,
+        const std::valarray<double>& kernelColumns,
+        const std::valarray<double>& kernelRows, int ncols, int ncols_padded)
 {
 
     // sanity checks
     if (ncols <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Number of columns should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Number of columns should be > 0");
     }
     if (ncols_padded <= 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Number of columns for padded data should be > 0");
     }
     if (kernelColumns.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in columns direction should have non-zero size");
     }
     if (kernelRows.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in rows direction should have non-zero size");
     }
     if (output.size() == 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Output should have non-zero size");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Output should have non-zero size");
     }
     if (input.size() == 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Input should have non-zero size");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Input should have non-zero size");
     }
 
     std::valarray<bool> mask = isce3::core::makeMask(input, noDataValue);
 
     convolve2D(output, input, mask, kernelColumns, kernelRows, ncols,
-               ncols_padded);
+            ncols_padded);
 }
 
 template<typename T>
 void isce3::signal::convolve2D(std::valarray<T>& output,
-                               const std::valarray<T>& input,
-                               const std::valarray<bool>& mask,
-                               const std::valarray<double>& kernelColumns,
-                               const std::valarray<double>& kernelRows,
-                               int ncols, int ncols_padded)
+        const std::valarray<T>& input, const std::valarray<bool>& mask,
+        const std::valarray<double>& kernelColumns,
+        const std::valarray<double>& kernelRows, int ncols, int ncols_padded)
 {
 
     // sanity checks
     if (ncols <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Number of columns should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Number of columns should be > 0");
     }
     if (ncols_padded <= 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Number of columns for padded data should be > 0");
     }
     if (kernelColumns.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in columns direction should have non-zero size");
     }
     if (kernelRows.size() == 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "1D Kernel in rows direction should have non-zero size");
     }
     if (output.size() == 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Output should have non-zero size");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Output should have non-zero size");
     }
     if (input.size() == 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Input should have non-zero size");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Input should have non-zero size");
     }
     if (mask.size() == 0) {
         throw isce3::except::DomainError(
                 ISCE_SRCINFO(), "Input mask should have non-zero size");
     }
     if (mask.size() != input.size()) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Input data and mask should have the same size");
     }
 
@@ -147,16 +132,14 @@ void isce3::signal::convolve2D(std::valarray<T>& output,
     weights[mask] = 1.0;
 
     convolve2D(output, input, weights, kernelColumns, kernelRows, ncols,
-               ncols_padded);
+            ncols_padded);
 }
 
 template<typename T>
 void isce3::signal::convolve2D(std::valarray<T>& output,
-                               const std::valarray<T>& input,
-                               const std::valarray<double>& weights,
-                               const std::valarray<double>& kernelColumns,
-                               const std::valarray<double>& kernelRows,
-                               int ncols, int ncols_padded)
+        const std::valarray<T>& input, const std::valarray<double>& weights,
+        const std::valarray<double>& kernelColumns,
+        const std::valarray<double>& kernelRows, int ncols, int ncols_padded)
 {
 
     int ncols_kernel = kernelColumns.size();
@@ -164,12 +147,11 @@ void isce3::signal::convolve2D(std::valarray<T>& output,
 
     // sanity checks
     if (ncols <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Number of columns should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Number of columns should be > 0");
     }
     if (ncols_padded <= 0) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Number of columns for padded data should be > 0");
     }
     if (ncols_kernel <= 0) {
@@ -181,20 +163,19 @@ void isce3::signal::convolve2D(std::valarray<T>& output,
                 ISCE_SRCINFO(), "Kernel's number of rows should be > 0");
     }
     if (output.size() == 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Output should have non-zero size");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Output should have non-zero size");
     }
     if (input.size() == 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Input should have non-zero size");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Input should have non-zero size");
     }
     if (weights.size() == 0) {
         throw isce3::except::DomainError(
                 ISCE_SRCINFO(), "Input mask should have non-zero size");
     }
     if (weights.size() != input.size()) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Input data and weights should have the same size");
     }
 
@@ -289,8 +270,8 @@ void isce3::signal::convolve2D(std::valarray<T>& output,
 }
 
 template<typename T>
-void isce3::signal::convolve2D(
-        isce3::core::EArray2D<T>& output, const isce3::core::EArray2D<T>& input,
+void isce3::signal::convolve2D(isce3::core::EArray2D<T>& output,
+        const isce3::core::EArray2D<T>& input,
         const isce3::core::EArray2D<double>& weights,
         const isce3::core::EArray2D<double>& kernelColumns,
         const isce3::core::EArray2D<double>& kernelRows)
@@ -302,13 +283,13 @@ void isce3::signal::convolve2D(
     // sanity checks
     if (kernelRows.cols() != 1) {
         throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "The 1D kernel in rows direction is "
-                                         "expcted to have only one column");
+                "The 1D kernel in rows direction is "
+                "expcted to have only one column");
     }
     if (kernelColumns.rows() != 1) {
         throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "The 1D kernel in columns direction "
-                                         "is expcted to have only one row");
+                "The 1D kernel in columns direction "
+                "is expcted to have only one row");
     }
 
     // the start line of the block within the padded block
@@ -422,30 +403,28 @@ void isce3::signal::convolve2D(
 }
 
 #define SPECIALIZE_CONVOLVE(T)                                                 \
-    template void isce3::signal::convolve2D(                                   \
-            std::valarray<T>& output, const std::valarray<T>& input,           \
+    template void isce3::signal::convolve2D(std::valarray<T>& output,          \
+            const std::valarray<T>& input,                                     \
             const std::valarray<double>& weights,                              \
             const std::valarray<double>& kernelColumns,                        \
             const std::valarray<double>& kernelRows, int ncols,                \
             int ncols_padded);                                                 \
-    template void isce3::signal::convolve2D(                                   \
-            std::valarray<T>& output, const std::valarray<T>& input,           \
-            const std::valarray<bool>& mask,                                   \
+    template void isce3::signal::convolve2D(std::valarray<T>& output,          \
+            const std::valarray<T>& input, const std::valarray<bool>& mask,    \
             const std::valarray<double>& kernelColumns,                        \
             const std::valarray<double>& kernelRows, int ncols,                \
             int ncols_padded);                                                 \
-    template void isce3::signal::convolve2D(                                   \
-            std::valarray<T>& output, const std::valarray<T>& input,           \
-            const T& noData, const std::valarray<double>& kernelColumns,       \
-            const std::valarray<double>& kernelRows, int ncols,                \
-            int ncols_padded);                                                 \
-    template void isce3::signal::convolve2D(                                   \
-            std::valarray<T>& output, const std::valarray<T>& input,           \
+    template void isce3::signal::convolve2D(std::valarray<T>& output,          \
+            const std::valarray<T>& input, const T& noData,                    \
             const std::valarray<double>& kernelColumns,                        \
             const std::valarray<double>& kernelRows, int ncols,                \
             int ncols_padded);                                                 \
-    template void isce3::signal::convolve2D(                                   \
-            isce3::core::EArray2D<T>& output,                                  \
+    template void isce3::signal::convolve2D(std::valarray<T>& output,          \
+            const std::valarray<T>& input,                                     \
+            const std::valarray<double>& kernelColumns,                        \
+            const std::valarray<double>& kernelRows, int ncols,                \
+            int ncols_padded);                                                 \
+    template void isce3::signal::convolve2D(isce3::core::EArray2D<T>& output,  \
             const isce3::core::EArray2D<T>& input,                             \
             const isce3::core::EArray2D<double>& weights,                      \
             const isce3::core::EArray2D<double>& kernelColumns,                \

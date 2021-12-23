@@ -2,11 +2,11 @@
 
 #include <isce3/core/forward.h>
 
-#include <isce3/core/Common.h>
 #include <string>
 
-namespace isce3 {
-namespace focus {
+#include <isce3/core/Common.h>
+
+namespace isce3 { namespace focus {
 
 /**
  * Models used for estimating the propagation delay due to the dry component
@@ -41,10 +41,9 @@ DryTroposphereModel parseDryTropoModel(const std::string& s);
  * \returns             Propagation delay (s)
  */
 CUDA_HOSTDEV
-double dryTropoDelayTSX(const isce3::core::Vec3& p, const isce3::core::Vec3& llh,
-                        const isce3::core::Ellipsoid& ellipsoid);
+double dryTropoDelayTSX(const isce3::core::Vec3& p,
+        const isce3::core::Vec3& llh, const isce3::core::Ellipsoid& ellipsoid);
 
-} // namespace focus
-} // namespace isce3
+}} // namespace isce3::focus
 
 #include "DryTroposphereModel.icc"

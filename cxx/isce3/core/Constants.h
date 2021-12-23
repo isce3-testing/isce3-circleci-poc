@@ -9,13 +9,15 @@
 #include <cstdint>
 #include <string>
 
-// Macro wrapper to check vector lengths (adds calling function and variable name information to the
-// exception)
-#define checkVecLen(v,l) isce3::core::checkVecLenDebug(v,l,#v,__PRETTY_FUNCTION__)
-#define check2dVecLen(v,l,w) isce3::core::check2dVecLenDebug(v,l,w,#v,__PRETTY_FUNCTION__)
+// Macro wrapper to check vector lengths (adds calling function and variable
+// name information to the exception)
+#define checkVecLen(v, l)                                                      \
+    isce3::core::checkVecLenDebug(v, l, #v, __PRETTY_FUNCTION__)
+#define check2dVecLen(v, l, w)                                                 \
+    isce3::core::check2dVecLenDebug(v, l, w, #v, __PRETTY_FUNCTION__)
 
 // Macro wrapper to provide 2D indexing to a 1D array
-#define IDX1D(i,j,w) (((i)*(w))+(j))
+#define IDX1D(i, j, w) (((i) * (w)) + (j))
 
 namespace isce3 { namespace core {
 
@@ -45,7 +47,7 @@ enum class MemoryModeBlockY {
 };
 
 /** Convert string to dataInterpMethod */
-dataInterpMethod parseDataInterpMethod(const std::string & method);
+dataInterpMethod parseDataInterpMethod(const std::string& method);
 
 /** Semi-major axis for WGS84 */
 const double EarthSemiMajorAxis = 6378137.0;
@@ -79,21 +81,37 @@ const int AREA_PROJECTION_RADAR_GRID_MARGIN = 100;
 const float AREA_PROJECTION_MIN_VALID_SAMPLES_RATIO = 0.75;
 
 /** Convert decimal degrees to meters approximately */
-double inline decimaldeg2meters(double deg) { return deg * (M_PI/180.0) * 6.37e6; }
+double inline decimaldeg2meters(double deg)
+{
+    return deg * (M_PI / 180.0) * 6.37e6;
+}
 
 /** Precision-promotion to double/complex\<double\>  **/
-template<typename T> struct double_promote;
+template<typename T>
+struct double_promote;
 
 /** Template specialization for float */
-template<> struct double_promote<float>  { using type = double; };
+template<>
+struct double_promote<float> {
+    using type = double;
+};
 
 /** Template specialization for double */
-template<> struct double_promote<double> { using type = double; };
+template<>
+struct double_promote<double> {
+    using type = double;
+};
 
 /** Template specialization for complex\<float\> */
-template<> struct double_promote<std::complex<float>>  { using type = std::complex<double>; };
+template<>
+struct double_promote<std::complex<float>> {
+    using type = std::complex<double>;
+};
 
 /** Template specialization for complex\<double\> */
-template<> struct double_promote<std::complex<double>> { using type = std::complex<double>; };
+template<>
+struct double_promote<std::complex<double>> {
+    using type = std::complex<double>;
+};
 
-}}
+}} // namespace isce3::core

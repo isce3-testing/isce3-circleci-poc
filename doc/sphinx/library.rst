@@ -1,6 +1,6 @@
 :orphan:
 
-ISCE's Library Interface 
+ISCE's Library Interface
 ==========================
 
 ISCE's library interface is meant to mimic the C++ code structure.
@@ -11,7 +11,7 @@ Core Datastructures
 --------------------
 These are data structures that are directly related to C++ classes in the isce::core namespace
 
-* :doc:`DateTime <./core/DateTime>` 
+* :doc:`DateTime <./core/DateTime>`
 * :doc:`TimeDelta <./core/TimeDelta>`
 * :doc:`Ellipsoid <./core/Ellipsoid>`
 * :doc:`EulerAngles <./core/EulerAngles>`
@@ -49,4 +49,3 @@ Geometry Functions
 * :doc:`getGeoPerimeter <./geometry/getGeoPerimeter>`
 * :doc:`rdr2geo_point <./geometry/Rdr2geo_pt>`
 * :doc:`geo2rdr_point <./geometry/Geo2rdr_pt>`
-

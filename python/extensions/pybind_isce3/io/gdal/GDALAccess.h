@@ -8,15 +8,15 @@
 
 namespace py = pybind11;
 
-void addbinding(py::enum_<GDALAccess> &);
+void addbinding(py::enum_<GDALAccess>&);
 
-inline
-GDALAccess toGDALAccess(char c)
+inline GDALAccess toGDALAccess(char c)
 {
     switch (c) {
-        case 'r' : return GA_ReadOnly;
-        case 'w' : return GA_Update;
+    case 'r': return GA_ReadOnly;
+    case 'w': return GA_Update;
     }
 
-    throw isce3::except::RuntimeError(ISCE_SRCINFO(), std::string("unsupported access code '") + c + "'");
+    throw isce3::except::RuntimeError(
+            ISCE_SRCINFO(), std::string("unsupported access code '") + c + "'");
 }

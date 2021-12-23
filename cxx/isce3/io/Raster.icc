@@ -545,4 +545,3 @@ inline double isce3::io::Raster::dy() const
     getGeoTransform(trans);
     return trans[5];
 }
-

@@ -72,7 +72,8 @@ void addbinding(pybind11::class_<isce3::core::Poly1d>& pyPoly1d)
 
             // methods
             .def("eval", &Poly1d::eval, py::arg("x"))
-            .def("eval",
+            .def(
+                    "eval",
                     [](const Poly1d& self, const std::vector<double>& x) {
                         if (x.size() < 1)
                             throw LengthError(ISCE_SRCINFO(),
@@ -83,7 +84,7 @@ void addbinding(pybind11::class_<isce3::core::Poly1d>& pyPoly1d)
                             y.push_back(self.eval(element));
                         return y;
                     },
-		 py::arg("x"))
+                    py::arg("x"))
             .def("derivative",
                     [](const Poly1d& self) { return self.derivative(); })
 

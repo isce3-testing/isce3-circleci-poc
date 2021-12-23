@@ -11,7 +11,7 @@ void addbinding(py::class_<ComputeCapability>& pyComputeCapability)
     pyComputeCapability
             // constructor(s)
             .def(py::init<int, int>(), py::arg("major"), py::arg("minor"),
-                 "Construct a new ComputeCapability object.")
+                    "Construct a new ComputeCapability object.")
 
             // member access
             .def_readwrite("major", &ComputeCapability::major)
@@ -19,11 +19,11 @@ void addbinding(py::class_<ComputeCapability>& pyComputeCapability)
 
             // magic methods
             .def("__repr__",
-                 [](ComputeCapability self) {
-                     return "ComputeCapability(major=" +
-                            std::to_string(self.major) +
-                            ", minor=" + std::to_string(self.minor) + ")";
-                 })
+                    [](ComputeCapability self) {
+                        return "ComputeCapability(major=" +
+                               std::to_string(self.major) +
+                               ", minor=" + std::to_string(self.minor) + ")";
+                    })
             .def("__str__", &ComputeCapability::operator std::string)
 
             // operators
@@ -32,6 +32,5 @@ void addbinding(py::class_<ComputeCapability>& pyComputeCapability)
             .def(py::self < py::self)
             .def(py::self > py::self)
             .def(py::self <= py::self)
-            .def(py::self >= py::self)
-            ;
+            .def(py::self >= py::self);
 }

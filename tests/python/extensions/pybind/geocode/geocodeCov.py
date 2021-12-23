@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 import os
-import numpy as np
-from osgeo import gdal
+
 import iscetest
+import numpy as np
 import pybind_isce3 as isce
 from nisar.products.readers import SLC
+from osgeo import gdal
 
-geocode_modes = {'interp':isce.geocode.GeocodeOutputMode.INTERP,
-        'area':isce.geocode.GeocodeOutputMode.AREA_PROJECTION}
-input_axis = ['x', 'y']
+geocode_modes = {
+    "interp": isce.geocode.GeocodeOutputMode.INTERP,
+    "area": isce.geocode.GeocodeOutputMode.AREA_PROJECTION,
+}
+input_axis = ["x", "y"]
 
 
 # run tests
@@ -25,7 +28,7 @@ def test_run():
     geo_obj.lines_per_block = 1000
     geo_obj.dem_block_margin = 1e-1
     geo_obj.radar_block_margin = 10
-    geo_obj.data_interpolator = 'biquintic'
+    geo_obj.data_interpolator = "biquintic"
 
     # prepare geogrid
     geogrid_start_x = -115.6
@@ -36,34 +39,48 @@ def test_run():
     geo_grid_length = int(380 / reduction_factor)
     geo_grid_width = int(400 / reduction_factor)
     epsgcode = 4326
-    geo_obj.geogrid(geogrid_start_x, geogrid_start_y, geogrid_spacingX,
-                   geogrid_spacingY, geo_grid_width, geo_grid_length, epsgcode)
+    geo_obj.geogrid(
+        geogrid_start_x,
+        geogrid_start_y,
+        geogrid_spacingX,
+        geogrid_spacingY,
+        geo_grid_width,
+        geo_grid_length,
+        epsgcode,
+    )
 
     # get radar grid from HDF5
-    radar_grid = isce.product.RadarGridParameters(os.path.join(iscetest.data, "envisat.h5"))
+    radar_grid = isce.product.RadarGridParameters(
+        os.path.join(iscetest.data, "envisat.h5")
+    )
 
     # load test DEM
-    dem_raster = isce.io.Raster(os.path.join(iscetest.data, "geocode/zeroHeightDEM.geo"))
+    dem_raster = isce.io.Raster(
+        os.path.join(iscetest.data, "geocode/zeroHeightDEM.geo")
+    )
 
     # iterate thru axis
     for axis in input_axis:
         # load axis input raster
-        input_raster = isce.io.Raster(os.path.join(iscetest.data, f"geocode/{axis}.rdr"))
+        input_raster = isce.io.Raster(
+            os.path.join(iscetest.data, f"geocode/{axis}.rdr")
+        )
 
         #  iterate thru geocode modes
         for key, value in geocode_modes.items():
             # prepare output raster
             output_path = f"{axis}_{key}.geo"
-            output_raster = isce.io.Raster(output_path,
-                    geo_grid_width, geo_grid_length, 1,
-                    gdal.GDT_Float64, "ENVI")
+            output_raster = isce.io.Raster(
+                output_path,
+                geo_grid_width,
+                geo_grid_length,
+                1,
+                gdal.GDT_Float64,
+                "ENVI",
+            )
 
             # geocode based on axis and mode
-            geo_obj.geocode(radar_grid,
-                    input_raster,
-                    output_raster,
-                    dem_raster,
-                    value)
+            geo_obj.geocode(radar_grid, input_raster, output_raster, dem_raster, value)
 
 
 def test_validate():
@@ -93,25 +110,25 @@ def test_validate():
                 grid_lat = y0 + meshy * dy
 
             # calculate error
-            if axis == 'x':
+            if axis == "x":
                 err = geo_arr - grid_lon
             else:
                 err = geo_arr - grid_lat
 
             # calculate avg square difference error
-            rmse = np.sqrt(np.sum(err**2) / np.count_nonzero(~geo_arr.mask))
+            rmse = np.sqrt(np.sum(err ** 2) / np.count_nonzero(~geo_arr.mask))
 
-            if key == 'interp':
+            if key == "interp":
                 # get max err
                 max_err = np.nanmax(err)
 
-                assert( max_err < 1.0e-8 ), f'{test_raster} max error fail'
+                assert max_err < 1.0e-8, f"{test_raster} max error fail"
 
-            if axis == 'x':
+            if axis == "x":
                 rmse_err_threshold = 0.5 * dx
             else:
                 rmse_err_threshold = 0.5 * abs(dy)
-            assert( rmse  < rmse_err_threshold ), f'{test_raster} RMSE fail'
+            assert rmse < rmse_err_threshold, f"{test_raster} RMSE fail"
 
 
 if __name__ == "__main__":

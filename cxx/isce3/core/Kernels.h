@@ -123,7 +123,7 @@ public:
      * @param[in] scale Typically antenna length L if working in distance units,
      *                  or L/v if working in time units.
      */
-    AzimuthKernel(double scale) : Kernel<T>(2 * scale) {}  // non-zero on 2L
+    AzimuthKernel(double scale) : Kernel<T>(2 * scale) {} // non-zero on 2L
 
     T operator()(double x) const override;
 };

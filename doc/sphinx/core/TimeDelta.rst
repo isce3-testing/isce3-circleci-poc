@@ -12,7 +12,7 @@ Factory
 ----------
 
 .. code-block:: python
-   
+
    from isce3.core import timeDelta
 
    obj = timeDelta(**kwds)

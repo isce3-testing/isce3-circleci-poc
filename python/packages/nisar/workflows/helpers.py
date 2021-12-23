@@ -1,23 +1,22 @@
-'''
+"""
 collection of useful functions used across workflows
-'''
+"""
 
-from collections import defaultdict
 import os
 import pathlib
+from collections import defaultdict
 
-from osgeo import gdal
 import h5py
-
 import journal
-
 from nisar.products.readers import SLC
+from osgeo import gdal
+
 
 def deep_update(original, update):
-    '''
+    """
     update default runconfig key with user supplied dict
     https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
-    '''
+    """
     for key, val in update.items():
         if isinstance(val, dict):
             original[key] = deep_update(original.get(key, {}), val)
@@ -29,7 +28,7 @@ def deep_update(original, update):
 
 
 def autovivified_dict():
-    '''
+    """
     Use autovivification to create nested dictionaries.
     https://en.wikipedia.org/wiki/Autovivification
     defaultdict creates any items you try to access if they don't exist yet.
@@ -37,7 +36,7 @@ def autovivified_dict():
     https://stackoverflow.com/a/5900634
     The recursion extends this behavior and allows the creation of additional levels.
     https://stackoverflow.com/a/22455426
-    '''
+    """
     return defaultdict(autovivified_dict)
 
 
@@ -45,13 +44,13 @@ WORKFLOW_SCRIPTS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def check_write_dir(dst_path: str):
-    '''
+    """
     Raise error if given path does not exist or not writeable.
-    '''
+    """
     if not dst_path:
-        dst_path = '.'
+        dst_path = "."
 
-    error_channel = journal.error('helpers.check_write_dir')
+    error_channel = journal.error("helpers.check_write_dir")
 
     # check if scratch path exists
     dst_path_ok = os.path.isdir(dst_path)
@@ -73,25 +72,25 @@ def check_write_dir(dst_path: str):
 
 
 def check_dem(dem_path: str):
-    '''
+    """
     Raise error if DEM is not system file, netCDF, nor S3.
-    '''
-    error_channel = journal.error('helpers.check_dem')
+    """
+    error_channel = journal.error("helpers.check_dem")
 
     try:
         gdal.Open(dem_path)
     except:
-        err_str = f'{dem_path} cannot be opened by GDAL'
+        err_str = f"{dem_path} cannot be opened by GDAL"
         error_channel.log(err_str)
         raise ValueError(err_str)
 
 
 def check_log_dir_writable(log_file_path: str):
-    '''
+    """
     Check to see if destination directory of log file path is writable.
     Raise error if directory lacks write permission.
-    '''
-    error_channel = journal.error('helpers.check_log_dir_writeable')
+    """
+    error_channel = journal.error("helpers.check_log_dir_writeable")
 
     dest_dir, _ = os.path.split(log_file_path)
 
@@ -105,8 +104,10 @@ def check_log_dir_writable(log_file_path: str):
         raise PermissionError(err_str)
 
 
-def check_mode_directory_tree(parent_dir: str, mode: str, frequency_list: list, pols: dict = {}):
-    '''
+def check_mode_directory_tree(
+    parent_dir: str, mode: str, frequency_list: list, pols: dict = {}
+):
+    """
     Checks existence parent directory and sub-directories.
     Sub-directories made from mode sub_dir + frequency_list.
     Expected directory tree:
@@ -114,8 +115,8 @@ def check_mode_directory_tree(parent_dir: str, mode: str, frequency_list: list, 
     └── mode/
         └── freq(A,B)
             └── (HH, HV, VH, VV)
-    '''
-    error_channel = journal.error('helpers.check_directory_tree')
+    """
+    error_channel = journal.error("helpers.check_directory_tree")
 
     parent_dir = pathlib.Path(parent_dir)
 
@@ -126,7 +127,7 @@ def check_mode_directory_tree(parent_dir: str, mode: str, frequency_list: list, 
         raise NotADirectoryError(err_str)
 
     # check if mode-directory exists
-    mode_dir = parent_dir / f'{mode}'
+    mode_dir = parent_dir / f"{mode}"
     if not mode_dir.is_dir():
         err_str = f"{str(mode_dir)} not a valid path"
         error_channel.log(err_str)
@@ -141,13 +142,13 @@ def check_mode_directory_tree(parent_dir: str, mode: str, frequency_list: list, 
 
     for freq in frequency_list:
         # check if frequency allowed
-        if freq not in ['A', 'B']:
+        if freq not in ["A", "B"]:
             err_str = f"frequency {freq} not valid. Only [A, B] allowed."
             error_channel.log(err_str)
             raise ValueError(err_str)
 
         # check if mode-directory exists
-        freq_dir = mode_dir / f'freq{freq}'
+        freq_dir = mode_dir / f"freq{freq}"
         if not freq_dir.is_dir():
             err_str = f"{str(freq_dir)} not a valid path"
             error_channel.log(err_str)
@@ -173,18 +174,18 @@ def check_mode_directory_tree(parent_dir: str, mode: str, frequency_list: list, 
 
 
 def check_hdf5_freq_pols(h5_path: str, freq_pols: dict):
-    '''
+    """
     Check if frequency (keys) and polarizations (items) exist in HDF5
     Expected HDF5 structure:
     swath or grid group/
     └── freq(A,B) group
         └── (HH, HV, VH, VV) dataset
-    '''
-    error_channel = journal.error('helpers.check_hdf5_freq_pols')
+    """
+    error_channel = journal.error("helpers.check_hdf5_freq_pols")
 
     # attempt to open HDF5
     try:
-        h5_obj = h5py.File(h5_path, 'r', libver='latest', swmr=True)
+        h5_obj = h5py.File(h5_path, "r", libver="latest", swmr=True)
     except:
         err_str = f"h5py unable to open {h5_path}"
         error_channel.log(err_str)
@@ -192,12 +193,14 @@ def check_hdf5_freq_pols(h5_path: str, freq_pols: dict):
 
     # use with to ensure h5_obj closes
     with h5_obj:
-        product_type = h5_obj['/science/LSAR/identification/productType'][()].decode('UTF-8')
-        if product_type.startswith('G'):
-            grid_type = 'grids'
+        product_type = h5_obj["/science/LSAR/identification/productType"][()].decode(
+            "UTF-8"
+        )
+        if product_type.startswith("G"):
+            grid_type = "grids"
         else:
-            grid_type = 'swaths'
-        grid_path = f'/science/LSAR/{product_type}/{grid_type}'
+            grid_type = "swaths"
+        grid_path = f"/science/LSAR/{product_type}/{grid_type}"
 
         # get swath/grid group from hdf5
         grid_group = h5_obj[grid_path]
@@ -212,8 +215,8 @@ def check_hdf5_freq_pols(h5_path: str, freq_pols: dict):
 
             # get frequency group from swath/grid group
             freq_group = grid_group[freq_str]
-            if 'interferogram' in freq_group:
-                freq_group = freq_group['interferogram']
+            if "interferogram" in freq_group:
+                freq_group = freq_group["interferogram"]
 
             # check if polarizations in group
             for pol in freq_pols[freq]:

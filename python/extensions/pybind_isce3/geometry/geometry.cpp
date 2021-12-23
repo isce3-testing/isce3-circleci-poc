@@ -4,35 +4,33 @@
 #include "RTC.h"
 #include "boundingbox.h"
 #include "geo2rdr.h"
-#include "metadataCubes.h"
-#include "rdr2geo.h"
-#include "ltpcoordinates.h"
-#include "pntintersect.h"
 #include "lookIncFromSr.h"
+#include "ltpcoordinates.h"
+#include "metadataCubes.h"
+#include "pntintersect.h"
+#include "rdr2geo.h"
 
 namespace py = pybind11;
 
-void addsubmodule_geometry(py::module & m)
+void addsubmodule_geometry(py::module& m)
 {
     py::module geometry = m.def_submodule("geometry");
 
     // forward declare bound classes
-    py::class_<isce3::geometry::DEMInterpolator>
-        pyDEMInterpolator(geometry, "DEMInterpolator");
-    py::class_<isce3::geometry::Geo2rdr>
-        pyGeo2Rdr(geometry, "Geo2Rdr");
-    py::class_<isce3::geometry::Topo>
-        pyRdr2Geo(geometry, "Rdr2Geo");
+    py::class_<isce3::geometry::DEMInterpolator> pyDEMInterpolator(
+            geometry, "DEMInterpolator");
+    py::class_<isce3::geometry::Geo2rdr> pyGeo2Rdr(geometry, "Geo2Rdr");
+    py::class_<isce3::geometry::Topo> pyRdr2Geo(geometry, "Rdr2Geo");
 
     // forward declare bound enums
     py::enum_<isce3::geometry::rtcInputTerrainRadiometry>
             pyInputTerrainRadiometry(geometry, "RtcInputTerrainRadiometry");
     py::enum_<isce3::geometry::rtcOutputTerrainRadiometry>
             pyOutputTerrainRadiometry(geometry, "RtcOutputTerrainRadiometry");
-    py::enum_<isce3::geometry::rtcAlgorithm>
-        pyRtcAlgorithm(geometry, "RtcAlgorithm");
-    py::enum_<isce3::geometry::rtcAreaMode>
-        pyRtcAreaMode(geometry, "RtcAreaMode");
+    py::enum_<isce3::geometry::rtcAlgorithm> pyRtcAlgorithm(
+            geometry, "RtcAlgorithm");
+    py::enum_<isce3::geometry::rtcAreaMode> pyRtcAreaMode(
+            geometry, "RtcAreaMode");
 
     // add bindings
     addbinding(pyDEMInterpolator);

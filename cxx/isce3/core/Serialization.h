@@ -19,18 +19,17 @@
 #include <isce3/core/Attitude.h>
 #include <isce3/core/DateTime.h>
 #include <isce3/core/Ellipsoid.h>
+#include <isce3/core/LUT1d.h>
+#include <isce3/core/LUT2d.h>
 #include <isce3/core/Metadata.h>
 #include <isce3/core/Orbit.h>
 #include <isce3/core/Poly2d.h>
-#include <isce3/core/LUT1d.h>
-#include <isce3/core/LUT2d.h>
 #include <isce3/core/StateVector.h>
 #include <isce3/core/TimeDelta.h>
 #include <isce3/io/IH5.h>
 #include <isce3/io/Serialization.h>
 
-namespace isce3 {
-namespace core {
+namespace isce3 { namespace core {
 
 /**
  * Load Ellipsoid parameters from HDF5.
@@ -38,7 +37,7 @@ namespace core {
  * @param[in] group         HDF5 group object.
  * @param[in] ellps         Ellipsoid object to be configured.
  */
-inline void loadFromH5(isce3::io::IGroup & group, Ellipsoid & ellps)
+inline void loadFromH5(isce3::io::IGroup& group, Ellipsoid& ellps)
 {
     // Read data
     std::vector<double> ellpsData;
@@ -54,7 +53,7 @@ inline void loadFromH5(isce3::io::IGroup & group, Ellipsoid & ellps)
  * @param[in] group         HDF5 group object.
  * @param[in] orbit         Orbit object to be configured.
  */
-inline void loadFromH5(isce3::io::IGroup & group, Orbit & orbit)
+inline void loadFromH5(isce3::io::IGroup& group, Orbit& orbit)
 {
     // open datasets
     isce3::io::IDataSet time_ds = group.openDataSet("time");
@@ -71,11 +70,13 @@ inline void loadFromH5(isce3::io::IGroup & group, Orbit & orbit)
         throw std::runtime_error("unexpected orbit state vector dims");
     }
     if (pos_dims[1] != 3 || vel_dims[1] != 3) {
-        throw std::runtime_error("unexpected orbit position/velocity vector size");
+        throw std::runtime_error(
+                "unexpected orbit position/velocity vector size");
     }
     std::size_t size = time_dims[0];
     if (pos_dims[0] != size || vel_dims[0] != size) {
-        throw std::runtime_error("mismatched orbit state vector component sizes");
+        throw std::runtime_error(
+                "mismatched orbit state vector component sizes");
     }
 
     // read orbit data
@@ -93,8 +94,10 @@ inline void loadFromH5(isce3::io::IGroup & group, Orbit & orbit)
     std::vector<StateVector> statevecs(size);
     for (std::size_t i = 0; i < size; ++i) {
         statevecs[i].datetime = reference_epoch + TimeDelta(time[i]);
-        statevecs[i].position = { pos[3*i+0], pos[3*i+1], pos[3*i+2] };
-        statevecs[i].velocity = { vel[3*i+0], vel[3*i+1], vel[3*i+2] };
+        statevecs[i].position = {
+                pos[3 * i + 0], pos[3 * i + 1], pos[3 * i + 2]};
+        statevecs[i].velocity = {
+                vel[3 * i + 0], vel[3 * i + 1], vel[3 * i + 2]};
     }
 
     // build orbit
@@ -109,12 +112,11 @@ inline void loadFromH5(isce3::io::IGroup & group, Orbit & orbit)
 
     if (interp_method == "Hermite") {
         orbit.interpMethod(OrbitInterpMethod::Hermite);
-    }
-    else if (interp_method == "Legendre") {
+    } else if (interp_method == "Legendre") {
         orbit.interpMethod(OrbitInterpMethod::Legendre);
-    }
-    else {
-        throw std::runtime_error("unexpected orbit interpolation method '" + interp_method + "'");
+    } else {
+        throw std::runtime_error("unexpected orbit interpolation method '" +
+                                 interp_method + "'");
     }
 }
 
@@ -124,7 +126,7 @@ inline void loadFromH5(isce3::io::IGroup & group, Orbit & orbit)
  * @param[in] group         HDF5 group object.
  * @param[in] orbit         Orbit object to be saved.
  */
-inline void saveToH5(isce3::io::IGroup & group, const Orbit & orbit)
+inline void saveToH5(isce3::io::IGroup& group, const Orbit& orbit)
 {
     // convert times to vector, get flattened position, velocity
     std::vector<double> time(orbit.size());
@@ -134,13 +136,13 @@ inline void saveToH5(isce3::io::IGroup & group, const Orbit & orbit)
     for (int i = 0; i < orbit.size(); ++i) {
         time[i] = orbit.time(i);
 
-        pos[3*i+0] = orbit.position(i)[0];
-        pos[3*i+1] = orbit.position(i)[1];
-        pos[3*i+2] = orbit.position(i)[2];
+        pos[3 * i + 0] = orbit.position(i)[0];
+        pos[3 * i + 1] = orbit.position(i)[1];
+        pos[3 * i + 2] = orbit.position(i)[2];
 
-        vel[3*i+0] = orbit.velocity(i)[0];
-        vel[3*i+1] = orbit.velocity(i)[1];
-        vel[3*i+2] = orbit.velocity(i)[2];
+        vel[3 * i + 0] = orbit.velocity(i)[0];
+        vel[3 * i + 1] = orbit.velocity(i)[1];
+        vel[3 * i + 2] = orbit.velocity(i)[2];
     }
 
     // position/velocity data dims
@@ -151,11 +153,9 @@ inline void saveToH5(isce3::io::IGroup & group, const Orbit & orbit)
     std::string interp_method;
     if (orbit.interpMethod() == OrbitInterpMethod::Hermite) {
         interp_method = "Hermite";
-    }
-    else if (orbit.interpMethod() == OrbitInterpMethod::Legendre) {
+    } else if (orbit.interpMethod() == OrbitInterpMethod::Legendre) {
         interp_method = "Legendre";
-    }
-    else {
+    } else {
         throw std::runtime_error("unexpected orbit interpolation method");
     }
 
@@ -217,14 +217,14 @@ inline void loadFromH5(isce3::io::IGroup& group, Attitude& att)
     att = isce3::core::Attitude(time, quat, epoch);
 }
 
-inline void saveToH5(isce3::io::IGroup & group, const Attitude& att)
+inline void saveToH5(isce3::io::IGroup& group, const Attitude& att)
 {
     // Flatten quaternion vector.
     int n = att.size();
     std::vector<double> qflat(n * 4);
     auto qvec = att.quaternions();
     for (int i = 0; i < n; ++i) {
-        double *q = &qflat[i * 4];
+        double* q = &qflat[i * 4];
         // XXX Don't use internal Quaternion array since it uses a
         // different storage order!
         q[0] = qvec[i].w();
@@ -247,7 +247,7 @@ inline void saveToH5(isce3::io::IGroup & group, const Attitude& att)
  * @param[in] poly          Poly2d to be configured.
  * @param[in] name          Dataset name within group.
  */
-inline void loadFromH5(isce3::io::IGroup & group, Poly2d & poly, std::string name)
+inline void loadFromH5(isce3::io::IGroup& group, Poly2d& poly, std::string name)
 {
     // Configure the polynomial coefficients
     isce3::io::loadFromH5(group, name, poly.coeffs);
@@ -272,9 +272,9 @@ inline void loadFromH5(isce3::io::IGroup & group, Poly2d & poly, std::string nam
  * @param[in] dsetName      Dataset name within group
  * @param[in] lut           LUT2d to be configured.
  */
-template <typename T>
-inline void loadCalGrid(isce3::io::IGroup & group, const std::string & dsetName,
-                        isce3::core::LUT2d<T> & lut)
+template<typename T>
+inline void loadCalGrid(isce3::io::IGroup& group, const std::string& dsetName,
+        isce3::core::LUT2d<T>& lut)
 {
     // Load coordinates
     std::valarray<double> slantRange, zeroDopplerTime;
@@ -297,12 +297,10 @@ inline void loadCalGrid(isce3::io::IGroup & group, const std::string & dsetName,
  * @param[in] lut           LUT2d to be saved.
  * @param[in] units         Units of LUT2d data.
  */
-template <typename T>
-inline void saveCalGrid(isce3::io::IGroup & group,
-                        const std::string & dsetName,
-                        const isce3::core::LUT2d<T> & lut,
-                        const isce3::core::DateTime & refEpoch,
-                        const std::string & units = "")
+template<typename T>
+inline void saveCalGrid(isce3::io::IGroup& group, const std::string& dsetName,
+        const isce3::core::LUT2d<T>& lut, const isce3::core::DateTime& refEpoch,
+        const std::string& units = "")
 {
     // Generate uniformly spaced X (slant range) coordinates
     const double x0 = lut.xStart();
@@ -330,9 +328,9 @@ inline void saveCalGrid(isce3::io::IGroup & group,
  * @param[in] poly          Poly2d to be configured.
  * @param[in] name          Dataset name within group.
  */
-template <typename T>
-inline void loadFromH5(isce3::io::IGroup & group, LUT1d<T> & lut,
-                       std::string name_coords, std::string name_values)
+template<typename T>
+inline void loadFromH5(isce3::io::IGroup& group, LUT1d<T>& lut,
+        std::string name_coords, std::string name_values)
 {
     // Valarrays for storing results
     std::valarray<double> x, y;

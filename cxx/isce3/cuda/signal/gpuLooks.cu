@@ -598,4 +598,3 @@ multilooks_power_g<float>(float *lo_res,
         int col_resize,
         size_t sz_lo,
         float blk_sz);
-

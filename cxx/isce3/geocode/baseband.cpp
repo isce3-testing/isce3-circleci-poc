@@ -4,10 +4,9 @@
 #include <isce3/core/Matrix.h>
 
 void isce3::geocode::baseband(isce3::core::Matrix<std::complex<float>>& data,
-                             const double starting_range,
-                             const double sensing_start,
-                             const double range_pixel_spacing, const double prf,
-                             const isce3::core::LUT2d<double>& doppler_lut)
+        const double starting_range, const double sensing_start,
+        const double range_pixel_spacing, const double prf,
+        const isce3::core::LUT2d<double>& doppler_lut)
 {
 
     size_t length = data.length();

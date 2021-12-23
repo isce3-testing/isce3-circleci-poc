@@ -1,6 +1,7 @@
 #pragma once
 
 #include "forward.h"
+
 #include <isce3/io/Raster.h>
 
 namespace isce3 { namespace signal {
@@ -19,9 +20,8 @@ namespace isce3 { namespace signal {
  */
 template<class T_val>
 void upsampleRasterBlockX(isce3::io::Raster& input_raster,
-                          std::valarray<std::complex<T_val>>& output_array,
-                          size_t offset_x, size_t offset_y, size_t input_size_x,
-                          size_t input_size_y, size_t band = 1,
-                          size_t upsample_factor = 2);
+        std::valarray<std::complex<T_val>>& output_array, size_t offset_x,
+        size_t offset_y, size_t input_size_x, size_t input_size_y,
+        size_t band = 1, size_t upsample_factor = 2);
 
-}}
+}} // namespace isce3::signal

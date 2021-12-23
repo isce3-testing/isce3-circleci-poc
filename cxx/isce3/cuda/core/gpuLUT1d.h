@@ -6,80 +6,81 @@
 #pragma once
 
 #include "forward.h"
+#include <isce3/core/forward.h>
 
 #include <cmath>
-#include <isce3/core/forward.h>
+
 #include <isce3/core/Common.h>
 
 // gpuLUT1d declaration
-template <typename T>
+template<typename T>
 class isce3::cuda::core::gpuLUT1d {
 
-    public:
-        // Disallow default constructor
-        CUDA_HOSTDEV gpuLUT1d() = delete;
-    
-        /** Deep copy constructor from CPU LUT1d */
-        CUDA_HOST gpuLUT1d(const isce3::core::LUT1d<T> &);
+public:
+    // Disallow default constructor
+    CUDA_HOSTDEV gpuLUT1d() = delete;
 
-        /** Shallow copy constructor on device */
-        CUDA_HOSTDEV gpuLUT1d(gpuLUT1d<T> &);
+    /** Deep copy constructor from CPU LUT1d */
+    CUDA_HOST gpuLUT1d(const isce3::core::LUT1d<T>&);
 
-        /** Shallow assignment operator on device */
-        CUDA_HOSTDEV gpuLUT1d & operator=(gpuLUT1d<T> &);
+    /** Shallow copy constructor on device */
+    CUDA_HOSTDEV gpuLUT1d(gpuLUT1d<T>&);
 
-        /** Destructor */
-        ~gpuLUT1d();
+    /** Shallow assignment operator on device */
+    CUDA_HOSTDEV gpuLUT1d& operator=(gpuLUT1d<T>&);
 
-        /** Access to coordinates */
-        CUDA_HOSTDEV inline double * coords() { return _coords; }
+    /** Destructor */
+    ~gpuLUT1d();
 
-        /** Read-only access to coordinates */
-        CUDA_HOSTDEV inline const double * coords() const { return _coords; }
+    /** Access to coordinates */
+    CUDA_HOSTDEV inline double* coords() { return _coords; }
 
-        /** Set the coordinates */
-        CUDA_HOSTDEV inline void coords(double * c) { _coords = c; }
+    /** Read-only access to coordinates */
+    CUDA_HOSTDEV inline const double* coords() const { return _coords; }
 
-        /** Access to values */
-        CUDA_HOSTDEV inline T * values() { return _values; }
+    /** Set the coordinates */
+    CUDA_HOSTDEV inline void coords(double* c) { _coords = c; }
 
-        /** Read-only access to values */
-        CUDA_HOSTDEV inline const T * values() const { return _values; }
+    /** Access to values */
+    CUDA_HOSTDEV inline T* values() { return _values; }
 
-        /** Set the values */
-        CUDA_HOSTDEV inline void values(T * v) { _values = v; }
+    /** Read-only access to values */
+    CUDA_HOSTDEV inline const T* values() const { return _values; }
 
-        /** Get extrapolate flag */
-        CUDA_HOSTDEV inline bool extrapolate() const { return _extrapolate; }
+    /** Set the values */
+    CUDA_HOSTDEV inline void values(T* v) { _values = v; }
 
-        /** Set extrapolation flag */
-        CUDA_HOSTDEV inline void extrapolate(bool flag) { _extrapolate = flag; }
+    /** Get extrapolate flag */
+    CUDA_HOSTDEV inline bool extrapolate() const { return _extrapolate; }
 
-        /** Get flag for having data */
-        CUDA_HOSTDEV inline bool haveData() const { return _haveData; }
+    /** Set extrapolation flag */
+    CUDA_HOSTDEV inline void extrapolate(bool flag) { _extrapolate = flag; }
 
-        /** Get reference value */
-        CUDA_HOSTDEV inline T refValue() const { return _refValue; }
+    /** Get flag for having data */
+    CUDA_HOSTDEV inline bool haveData() const { return _haveData; }
 
-        /** Get size info of LUT */
-        CUDA_HOSTDEV inline size_t size() const { return _size; }
+    /** Get reference value */
+    CUDA_HOSTDEV inline T refValue() const { return _refValue; }
 
-        /** Set size info of LUT */
-        CUDA_HOSTDEV inline void size(size_t s) { _size = s; }
+    /** Get size info of LUT */
+    CUDA_HOSTDEV inline size_t size() const { return _size; }
 
-        /** Evaluate the LUT */
-        CUDA_DEV T eval(double x) const;
+    /** Set size info of LUT */
+    CUDA_HOSTDEV inline void size(size_t s) { _size = s; }
 
-        /** Evaluate the LUT from host (test function) */
-        CUDA_HOST T eval_h(double x);
+    /** Evaluate the LUT */
+    CUDA_DEV T eval(double x) const;
+
+    /** Evaluate the LUT from host (test function) */
+    CUDA_HOST T eval_h(double x);
 
     // Data members
-    private:
-        bool _haveData;
-        T _refValue;
-        double * _coords;
-        T * _values;
-        size_t _size;
-        bool _extrapolate;
-        bool _owner;
+private:
+    bool _haveData;
+    T _refValue;
+    double* _coords;
+    T* _values;
+    size_t _size;
+    bool _extrapolate;
+    bool _owner;
 };

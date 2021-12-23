@@ -36,7 +36,7 @@ DATADIR=${WORKSPACE}/test_rslc
 CONTAINERTAG=container-${TAG}
 CONTAINER_DATADIR=/tmp/data
 
-# download test data from artifactory 
+# download test data from artifactory
 if [ -d ${DATADIR} ]; then
   rm -rf ${DATADIR}
 fi
@@ -56,9 +56,9 @@ docker run \
   -w ${CONTAINER_DATADIR} \
   --name ${CONTAINERTAG} ${IMAGE}:${TAG} \
   /bin/bash -c "source /opt/docker/bin/entrypoint_source &&
-                echo ${CONTAINER_DATADIR}: && 
-                ls -al ${CONTAINER_DATADIR} && 
-                cd ${CONTAINER_DATADIR} && 
+                echo ${CONTAINER_DATADIR}: &&
+                ls -al ${CONTAINER_DATADIR} &&
+                cd ${CONTAINER_DATADIR} &&
                 mkdir output_rslc scratch_rslc qa_rslc &&
                 time python3 /opt/isce/packages/nisar/workflows/focus.py run_config_rslc.yaml &&
                 time python3 /opt/QualityAssurance/verify_rslc.py  --fpdf qa_rslc/graphs.pdf --fhdf qa_rslc/stats.h5 --flog qa_rslc/qa.log --validate --quality output_rslc/rslc.h5

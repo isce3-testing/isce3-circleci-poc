@@ -31,4 +31,4 @@ void synchronize(Event);
  */
 bool query(Event);
 
-}}}
+}}} // namespace isce3::cuda::core

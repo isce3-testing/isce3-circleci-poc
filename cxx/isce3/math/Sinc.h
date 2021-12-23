@@ -6,9 +6,8 @@ namespace isce3 { namespace math {
 
 /** sinc function defined as \f$ \frac{\sin(\pi x)}{\pi x} \f$ */
 template<typename T>
-CUDA_HOSTDEV
-T sinc(T t);
+CUDA_HOSTDEV T sinc(T t);
 
-}}
+}} // namespace isce3::math
 
 #include "Sinc.icc"

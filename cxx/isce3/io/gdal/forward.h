@@ -8,6 +8,7 @@ class GeoTransform;
 class Raster;
 class SpatialReference;
 
-template<typename> class TypedBuffer;
+template<typename>
+class TypedBuffer;
 
-}}}
+}}} // namespace isce3::io::gdal

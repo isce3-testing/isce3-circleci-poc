@@ -19,7 +19,7 @@
 void isce3::signal::Crossmul::
 doppler(isce3::core::LUT1d<double> refSlcDoppler, isce3::core::LUT1d<double> secSlcDoppler)
 {
-    
+
     _refDoppler = refSlcDoppler;
 
     _secDoppler = secSlcDoppler;
@@ -65,7 +65,7 @@ azimuthLooks(int azimuthLooks)
 }
 
 /** @param[in] refSpectrum the spectrum of a block of a complex data
-@param[in] secSpectrum the spectrum of a block of complex data 
+@param[in] secSpectrum the spectrum of a block of complex data
 @param[in] rangeFrequencies the frequencies in range direction
 @param[in] blockRowsData number of rows in refSpectrum and secSpectrum
 @param[in] fft_size number of columns in refSpectrum and secSpectrum
@@ -80,9 +80,9 @@ rangeFrequencyShift(std::valarray<std::complex<float>> &refSpectrum,
                     double &frequencyShift)
 {
 
-    std::valarray<float> refAvgSpectrum(fft_size); 
+    std::valarray<float> refAvgSpectrum(fft_size);
     refAvgSpectrum = 0.0;
-    std::valarray<float> secAvgSpectrum(fft_size); 
+    std::valarray<float> secAvgSpectrum(fft_size);
     secAvgSpectrum = 0.0;
 
     for (size_t line = 0; line < blockRowsData; ++line){

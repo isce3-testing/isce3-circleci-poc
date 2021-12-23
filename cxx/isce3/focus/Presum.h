@@ -2,9 +2,11 @@
 /** @file PresumWeights.h */
 
 #include <isce3/core/forward.h>
-#include <Eigen/Dense>
+
 #include <unordered_map>
 #include <vector>
+
+#include <Eigen/Dense>
 
 namespace isce3 { namespace focus {
 
@@ -41,18 +43,13 @@ namespace isce3 { namespace focus {
  * @returns Weight vector.
  */
 template<typename KernelType>
-auto
-getPresumWeights(const KernelType& acorr,
-                 const Eigen::Ref<const Eigen::VectorXd>& xin, double xout,
-                 long* offset);
-
+auto getPresumWeights(const KernelType& acorr,
+        const Eigen::Ref<const Eigen::VectorXd>& xin, double xout,
+        long* offset);
 
 template<typename KernelType>
-auto
-getPresumWeights(const KernelType& acorr,
-                 const std::vector<double>& xin, double xout,
-                 long* offset);
-
+auto getPresumWeights(const KernelType& acorr, const std::vector<double>& xin,
+        double xout, long* offset);
 
 /** Populate a matrix of weights using a look up table (Python accelerator)
  *

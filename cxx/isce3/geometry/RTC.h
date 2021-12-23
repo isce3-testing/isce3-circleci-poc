@@ -30,7 +30,7 @@ enum rtcOutputTerrainRadiometry {
     GAMMA_NAUGHT = 1,
 };
 
-constexpr static int AP_DEFAULT_MIN_BLOCK_SIZE = 1 << 22; // 4MB
+constexpr static int AP_DEFAULT_MIN_BLOCK_SIZE = 1 << 22;       // 4MB
 constexpr static long long AP_DEFAULT_MAX_BLOCK_SIZE = 1 << 28; // 256MB
 
 /**Enumeration type to indicate RTC area mode (AREA or AREA_FACTOR) */
@@ -90,7 +90,7 @@ void applyRtc(const isce3::product::RadarGridParameters& radarGrid,
         float radar_grid_nlooks = 1, isce3::io::Raster* out_nlooks = nullptr,
         isce3::io::Raster* input_rtc = nullptr,
         isce3::io::Raster* output_rtc = nullptr,
-        isce3::core::MemoryModeBlockY rtc_memory_mode = 
+        isce3::core::MemoryModeBlockY rtc_memory_mode =
                 isce3::core::MemoryModeBlockY::AutoBlocksY);
 
 /** Generate radiometric terrain correction (RTC) area or area normalization
@@ -129,7 +129,7 @@ void computeRtc(isce3::product::Product& product, isce3::io::Raster& dem_raster,
         float rtc_min_value_db = std::numeric_limits<float>::quiet_NaN(),
         size_t nlooks_az = 1, size_t nlooks_rg = 1,
         isce3::io::Raster* out_nlooks = nullptr,
-        isce3::core::MemoryModeBlockY rtc_memory_mode = 
+        isce3::core::MemoryModeBlockY rtc_memory_mode =
                 isce3::core::MemoryModeBlockY::AutoBlocksY);
 
 /** Generate radiometric terrain correction (RTC) area or area normalization
@@ -172,7 +172,7 @@ void computeRtc(const isce3::product::RadarGridParameters& radarGrid,
         double geogrid_upsampling = std::numeric_limits<double>::quiet_NaN(),
         float rtc_min_value_db = std::numeric_limits<float>::quiet_NaN(),
         float radar_grid_nlooks = 1, isce3::io::Raster* out_nlooks = nullptr,
-        isce3::core::MemoryModeBlockY rtc_memory_mode = 
+        isce3::core::MemoryModeBlockY rtc_memory_mode =
                 isce3::core::MemoryModeBlockY::AutoBlocksY,
         isce3::core::dataInterpMethod interp_method =
                 isce3::core::dataInterpMethod::BIQUINTIC_METHOD,
@@ -235,7 +235,7 @@ void computeRtc(isce3::io::Raster& dem_raster, isce3::io::Raster& output_raster,
         float radar_grid_nlooks = 1, isce3::io::Raster* out_geo_rdr = nullptr,
         isce3::io::Raster* out_geo_grid = nullptr,
         isce3::io::Raster* out_nlooks = nullptr,
-        isce3::core::MemoryModeBlockY rtc_memory_mode = 
+        isce3::core::MemoryModeBlockY rtc_memory_mode =
                 isce3::core::MemoryModeBlockY::AutoBlocksY,
         isce3::core::dataInterpMethod interp_method =
                 isce3::core::dataInterpMethod::BIQUINTIC_METHOD,
@@ -321,7 +321,7 @@ void computeRtcAreaProj(isce3::io::Raster& dem,
         float radar_grid_nlooks = 1, isce3::io::Raster* out_geo_rdr = nullptr,
         isce3::io::Raster* out_geo_grid = nullptr,
         isce3::io::Raster* out_nlooks = nullptr,
-        isce3::core::MemoryModeBlockY rtc_memory_mode = 
+        isce3::core::MemoryModeBlockY rtc_memory_mode =
                 isce3::core::MemoryModeBlockY::AutoBlocksY,
         isce3::core::dataInterpMethod interp_method =
                 isce3::core::dataInterpMethod::BIQUINTIC_METHOD,
@@ -346,7 +346,7 @@ inline isce3::core::Vec3 getDemCoordsSameEpsg(double x, double y,
 /*
  Convert x and y coordinates to from input_proj coordinates to
  DEM (dem_interp) coordinates and interpolate DEM at that position.
- 3-elements vector containing the 
+ 3-elements vector containing the
  * @param[in]  x           X-coordinate in input coordinates
  * @param[in]  y           Y-coordinate in input coordinates
  * @param[in]  dem_interp  DEM interpolation object
@@ -381,9 +381,8 @@ isce3::error::ErrorCode loadDemFromProj(isce3::io::Raster& dem_raster,
         const int dem_margin_y_in_pixels = 100);
 
 void areaProjIntegrateSegment(double y1, double y2, double x1, double x2,
-                              int length, int width,
-                              isce3::core::Matrix<double>& w_arr,
-                              double& w_total, int plane_orientation);
+        int length, int width, isce3::core::Matrix<double>& w_arr,
+        double& w_total, int plane_orientation);
 
 std::string getNbytesStr(long long nbytes);
 
@@ -401,8 +400,10 @@ std::string getNbytesStr(long long nbytes);
  * @param[out] block_width_with_upsampling  Upsampled block width
  * @param[out] block_width                  Block width
  * @param[out] nblock_x                     Number of blocks in the X direction
- * @param[in]  min_block_size               Minimum block size in Bytes (per thread)
- * @param[in]  max_block_size               Maximum block size in Bytes (per thread)
+ * @param[in]  min_block_size               Minimum block size in Bytes (per
+ * thread)
+ * @param[in]  max_block_size               Maximum block size in Bytes (per
+ * thread)
  * @param[in]  nblocks_per_thread           Target number of blocks per thread
  */
 void areaProjGetNBlocks(const int array_length, const int array_width,
@@ -417,10 +418,9 @@ void areaProjGetNBlocks(const int array_length, const int array_width,
         const long long max_block_size = AP_DEFAULT_MAX_BLOCK_SIZE,
         const int nblocks_per_thread = 4);
 
-double
-computeUpsamplingFactor(const DEMInterpolator& dem_interp,
-                        const isce3::product::RadarGridParameters& radar_grid,
-                        const isce3::core::Ellipsoid& ellps);
+double computeUpsamplingFactor(const DEMInterpolator& dem_interp,
+        const isce3::product::RadarGridParameters& radar_grid,
+        const isce3::core::Ellipsoid& ellps);
 
 double computeFacet(isce3::core::Vec3 xyz_center, isce3::core::Vec3 xyz_left,
         isce3::core::Vec3 xyz_right, isce3::core::Vec3 target_to_sensor_xyz,
@@ -439,5 +439,4 @@ void print_parameters(pyre::journal::info_t& channel,
         rtcOutputTerrainRadiometry output_terrain_radiometry,
         rtcAreaMode rtc_area_mode, double geogrid_upsampling,
         float rtc_min_value_db);
-} // namespace geometry
-} // namespace isce3
+}} // namespace isce3::geometry

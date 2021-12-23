@@ -10,8 +10,9 @@ using isce3::focus::bistaticDelay;
 /** Analytical linear orbit with constant velocity */
 class LinearOrbit {
 public:
-    LinearOrbit(const Vec3 & initial_position, const Vec3 & velocity)
-        : _initial_position(initial_position), _velocity(velocity) {}
+    LinearOrbit(const Vec3& initial_position, const Vec3& velocity)
+        : _initial_position(initial_position), _velocity(velocity)
+    {}
 
     /** Get position at time t */
     Vec3 position(double t) const { return _initial_position + _velocity * t; }
@@ -51,7 +52,7 @@ TEST(BistaticDelay, BistaticDelay)
     }
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

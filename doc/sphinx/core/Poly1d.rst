@@ -9,7 +9,7 @@ Poly1d is a data structure meant to capture 1D functions of the form
 
 .. math::
 
-   f(x) = \sum_{k=0}^{N} c_k \cdot \left( \frac{x-\mu}{\sigma} \right)^k 
+   f(x) = \sum_{k=0}^{N} c_k \cdot \left( \frac{x-\mu}{\sigma} \right)^k
 
 where
 

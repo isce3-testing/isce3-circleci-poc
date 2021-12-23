@@ -4,44 +4,45 @@
 // Author: Bryan V. Riel
 // Copyright 2017-2018
 
-#include <chrono>
 #include "Geo2rdr.h"
-#include "utilities.h"
+
+#include <chrono>
+
 #include "gpuGeo2rdr.h"
+#include "utilities.h"
 
 // pull in some isce namespaces
-using isce3::core::Ellipsoid;
-using isce3::core::Orbit;
-using isce3::core::LUT1d;
 using isce3::core::DateTime;
-using isce3::product::RadarGridParameters;
+using isce3::core::Ellipsoid;
+using isce3::core::LUT1d;
+using isce3::core::Orbit;
 using isce3::io::Raster;
+using isce3::product::RadarGridParameters;
 
 // Run geo2rdr with no offsets; internal creation of offset rasters
 /** @param[in] topoRaster outputs of topo -i.e, pixel-by-pixel x,y,h as bands
-  * @param[in] outdir directory to write outputs to
-  * @param[in] azshift Number of lines to shift by in azimuth
-  * @param[in] rgshift Number of pixels to shift by in range
-  *
-  * This is the main geo2rdr driver. The pixel-by-pixel output filenames are fixed for now
-  * <ul>
-  * <li>azimuth.off - Azimuth offset to be applied to product to align with topoRaster
-  * <li>range.off - Range offset to be applied to product to align with topoRaster
-*/
-void isce3::cuda::geometry::Geo2rdr::
-geo2rdr(isce3::io::Raster & topoRaster,
-        const std::string & outdir,
-        double azshift, double rgshift) {
+ * @param[in] outdir directory to write outputs to
+ * @param[in] azshift Number of lines to shift by in azimuth
+ * @param[in] rgshift Number of pixels to shift by in range
+ *
+ * This is the main geo2rdr driver. The pixel-by-pixel output filenames are
+ * fixed for now <ul> <li>azimuth.off - Azimuth offset to be applied to product
+ * to align with topoRaster <li>range.off - Range offset to be applied to
+ * product to align with topoRaster
+ */
+void isce3::cuda::geometry::Geo2rdr::geo2rdr(isce3::io::Raster& topoRaster,
+        const std::string& outdir, double azshift, double rgshift)
+{
 
     // Cache the size of the DEM images
     const size_t demWidth = topoRaster.width();
     const size_t demLength = topoRaster.length();
 
     // Create output rasters
-    Raster rgoffRaster = Raster(outdir + "/range.off", demWidth, demLength, 1,
-        GDT_Float32, "ISCE");
+    Raster rgoffRaster = Raster(
+            outdir + "/range.off", demWidth, demLength, 1, GDT_Float32, "ISCE");
     Raster azoffRaster = Raster(outdir + "/azimuth.off", demWidth, demLength, 1,
-        GDT_Float32, "ISCE");
+            GDT_Float32, "ISCE");
 
     // Call main geo2rdr with offsets set to zero
     geo2rdr(topoRaster, rgoffRaster, azoffRaster, azshift, rgshift);
@@ -49,16 +50,15 @@ geo2rdr(isce3::io::Raster & topoRaster,
 
 // Run geo2rdr with externally created offset rasters
 /** @param[in] topoRaster outputs of topo - i.e, pixel-by-pixel x,y,h as bands
-  * @param[in] outdir directory to write outputs to
-  * @param[in] rgoffRaster range offset output
-  * @param[in] azoffRaster azimuth offset output
-  * @param[in] azshift Number of lines to shift by in azimuth
-  * @param[in] rgshift Number of pixels to shift by in range */
-void isce3::cuda::geometry::Geo2rdr::
-geo2rdr(isce3::io::Raster & topoRaster,
-        isce3::io::Raster & rgoffRaster,
-        isce3::io::Raster & azoffRaster,
-        double azshift, double rgshift) {
+ * @param[in] outdir directory to write outputs to
+ * @param[in] rgoffRaster range offset output
+ * @param[in] azoffRaster azimuth offset output
+ * @param[in] azshift Number of lines to shift by in azimuth
+ * @param[in] rgshift Number of pixels to shift by in range */
+void isce3::cuda::geometry::Geo2rdr::geo2rdr(isce3::io::Raster& topoRaster,
+        isce3::io::Raster& rgoffRaster, isce3::io::Raster& azoffRaster,
+        double azshift, double rgshift)
+{
 
     // Create reusable pyre::journal channels
     pyre::journal::warning_t warning("isce.cuda.geometry.Geo2rdr");
@@ -71,11 +71,13 @@ geo2rdr(isce3::io::Raster & topoRaster,
     // Cache EPSG code for topo results
     const int topoEPSG = topoRaster.getEPSG();
 
-    // Cache ISCE objects (use public interface of parent isce3::geometry::Geo2rdr class)
-    const Ellipsoid & ellipsoid = this->ellipsoid();
-    const Orbit & orbit = this->orbit();
-    const LUT1d<double> doppler = isce3::core::avgLUT2dToLUT1d<double>(this->doppler());
-    const RadarGridParameters & radarGrid = this->radarGridParameters();
+    // Cache ISCE objects (use public interface of parent
+    // isce3::geometry::Geo2rdr class)
+    const Ellipsoid& ellipsoid = this->ellipsoid();
+    const Orbit& orbit = this->orbit();
+    const LUT1d<double> doppler =
+            isce3::core::avgLUT2dToLUT1d<double>(this->doppler());
+    const RadarGridParameters& radarGrid = this->radarGridParameters();
 
     // Cache sensing start in seconds since reference epoch
     double t0 = radarGrid.sensingStart();
@@ -132,11 +134,10 @@ geo2rdr(isce3::io::Raster & topoRaster,
         // Diagnostics
         info << "Processing block: " << block << " " << pyre::journal::newline
              << "  - line start: " << lineStart << pyre::journal::newline
-             << "  - line end  : " << lineStart + blockLength << pyre::journal::newline
-             << "  - dopplers near mid far: "
-             << doppler.eval(nearRange) << " "
-             << doppler.eval(midRange) << " "
-             << doppler.eval(farRange) << " "
+             << "  - line end  : " << lineStart + blockLength
+             << pyre::journal::newline
+             << "  - dopplers near mid far: " << doppler.eval(nearRange) << " "
+             << doppler.eval(midRange) << " " << doppler.eval(farRange) << " "
              << pyre::journal::endl;
 
         // Valarrays to hold input block from topo rasters
@@ -147,16 +148,15 @@ geo2rdr(isce3::io::Raster & topoRaster,
         // Read block of topo data
         topoRaster.getBlock(x, 0, lineStart, demWidth, blockLength, 1);
         topoRaster.getBlock(y, 0, lineStart, demWidth, blockLength, 2);
-        topoRaster.getBlock(hgt, 0, lineStart, demWidth, blockLength,3);
+        topoRaster.getBlock(hgt, 0, lineStart, demWidth, blockLength, 3);
 
         // Process block on GPU
-        isce3::cuda::geometry::runGPUGeo2rdr(
-            ellipsoid, orbit, doppler, x, y, hgt, azoff, rgoff, topoEPSG,
-            lineStart, demWidth, t0, r0,
-            radarGrid.length(), radarGrid.width(), radarGrid.prf(),
-            radarGrid.rangePixelSpacing(), radarGrid.wavelength(),
-            radarGrid.lookSide(), this->threshold(), this->numiter(), totalconv
-        );
+        isce3::cuda::geometry::runGPUGeo2rdr(ellipsoid, orbit, doppler, x, y,
+                hgt, azoff, rgoff, topoEPSG, lineStart, demWidth, t0, r0,
+                radarGrid.length(), radarGrid.width(), radarGrid.prf(),
+                radarGrid.rangePixelSpacing(), radarGrid.wavelength(),
+                radarGrid.lookSide(), this->threshold(), this->numiter(),
+                totalconv);
 
         // Write block of data
         rgoffRaster.setBlock(rgoff, 0, lineStart, demWidth, blockLength);
@@ -167,37 +167,39 @@ geo2rdr(isce3::io::Raster & topoRaster,
     // Print out convergence statistics
     info << "Total convergence: " << totalconv << " out of "
          << (demWidth * demLength) << pyre::journal::endl;
-
 }
 
 // Print extents and image sizes
-void isce3::cuda::geometry::Geo2rdr::
-_printExtents(pyre::journal::info_t & info, double t0, double tend, double dtaz,
-              double r0, double rngend, double dmrg, size_t demWidth, size_t demLength) {
-    info
-        << pyre::journal::newline
-        << "Starting acquisition time: " << t0 << pyre::journal::newline
-        << "Stop acquisition time: " << tend << pyre::journal::newline
-        << "Azimuth line spacing in seconds: " << dtaz << pyre::journal::newline
-        << "Slant range spacing in meters:" << dmrg << pyre::journal::newline
-        << "Near range (m): " << r0 << pyre::journal::newline
-        << "Far range (m): " << rngend << pyre::journal::newline
-        << "Radar image length: " << this->radarGridParameters().length() << pyre::journal::newline
-        << "Radar image width: " << this->radarGridParameters().width() << pyre::journal::newline
-        << "Geocoded lines: " << demLength << pyre::journal::newline
-        << "Geocoded samples: " << demWidth << pyre::journal::newline;
+void isce3::cuda::geometry::Geo2rdr::_printExtents(pyre::journal::info_t& info,
+        double t0, double tend, double dtaz, double r0, double rngend,
+        double dmrg, size_t demWidth, size_t demLength)
+{
+    info << pyre::journal::newline << "Starting acquisition time: " << t0
+         << pyre::journal::newline << "Stop acquisition time: " << tend
+         << pyre::journal::newline
+         << "Azimuth line spacing in seconds: " << dtaz
+         << pyre::journal::newline << "Slant range spacing in meters:" << dmrg
+         << pyre::journal::newline << "Near range (m): " << r0
+         << pyre::journal::newline << "Far range (m): " << rngend
+         << pyre::journal::newline
+         << "Radar image length: " << this->radarGridParameters().length()
+         << pyre::journal::newline
+         << "Radar image width: " << this->radarGridParameters().width()
+         << pyre::journal::newline << "Geocoded lines: " << demLength
+         << pyre::journal::newline << "Geocoded samples: " << demWidth
+         << pyre::journal::newline;
 }
 
 // Check we can interpolate orbit to middle of DEM
-void isce3::cuda::geometry::Geo2rdr::
-_checkOrbitInterpolation(double aztime) {
+void isce3::cuda::geometry::Geo2rdr::_checkOrbitInterpolation(double aztime)
+{
     isce3::core::cartesian_t satxyz, satvel;
     this->orbit().interpolate(&satxyz, &satvel, aztime);
 }
 
 // Compute number of lines per block dynamically from GPU memory
-void isce3::cuda::geometry::Geo2rdr::
-computeLinesPerBlock() {
+void isce3::cuda::geometry::Geo2rdr::computeLinesPerBlock()
+{
 
     // Compute GPU memory
     const size_t nGPUBytes = getDeviceMem();
@@ -211,9 +213,10 @@ computeLinesPerBlock() {
         gpuBuffer = 500e6;
     }
 
-    // Compute pixels per Block (3 double input layers and 2 float output layers)
-    size_t pixelsPerBlock = (nGPUBytes - gpuBuffer) /
-                            (3 * sizeof(double) + 2 * sizeof(float));
+    // Compute pixels per Block (3 double input layers and 2 float output
+    // layers)
+    size_t pixelsPerBlock =
+            (nGPUBytes - gpuBuffer) / (3 * sizeof(double) + 2 * sizeof(float));
     // Round down to nearest 10 million pixels
     pixelsPerBlock = (pixelsPerBlock / 10000000) * 10000000;
 

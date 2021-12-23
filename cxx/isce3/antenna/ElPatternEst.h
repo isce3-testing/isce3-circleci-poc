@@ -1,8 +1,8 @@
 #pragma once
 
+#include <optional>
 #include <tuple>
 #include <vector>
-#include <optional>
 
 #include <Eigen/Dense>
 

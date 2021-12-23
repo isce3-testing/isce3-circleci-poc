@@ -1,9 +1,10 @@
-import iscetest
-from nisar.workflows import focus
-import nisar
 import os
+
+import iscetest
+import nisar
 import numpy as np
 import numpy.testing as npt
+from nisar.workflows import focus
 
 
 def get_test_cfg():
@@ -15,7 +16,9 @@ def get_test_cfg():
     return cfg
 
 
-def slc_is_baseband(filename: str, tol=2*np.pi/100, frequency="A", polarization="HH") -> bool:
+def slc_is_baseband(
+    filename: str, tol=2 * np.pi / 100, frequency="A", polarization="HH"
+) -> bool:
     rslc = nisar.products.readers.SLC(hdf5file=filename)
     ds = rslc.getSlcDataset(frequency, polarization)
     # work around h5py/numpy awkwardness with Complex{Float16}

@@ -6,9 +6,8 @@ ENV LANG en_US.UTF-8
 # copy WorkflowProfile repo
 COPY . /opt/WorkflowProfile
 
-# Setup test directory   
+# Setup test directory
 RUN set -ex \
   && source /opt/docker/bin/entrypoint_source \
   && mkdir /home/conda/test \
-  && cd /home/conda/test 
-
+  && cd /home/conda/test

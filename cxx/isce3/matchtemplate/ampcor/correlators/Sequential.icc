@@ -445,7 +445,7 @@ _correlate(const value_type * rArena,
            const value_type * refStats, const value_type * tgtSat,
            size_type refDim, size_type tgtDim, size_type corDim) const -> value_type *
 {
-     
+
     // compute the size of the reference tile
     auto refCells = refDim * refDim;
     // compute the size of the target tile
@@ -583,7 +583,7 @@ _refRefine(cell_type * coarseArena, cell_type * refinedArena) const
     #pragma omp parallel reduction(+:nthreads)
     nthreads += 1;
 
-    // step 1: initiate FFT processor 
+    // step 1: initiate FFT processor
     isce3::signal::Signal<float> * procFFT = nullptr;
     procFFT = new (std::nothrow) isce3::signal::Signal<float>(nthreads);
 
@@ -594,7 +594,7 @@ _refRefine(cell_type * coarseArena, cell_type * refinedArena) const
         // complain
         error
             << pyre::journal::at(__HERE__)
-            << "while instanciating a isce3::signal::Signal FFT processor" 
+            << "while instanciating a isce3::signal::Signal FFT processor"
             << pyre::journal::endl;
         // and bail
         throw std::runtime_error("while instanciating a isce3::signal::Signal FFT processor");
@@ -621,7 +621,7 @@ _refRefine(cell_type * coarseArena, cell_type * refinedArena) const
     int fwdODist = _refRefinedCells + _tgtRefinedCells;
 
     // Set the FFT forward plan for upsampling reference tiles
-    // This involves out-of-place FFT 
+    // This involves out-of-place FFT
     procFFT->fftPlanForward(reinterpret_cast<std::complex<float> *>(coarseArena),
                             reinterpret_cast<std::complex<float> *>(refinedArena),
                             dim, fwdRanks, _pairs,
@@ -658,7 +658,7 @@ _refRefine(cell_type * coarseArena, cell_type * refinedArena) const
     // step 4: Actual refinement (upsampling) of the reference tiles:
     // FFT -> frequencies shuffling -> back FFT
     procFFT->upsample2D(reinterpret_cast<std::complex<float> *>(coarseArena),
-                        reinterpret_cast<std::complex<float> *>(refinedArena), 
+                        reinterpret_cast<std::complex<float> *>(refinedArena),
                         _refineFactor);
 
     // cleaning
@@ -738,7 +738,7 @@ _tgtRefine(cell_type * refinedArena) const
     #pragma omp parallel reduction(+:nthreads)
     nthreads += 1;
 
-    // step 1: initiate FFT processor 
+    // step 1: initiate FFT processor
     isce3::signal::Signal<float> * procFFT = nullptr;
     procFFT = new (std::nothrow) isce3::signal::Signal<float>(nthreads);
 
@@ -749,13 +749,13 @@ _tgtRefine(cell_type * refinedArena) const
         // complain
         error
             << pyre::journal::at(__HERE__)
-            << "while instanciating a isce3::signal::Signal FFT processor" 
+            << "while instanciating a isce3::signal::Signal FFT processor"
             << pyre::journal::endl;
         // and bail
         throw std::runtime_error("while instanciating a isce3::signal::Signal FFT processor");
     }
 
-    
+
 
     // step 2: forward FFT in place in {refinedArena}
     // the plan characteristics
@@ -810,7 +810,7 @@ _tgtRefine(cell_type * refinedArena) const
     // step4: Upsample!
     procFFT->upsample2D(firstTile, firstTile, _refineFactor);
 
-    
+
     // no need of plan anymore
     delete procFFT;
 
@@ -872,7 +872,7 @@ _zoomcor(value_type * gamma) const -> value_type *
     #pragma omp parallel reduction(+:nthreads)
     nthreads += 1;
 
-    // step 3: initiate FFT processor 
+    // step 3: initiate FFT processor
     isce3::signal::Signal<float> * procFFT = nullptr;
     procFFT = new (std::nothrow) isce3::signal::Signal<float>(nthreads);
 
@@ -883,7 +883,7 @@ _zoomcor(value_type * gamma) const -> value_type *
         // complain
         error
             << pyre::journal::at(__HERE__)
-            << "while instanciating a isce3::signal::Signal FFT processor" 
+            << "while instanciating a isce3::signal::Signal FFT processor"
             << pyre::journal::endl;
         // and bail
         throw std::runtime_error("while instanciating a isce3::signal::Signal FFT processor");

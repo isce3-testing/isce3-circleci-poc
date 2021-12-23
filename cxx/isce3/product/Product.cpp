@@ -1,4 +1,5 @@
 #include "Product.h"
+
 #include <isce3/product/Serialization.h>
 
 /** Find unique group path excluding repeated occurrences
@@ -32,8 +33,8 @@ std::vector<std::string> _findGroupPath(
 }
 
 /** @param[in] file IH5File object for product. */
-isce3::product::Product::
-Product(isce3::io::IH5File & file) {
+isce3::product::Product::Product(isce3::io::IH5File& file)
+{
 
     std::string base_dir = "/science/";
 

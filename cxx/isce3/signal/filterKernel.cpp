@@ -12,8 +12,8 @@
 
 #include <isce3/except/Error.h>
 
-std::valarray<double> isce3::signal::boxcar2D(const int& columns,
-                                              const int& rows)
+std::valarray<double> isce3::signal::boxcar2D(
+        const int& columns, const int& rows)
 {
     // container for the kernel
     std::valarray<double> kernel(columns * rows);
@@ -27,8 +27,7 @@ std::valarray<double> isce3::signal::boxcar2D(const int& columns,
                 ISCE_SRCINFO(), "Kernel's number of rows should be > 0");
     }
     if (kernel.size() != columns * rows) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Kernel's size is not consistent with input columns and rows");
     }
 
@@ -46,13 +45,13 @@ std::valarray<double> isce3::signal::boxcar1D(const int& length)
 
     // sanity checks
     if (length <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Kernel's length should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Kernel's length should be > 0");
     }
     if (kernel.size() != length) {
         throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Kernel's size is not consistent with "
-                                         "the input length parameter");
+                "Kernel's size is not consistent with "
+                "the input length parameter");
     }
 
     double sum = length;
@@ -61,8 +60,8 @@ std::valarray<double> isce3::signal::boxcar1D(const int& length)
     return kernel;
 }
 
-std::valarray<double> isce3::signal::gaussian1D(const int& length,
-                                                const double& sigma)
+std::valarray<double> isce3::signal::gaussian1D(
+        const int& length, const double& sigma)
 {
 
     // kernel container
@@ -70,13 +69,13 @@ std::valarray<double> isce3::signal::gaussian1D(const int& length,
 
     // sanity checks
     if (length <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Kernel's length should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Kernel's length should be > 0");
     }
     // sanity checks
     if (sigma <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Kernel's sigma should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Kernel's sigma should be > 0");
     }
 
     double sum = 0.0;
@@ -96,9 +95,7 @@ std::valarray<double> isce3::signal::gaussian1D(const int& length,
 }
 
 std::valarray<double> isce3::signal::gaussian2D(const int& columns,
-                                                const int& rows,
-                                                const double& sigmaX,
-                                                const double& sigmaY)
+        const int& rows, const double& sigmaX, const double& sigmaY)
 {
 
     // kernel container
@@ -114,12 +111,12 @@ std::valarray<double> isce3::signal::gaussian2D(const int& columns,
                 ISCE_SRCINFO(), "Kernel's number of rows should be > 0");
     }
     if (sigmaX <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Kernel's sigmaX should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Kernel's sigmaX should be > 0");
     }
     if (sigmaY <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Kernel's sigmaY should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Kernel's sigmaY should be > 0");
     }
 
     double sum = 0.0;
@@ -129,8 +126,9 @@ std::valarray<double> isce3::signal::gaussian2D(const int& columns,
         for (int col = 0; col < columns; col++) {
             double xm = (columns - 1.0) / 2.0;
             double x = col - xm;
-            double val = std::exp(-1.0 * (x * x / (2 * sigmaX * sigmaX) +
-                                          y * y / (2 * sigmaY * sigmaY)));
+            double val =
+                    std::exp(-1.0 * (x * x / (2 * sigmaX * sigmaX) +
+                                            y * y / (2 * sigmaY * sigmaY)));
 
             sum += val;
 
@@ -143,8 +141,8 @@ std::valarray<double> isce3::signal::gaussian2D(const int& columns,
     return kernel;
 }
 
-std::valarray<double> isce3::signal::delta2D(const int& columns,
-                                             const int& rows)
+std::valarray<double> isce3::signal::delta2D(
+        const int& columns, const int& rows)
 {
 
     // kernel container
@@ -160,8 +158,7 @@ std::valarray<double> isce3::signal::delta2D(const int& columns,
                 ISCE_SRCINFO(), "Kernel's number of rows should be > 0");
     }
     if (kernel.size() != columns * rows) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Kernel's size is not consistent with input columns and rows");
     }
     // Even if we allow the function runs with even window sizes,
@@ -182,12 +179,11 @@ std::valarray<double> isce3::signal::delta1D(const int& length)
 
     // sanity checks
     if (length <= 0) {
-        throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Kernel's length should be > 0");
+        throw isce3::except::DomainError(
+                ISCE_SRCINFO(), "Kernel's length should be > 0");
     }
     if (kernel.size() != length) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(),
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
                 "Kernel's size is not consistent with input length");
     }
     int center = length / 2;

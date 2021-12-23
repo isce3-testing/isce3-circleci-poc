@@ -1,16 +1,17 @@
-import h5py
 import logging
-import numpy as np
-from numpy.testing import assert_allclose
 import os
+
+import h5py
 import isce3
-from isce3.core import LUT2d, DateTime, Orbit, Attitude, EulerAngles
-from isce3.product import RadarGridParameters
+import numpy as np
+from isce3.core import Attitude, DateTime, EulerAngles, LUT2d, Orbit
 from isce3.geometry import DEMInterpolator
+from isce3.product import RadarGridParameters
 from nisar.h5 import set_string
-from nisar.types import complex32
 from nisar.products.readers.Raw import Raw
+from nisar.types import complex32
 from nisar.workflows.h5_prep import add_geolocation_grid_cubes_to_hdf5
+from numpy.testing import assert_allclose
 
 log = logging.getLogger("SLCWriter")
 
@@ -35,15 +36,15 @@ def assert_same_lut2d_grid(x: np.ndarray, y: np.ndarray, lut: LUT2d):
 
 
 def h5_require_dirname(group: h5py.Group, name: str):
-    """Make sure any intermediate paths in `name` exist in `group`.
-    """
-    assert os.sep == '/', "Need to fix HDF5 path manipulation on Windows"
+    """Make sure any intermediate paths in `name` exist in `group`."""
+    assert os.sep == "/", "Need to fix HDF5 path manipulation on Windows"
     d = os.path.dirname(name)
     group.require_group(d)
 
 
-def add_cal_layer(group: h5py.Group, lut: LUT2d, name: str,
-                  epoch: DateTime, units: str):
+def add_cal_layer(
+    group: h5py.Group, lut: LUT2d, name: str, epoch: DateTime, units: str
+):
     """Add calibration LUT to HDF5 group, making sure that its domain matches
     any existing cal LUTs.
 
@@ -75,8 +76,7 @@ def add_cal_layer(group: h5py.Group, lut: LUT2d, name: str,
         h5_require_dirname(group, name)
         lut.save_to_h5(group, name, epoch, units)
     else:
-        raise IOError(f"Found only one of {xname} or {yname}."
-                      "  Need both or none.")
+        raise IOError(f"Found only one of {xname} or {yname}." "  Need both or none.")
 
 
 class SLC(h5py.File):
@@ -101,7 +101,7 @@ class SLC(h5py.File):
         log.debug(f"Creating group {args[0]}")
         return super().create_group(*args, **kw)
 
-    def set_parameters(self, dop: LUT2d, epoch: DateTime, frequency='A'):
+    def set_parameters(self, dop: LUT2d, epoch: DateTime, frequency="A"):
         log.info(f"Saving Doppler for frequency {frequency}")
         g = self.root.require_group("metadata/processingInformation/parameters")
         # Actual LUT goes into a subdirectory, not created by serialization.
@@ -114,52 +114,59 @@ class SLC(h5py.File):
         fg.require_dataset("azimuthFMRate", v.shape, v.dtype, data=v)
         # TODO weighting, ref height
         if "rangeChirpWeighting" not in g:
-            g.require_dataset("rangeChirpWeighting", v.shape, np.float32, 
-                              data=v)
+            g.require_dataset("rangeChirpWeighting", v.shape, np.float32, data=v)
         if "referenceTerrainHeight" not in g:
             ref_terrain_height = np.zeros((v.shape[0]))
-            g.require_dataset("referenceTerrainHeight", (v.shape[0],), 
-                              np.float32, data=ref_terrain_height)
+            g.require_dataset(
+                "referenceTerrainHeight",
+                (v.shape[0],),
+                np.float32,
+                data=ref_terrain_height,
+            )
 
         # TODO populate processingInformation/algorithms
-        algorithms_ds = self.root.require_group("metadata/processingInformation/algorithms")
-        algorithms_dataset_list = ["ISCEVersion", 
-                                   "SWSTCorrection", 
-                                   "azimuthCompression", 
-                                   "azimuthPresumming", 
-                                   "dopplerCentroidEstimation", 
-                                   "driftCompensator", 
-                                   "elevationAntennaPatternCorrection", 
-                                   "internalCalibration", 
-                                   "patchProcessing", 
-                                   "postProcessing", 
-                                   "rangeCellMigration", 
-                                   "rangeCompression", 
-                                   "rangeDependentGainCorrection", 
-                                   "rangeReferenceFunctionGenerator", 
-                                   "rangeSpreadingLossCorrection", 
-                                   "secondaryRangeCompression"]
+        algorithms_ds = self.root.require_group(
+            "metadata/processingInformation/algorithms"
+        )
+        algorithms_dataset_list = [
+            "ISCEVersion",
+            "SWSTCorrection",
+            "azimuthCompression",
+            "azimuthPresumming",
+            "dopplerCentroidEstimation",
+            "driftCompensator",
+            "elevationAntennaPatternCorrection",
+            "internalCalibration",
+            "patchProcessing",
+            "postProcessing",
+            "rangeCellMigration",
+            "rangeCompression",
+            "rangeDependentGainCorrection",
+            "rangeReferenceFunctionGenerator",
+            "rangeSpreadingLossCorrection",
+            "secondaryRangeCompression",
+        ]
 
         for algorithm in algorithms_dataset_list:
             if algorithm in g:
                 continue
-            algorithms_ds.require_dataset(algorithm, (), 'S27',
-                                          data=np.string_("")) 
+            algorithms_ds.require_dataset(algorithm, (), "S27", data=np.string_(""))
 
         # TODO populate processingInformation/inputs
         inputs_ds = self.root.require_group("metadata/processingInformation/inputs")
-        inputs_dataset_list = ["l0bGranules",
-                               "orbitFiles",
-                               "attitudeFiles",
-                               "auxcalFiles",
-                               "configFiles",
-                               "demFiles"]
+        inputs_dataset_list = [
+            "l0bGranules",
+            "orbitFiles",
+            "attitudeFiles",
+            "auxcalFiles",
+            "configFiles",
+            "demFiles",
+        ]
 
         for inp in inputs_dataset_list:
             if inp in g:
                 continue
-            inputs_ds.require_dataset(inp, (), 'S1', data=np.string_("")) 
-
+            inputs_ds.require_dataset(inp, (), "S1", data=np.string_(""))
 
     def swath(self, frequency="A") -> h5py.Group:
         return self.root.require_group(f"swaths/frequency{frequency}")
@@ -188,50 +195,58 @@ class SLC(h5py.File):
         dset.attrs["units"] = np.string_("DN")
         return dset
 
-    def update_swath(self, t: np.array, epoch: DateTime, r: np.array,
-                     fc: float, frequency="A"):
+    def update_swath(
+        self, t: np.array, epoch: DateTime, r: np.array, fc: float, frequency="A"
+    ):
         g = self.swath(frequency)
         # Time scale is in parent of group.  Use require_dataset to assert
         # matching time scale on repeated calls.
         d = g.parent.require_dataset("zeroDopplerTime", t.shape, t.dtype, data=t)
         d.attrs["units"] = np.string_(time_units(epoch))
         d.attrs["description"] = np.string_(
-            "CF compliant dimension associated with azimuth time")
+            "CF compliant dimension associated with azimuth time"
+        )
 
         d = g.parent.require_dataset("zeroDopplerTimeSpacing", (), float)
         d[()] = t[1] - t[0]
         d.attrs["units"] = np.string_("seconds")
-        d.attrs["description"] = np.string_("Time interval in the along track"
+        d.attrs["description"] = np.string_(
+            "Time interval in the along track"
             " direction for raster layers. This is same as the spacing between"
-            " consecutive entries in the zeroDopplerTime array")
+            " consecutive entries in the zeroDopplerTime array"
+        )
 
         d = g.require_dataset("slantRange", r.shape, r.dtype, data=r)
         d.attrs["units"] = np.string_("meters")
-        d.attrs["description"] = np.string_("CF compliant dimension associated"
-                                            " with slant range")
+        d.attrs["description"] = np.string_(
+            "CF compliant dimension associated" " with slant range"
+        )
 
         d = g.require_dataset("slantRangeSpacing", (), float)
         d[()] = r[1] - r[0]
         d.attrs["units"] = np.string_("meters")
-        d.attrs["description"] = np.string_("Slant range spacing of grid. Same"
-            " as difference between consecutive samples in slantRange array")
+        d.attrs["description"] = np.string_(
+            "Slant range spacing of grid. Same"
+            " as difference between consecutive samples in slantRange array"
+        )
 
         d = g.require_dataset("processedCenterFrequency", (), float)
         d[()] = fc
         d.attrs["units"] = np.string_("Hz")
-        d.attrs["description"] = np.string_("Center frequency of the processed"
-                                            " image in Hz")
+        d.attrs["description"] = np.string_(
+            "Center frequency of the processed" " image in Hz"
+        )
 
         # TODO other parameters filled with bogus values for now, no units
         g.require_dataset("acquiredCenterFrequency", (), float)[()] = fc
         g.require_dataset("acquiredRangeBandwidth", (), float)[()] = 20e6
-        g.require_dataset("nominalAcquisitionPRF", (), float)[()] = 1910.
+        g.require_dataset("nominalAcquisitionPRF", (), float)[()] = 1910.0
         g.require_dataset("numberOfSubSwaths", (), int)[()] = 1
-        g.require_dataset("processedAzimuthBandwidth", (), float)[()] = 1200.
+        g.require_dataset("processedAzimuthBandwidth", (), float)[()] = 1200.0
         g.require_dataset("processedRangeBandwidth", (), float)[()] = 20e6
-        g.require_dataset("sceneCenterAlongTrackSpacing", (), float)[()] = 4.
-        g.require_dataset("sceneCenterGroundRangeSpacing", (), float)[()] = 12.
-        d = g.require_dataset("validSamplesSubSwath1", (len(t), 2), 'int32')
+        g.require_dataset("sceneCenterAlongTrackSpacing", (), float)[()] = 4.0
+        g.require_dataset("sceneCenterGroundRangeSpacing", (), float)[()] = 12.0
+        d = g.require_dataset("validSamplesSubSwath1", (len(t), 2), "int32")
         d[:] = (0, len(r))
 
     def set_orbit(self, orbit: Orbit, accel=None, type="Custom"):
@@ -240,19 +255,26 @@ class SLC(h5py.File):
         orbit.save_to_h5(g)
         # interpMethod not in L1 spec. Delete it?
         # Add description attributes.  Should these go in saveToH5 method?
-        g["time"].attrs["description"] = np.string_("Time vector record. This"
+        g["time"].attrs["description"] = np.string_(
+            "Time vector record. This"
             " record contains the time corresponding to position, velocity,"
-            " acceleration records")
-        g["position"].attrs["description"] = np.string_("Position vector"
+            " acceleration records"
+        )
+        g["position"].attrs["description"] = np.string_(
+            "Position vector"
             " record. This record contains the platform position data with"
-            " respect to WGS84 G1762 reference frame")
-        g["velocity"].attrs["description"] = np.string_("Velocity vector"
+            " respect to WGS84 G1762 reference frame"
+        )
+        g["velocity"].attrs["description"] = np.string_(
+            "Velocity vector"
             " record. This record contains the platform velocity data with"
-            " respect to WGS84 G1762 reference frame")
+            " respect to WGS84 G1762 reference frame"
+        )
         # Orbit source/type
         d = g.require_dataset("orbitType", (), "S10", data=np.string_(type))
-        d.attrs["description"] = np.string_("PrOE (or) NOE (or) MOE (or) POE"
-                                            " (or) Custom")
+        d.attrs["description"] = np.string_(
+            "PrOE (or) NOE (or) MOE (or) POE" " (or) Custom"
+        )
         # acceleration not stored in isce3 Orbit class.
         if accel is None:
             log.warning("Populating orbit/acceleration with zeros")
@@ -261,45 +283,61 @@ class SLC(h5py.File):
         if accel.shape != shape:
             raise ValueError("Acceleration dims must match orbit fields.")
         d = g.require_dataset("acceleration", shape, float, data=accel)
-        d.attrs["description"] = np.string_("Acceleration vector record. This"
+        d.attrs["description"] = np.string_(
+            "Acceleration vector record. This"
             " record contains the platform acceleration data with respect to"
-            " WGS84 G1762 reference frame")
+            " WGS84 G1762 reference frame"
+        )
         d.attrs["units"] = np.string_("meters per second squared")
 
     def set_attitude(self, attitude: Attitude, epoch: DateTime, type="Custom"):
         log.info("Writing attitude to SLC")
         g = self.root.require_group("metadata/attitude")
         d = g.require_dataset("attitudeType", (), "S10", data=np.string_(type))
-        d.attrs["description"] = np.string_("PrOE (or) NOE (or) MOE (or) POE"
-                                            " (or) Custom")
+        d.attrs["description"] = np.string_(
+            "PrOE (or) NOE (or) MOE (or) POE" " (or) Custom"
+        )
         t = np.asarray(attitude.time)
         d = g.require_dataset("time", t.shape, t.dtype, data=t)
-        d.attrs["description"] = np.string_("Time vector record. This record"
+        d.attrs["description"] = np.string_(
+            "Time vector record. This record"
             " contains the time corresponding to attitude and quaternion"
-            " records")
+            " records"
+        )
         d.attrs["units"] = np.string_(time_units(epoch))
         # TODO attitude rates
         n = len(attitude.time)
         qdot = np.zeros((n, 3))
-        d = g.require_dataset("angularVelocity", (n,3), float, data=qdot)
+        d = g.require_dataset("angularVelocity", (n, 3), float, data=qdot)
         d.attrs["units"] = np.string_("radians per second")
-        d.attrs["description"] = np.string_("Attitude angular velocity vectors"
-                                            " (wx, wy, wz)")
+        d.attrs["description"] = np.string_(
+            "Attitude angular velocity vectors" " (wx, wy, wz)"
+        )
         qv = np.array([[q.w, q.x, q.y, q.z] for q in attitude.quaternions])
         d = g.require_dataset("quaternions", qv.shape, qv.dtype, data=qv)
         d.attrs["units"] = np.string_("unitless")
-        d.attrs["description"] = np.string_("Attitude quaternions"
-                                            " (q0, q1, q2, q3)")
-        rpy = np.asarray([[e.roll, e.pitch, e.yaw] for e in
-            [EulerAngles(q) for q in attitude.quaternions]])
+        d.attrs["description"] = np.string_("Attitude quaternions" " (q0, q1, q2, q3)")
+        rpy = np.asarray(
+            [
+                [e.roll, e.pitch, e.yaw]
+                for e in [EulerAngles(q) for q in attitude.quaternions]
+            ]
+        )
         d = g.require_dataset("eulerAngles", rpy.shape, rpy.dtype, data=rpy)
         d.attrs["units"] = np.string_("radians")
-        d.attrs["description"] = np.string_("Attitude Euler angles"
-                                            " (roll, pitch, yaw)")
+        d.attrs["description"] = np.string_(
+            "Attitude Euler angles" " (roll, pitch, yaw)"
+        )
 
-    def copy_identification(self, raw: Raw, track: int = 0, frame: int = 0,
-                            polygon: str = None, start_time: DateTime = None,
-                            end_time: DateTime = None):
+    def copy_identification(
+        self,
+        raw: Raw,
+        track: int = 0,
+        frame: int = 0,
+        polygon: str = None,
+        start_time: DateTime = None,
+        end_time: DateTime = None,
+    ):
         """Copy the identification metadata from a L0B product.  Bounding
         polygon and start/end time will be updated if not None.
         """
@@ -307,25 +345,26 @@ class SLC(h5py.File):
         # Most parameters are just copies of input ID.
         if self.idpath in self.root:
             del self.root[self.idpath]
-        with h5py.File(raw.filename, 'r', libver='latest', swmr=True) as fd:
+        with h5py.File(raw.filename, "r", libver="latest", swmr=True) as fd:
             self.root.copy(fd[raw.IdentificationPath], self.idpath)
         g = self.root[self.idpath]
         # Of course product type is different.
         d = set_string(g, "productType", self.product)
         d.attrs["description"] = np.string_("Product type")
         # L0B doesn't know about track/frame, so have to add it.
-        d = g.require_dataset("trackNumber", (), 'uint8', data=track)
+        d = g.require_dataset("trackNumber", (), "uint8", data=track)
         d.attrs["units"] = np.string_("unitless")
         d.attrs["description"] = np.string_("Track number")
-        d = g.require_dataset("frameNumber", (), 'uint16', data=frame)
+        d = g.require_dataset("frameNumber", (), "uint16", data=frame)
         d.attrs["units"] = np.string_("unitless")
         d.attrs["description"] = np.string_("Frame number")
         # Polygon different due to reskew and possibly multiple input L0Bs.
         if polygon is not None:
             d = set_string(g, "boundingPolygon", polygon)
             d.attrs["epsg"] = 4326
-            d.attrs["description"] = np.string_("OGR compatible WKT"
-                " representation of bounding polygon of the image")
+            d.attrs["description"] = np.string_(
+                "OGR compatible WKT" " representation of bounding polygon of the image"
+            )
             d.attrs["ogr_geometry"] = np.string_("polygon")
         else:
             log.warning("SLC bounding polygon not updated.  Using L0B polygon.")
@@ -342,17 +381,23 @@ class SLC(h5py.File):
         else:
             log.warning("SLC end time not updated.  Using L0B end time.")
 
-
-    def set_geolocation_grid(self, orbit: Orbit, grid: RadarGridParameters,
-                             doppler: LUT2d, epsg=4326, dem=DEMInterpolator(),
-                             threshold=1e-8, maxiter=50, delta_range=10.0):
+    def set_geolocation_grid(
+        self,
+        orbit: Orbit,
+        grid: RadarGridParameters,
+        doppler: LUT2d,
+        epsg=4326,
+        dem=DEMInterpolator(),
+        threshold=1e-8,
+        maxiter=50,
+        delta_range=10.0,
+    ):
         log.info(f"Creating geolocationGrid.")
         # TODO Get DEM stats.  Until then just span all Earthly values.
         heights = np.linspace(-500, 9000, 20)
         # Figure out decimation factors that give < 500 m spacing.
-        max_spacing = 500.
-        t = (grid.sensing_mid +
-             (grid.ref_epoch - orbit.reference_epoch).total_seconds())
+        max_spacing = 500.0
+        t = grid.sensing_mid + (grid.ref_epoch - orbit.reference_epoch).total_seconds()
         _, v = orbit.interpolate(t)
         dx = np.linalg.norm(v) / grid.prf
         tskip = int(np.floor(max_spacing / dx))
@@ -363,94 +408,106 @@ class SLC(h5py.File):
         rslc_doppler = LUT2d()  # RSLCs are zero-Doppler by definition
         # Change spelling of geo2rdr params
         tol = dict(
-            threshold_geo2rdr = threshold,
-            numiter_geo2rdr = maxiter,
-            delta_range = delta_range,
+            threshold_geo2rdr=threshold,
+            numiter_geo2rdr=maxiter,
+            delta_range=delta_range,
         )
-        add_geolocation_grid_cubes_to_hdf5(self, group_name, grid, heights,
-            orbit, doppler, rslc_doppler, epsg, **tol)
-
+        add_geolocation_grid_cubes_to_hdf5(
+            self, group_name, grid, heights, orbit, doppler, rslc_doppler, epsg, **tol
+        )
 
     def compute_stats(self, frequency, pol):
-        '''
+        """
         Compute RSLC complex-valued statistics and save them as attributes
         of the corresponding HDF5 dataset
-        '''
+        """
         h5_ds = self.swath(frequency)[pol]
         raster = isce3.io.Raster(f"IH5:::ID={h5_ds.id.id}".encode("utf-8"))
         stats_obj = isce3.math.compute_raster_stats_real_imag(raster)[0]
-        h5_ds.attrs.create('min_real_value', data=stats_obj.min_real)
-        h5_ds.attrs.create('mean_real_value', data=stats_obj.mean_real)
-        h5_ds.attrs.create('max_real_value', data=stats_obj.max_real)
-        h5_ds.attrs.create('sample_stddev_real', 
-                           data=stats_obj.sample_stddev_real)
-        h5_ds.attrs.create('min_imag_value', data=stats_obj.min_imag)
-        h5_ds.attrs.create('mean_imag_value', data=stats_obj.mean_imag)
-        h5_ds.attrs.create('max_imag_value', data=stats_obj.max_imag)
-        h5_ds.attrs.create('sample_stddev_imag',
-                           data=stats_obj.sample_stddev_imag)
-      
+        h5_ds.attrs.create("min_real_value", data=stats_obj.min_real)
+        h5_ds.attrs.create("mean_real_value", data=stats_obj.mean_real)
+        h5_ds.attrs.create("max_real_value", data=stats_obj.max_real)
+        h5_ds.attrs.create("sample_stddev_real", data=stats_obj.sample_stddev_real)
+        h5_ds.attrs.create("min_imag_value", data=stats_obj.min_imag)
+        h5_ds.attrs.create("mean_imag_value", data=stats_obj.mean_imag)
+        h5_ds.attrs.create("max_imag_value", data=stats_obj.max_imag)
+        h5_ds.attrs.create("sample_stddev_imag", data=stats_obj.sample_stddev_imag)
 
-    def add_calibration_section(self, frequency, pol, 
-                                az_time_orig_vect: np.array, 
-                                epoch: DateTime, 
-                                slant_range_orig_vect: np.array):
+    def add_calibration_section(
+        self,
+        frequency,
+        pol,
+        az_time_orig_vect: np.array,
+        epoch: DateTime,
+        slant_range_orig_vect: np.array,
+    ):
         assert len(pol) == 2 and pol[0] in "HVLR" and pol[1] in "HV"
 
         calibration_section_sampling = 50
         g = self.root.require_group("metadata/calibrationInformation")
 
         if "zeroDopplerTime" in g:
-            t = g['zeroDopplerTime']
+            t = g["zeroDopplerTime"]
         else:
             t = az_time_orig_vect[0:-1:calibration_section_sampling]
             d = g.require_dataset("zeroDopplerTime", t.shape, t.dtype, data=t)
             d.attrs["units"] = np.string_(time_units(epoch))
             d.attrs["description"] = np.string_(
-                "CF compliant dimension associated with azimuth time")
+                "CF compliant dimension associated with azimuth time"
+            )
 
         if "slantRange" in g:
-            r = g['slantRange']
+            r = g["slantRange"]
         else:
             r = slant_range_orig_vect[0:-1:calibration_section_sampling]
             d = g.require_dataset("slantRange", r.shape, r.dtype, data=r)
             d.attrs["units"] = np.string_("meters")
-            d.attrs["description"] = np.string_("CF compliant dimension associated"
-                                                " with slant range")
+            d.attrs["description"] = np.string_(
+                "CF compliant dimension associated" " with slant range"
+            )
 
         dummy_array = np.ones((t.size, r.size), dtype=np.float32)
 
         if "geometry/beta0" not in g:
-            d = g.require_dataset(f"geometry/beta0", dummy_array.shape, 
-                                  np.float32, data=dummy_array)
+            d = g.require_dataset(
+                f"geometry/beta0", dummy_array.shape, np.float32, data=dummy_array
+            )
             d.attrs["description"] = np.string_(
                 "2D LUT to convert DN to beta 0 assuming as a function"
-                 " of zero doppler time and slant range")
+                " of zero doppler time and slant range"
+            )
 
         if "geometry/sigma0" not in g:
-            d = g.require_dataset(f"geometry/sigma0", dummy_array.shape, 
-                                  np.float32, data=dummy_array)
+            d = g.require_dataset(
+                f"geometry/sigma0", dummy_array.shape, np.float32, data=dummy_array
+            )
             d.attrs["description"] = np.string_(
                 "2D LUT to convert DN to sigma 0 assuming as a function"
-                 " of zero doppler time and slant range")
-
+                " of zero doppler time and slant range"
+            )
 
         if "geometry/gamma0" not in g:
-            d = g.require_dataset(f"geometry/gamma0", dummy_array.shape, 
-                                  np.float32, data=dummy_array)
+            d = g.require_dataset(
+                f"geometry/gamma0", dummy_array.shape, np.float32, data=dummy_array
+            )
             d.attrs["description"] = np.string_(
                 "2D LUT to convert DN to gamma 0 as a function of zero"
-                " doppler time and slant range")
+                " doppler time and slant range"
+            )
 
         d = g.require_dataset(
-            f"frequency{frequency}/{pol}/elevationAntennaPattern", 
-            dummy_array.shape, np.float32, data=dummy_array)
-        d.attrs["description"] = np.string_(
-            "Complex two-way elevation antenna pattern")
+            f"frequency{frequency}/{pol}/elevationAntennaPattern",
+            dummy_array.shape,
+            np.float32,
+            data=dummy_array,
+        )
+        d.attrs["description"] = np.string_("Complex two-way elevation antenna pattern")
 
         dummy_array = np.zeros((t.size, r.size))
         d = g.require_dataset(
-            f"frequency{frequency}/{pol}/nes0", 
-            dummy_array.shape, np.float32, data=dummy_array)
-        d.attrs["description"] = np.string_(
-            "Thermal noise equivalent sigma0")
+            f"frequency{frequency}/{pol}/nes0",
+            dummy_array.shape,
+            np.float32,
+            data=dummy_array,
+        )
+        d.attrs["description"] = np.string_("Thermal noise equivalent sigma0")

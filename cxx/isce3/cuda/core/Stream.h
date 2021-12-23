@@ -48,4 +48,4 @@ void synchronize(Stream);
  */
 bool query(Stream);
 
-}}}
+}}} // namespace isce3::cuda::core

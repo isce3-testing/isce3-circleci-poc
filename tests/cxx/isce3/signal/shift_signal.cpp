@@ -4,23 +4,24 @@
 // Author: Heresh Fattahi
 // Copyright 2019-
 
-#include <iostream>
-#include <cstdio>
-#include <sstream>
-#include <fstream>
 #include <cmath>
 #include <complex>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
 #include <gtest/gtest.h>
+
 #include "isce3/signal/Signal.h"
 #include "isce3/signal/shiftSignal.h"
 
 TEST(shiftSignal, shiftSignal)
 {
 
-
     size_t width = 100;
     size_t length = 1;
-    
+
     size_t nfft;
 
     // instantiate a signal object
@@ -35,9 +36,8 @@ TEST(shiftSignal, shiftSignal)
     // a simple band limited signal (a linear phase ramp)
     for (size_t i = 0; i < width; ++i) {
 
-        double phase = 2*M_PI*i*0.001;
-        slc[i] = std::complex<double> (std::cos(phase), std::sin(phase));
-
+        double phase = 2 * M_PI * i * 0.001;
+        slc[i] = std::complex<double>(std::cos(phase), std::sin(phase));
     }
 
     // setup the forward FFT plan
@@ -53,36 +53,35 @@ TEST(shiftSignal, shiftSignal)
     double shiftY = 0.0;
 
     // shift the signal
-    isce3::signal::shiftSignal(slc, slcShifted, spec,
-                  nfft, length,
-                  shiftX, shiftY, sigObj);
+    isce3::signal::shiftSignal(
+            slc, slcShifted, spec, nfft, length, shiftX, shiftY, sigObj);
 
     // max error tolerance
     double max_arg_err = 0.0;
-    for (size_t i = 0 ; i < width - 1; ++i) {
-        
+    for (size_t i = 0; i < width - 1; ++i) {
+
         // the phase of the expected signal
-        double phaseShifted = 2*M_PI*(i - shiftX)*0.001;
+        double phaseShifted = 2 * M_PI * (i - shiftX) * 0.001;
 
         // expected shifted signal
-        std::complex<double> expectedSignal = std::complex<double> 
-                            (std::cos(phaseShifted), std::sin(phaseShifted));
+        std::complex<double> expectedSignal = std::complex<double>(
+                std::cos(phaseShifted), std::sin(phaseShifted));
 
-        // difference of the expceted shifted signal with the result of the shift
-        std::complex<double> diff =  slcShifted[i] *std::conj(expectedSignal);
+        // difference of the expceted shifted signal with the result of the
+        // shift
+        std::complex<double> diff = slcShifted[i] * std::conj(expectedSignal);
 
         // compare the phase of the difference with the max_error
-        if (std::arg(diff) > max_arg_err )
-             max_arg_err = std::arg(diff);
+        if (std::arg(diff) > max_arg_err)
+            max_arg_err = std::arg(diff);
     }
 
     std::cout << "max_arg_err : " << max_arg_err << std::endl;
     ASSERT_LT(max_arg_err, 1.0e-10);
-
 }
 
-int main(int argc, char * argv[]) {
-      testing::InitGoogleTest(&argc, argv);
-      return RUN_ALL_TESTS();
+int main(int argc, char* argv[])
+{
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
-

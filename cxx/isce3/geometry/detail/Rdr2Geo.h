@@ -43,9 +43,8 @@ struct Rdr2GeoParams {
  * \param[in]  params    Root-finding algorithm parameters
  */
 template<class Orbit, class DEMInterpolator>
-CUDA_HOSTDEV isce3::error::ErrorCode
-rdr2geo(isce3::core::Vec3* llh, double t, double r, double fd,
-        const Orbit& orbit, const DEMInterpolator& dem,
+CUDA_HOSTDEV isce3::error::ErrorCode rdr2geo(isce3::core::Vec3* llh, double t,
+        double r, double fd, const Orbit& orbit, const DEMInterpolator& dem,
         const isce3::core::Ellipsoid& ellipsoid, double wvl,
         isce3::core::LookSide side, double h0 = 0.,
         const Rdr2GeoParams& params = {});
@@ -71,12 +70,12 @@ rdr2geo(isce3::core::Vec3* llh, double t, double r, double fd,
  * \param[in]  params    Root-finding algorithm parameters
  */
 template<class DEMInterpolator>
-CUDA_HOSTDEV isce3::error::ErrorCode
-rdr2geo(isce3::core::Vec3* llh, const isce3::core::Pixel& pixel,
-        const isce3::core::Basis& tcnbasis, const isce3::core::Vec3& pos,
-        const isce3::core::Vec3& vel, const DEMInterpolator& dem,
-        const isce3::core::Ellipsoid& ellipsoid, isce3::core::LookSide side,
-        double h0 = 0., const Rdr2GeoParams& params = {});
+CUDA_HOSTDEV isce3::error::ErrorCode rdr2geo(isce3::core::Vec3* llh,
+        const isce3::core::Pixel& pixel, const isce3::core::Basis& tcnbasis,
+        const isce3::core::Vec3& pos, const isce3::core::Vec3& vel,
+        const DEMInterpolator& dem, const isce3::core::Ellipsoid& ellipsoid,
+        isce3::core::LookSide side, double h0 = 0.,
+        const Rdr2GeoParams& params = {});
 
 }}} // namespace isce3::geometry::detail
 

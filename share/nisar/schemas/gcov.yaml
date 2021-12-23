@@ -4,37 +4,37 @@ runconfig:
     groups:
         PGENameGroup:
             PGEName: enum('GCOV_L_PGE')
-       
+
         InputFileGroup:
             # REQUIRED - One NISAR L1B RSLC formatted HDF5 file
             InputFilePath: list(str(), min=1, max=1)
-       
+
         DynamicAncillaryFileGroup:
             # Digital elevation model
             DEMFile: str()
-       
+
         ProductPathGroup:
             # Directory where PGE will place results
             ProductPath: str()
             ProductCounter: int(min=1, max=999, required=False)
-       
+
             # Directory where SAS can write temporary data
             ScratchPath: str()
-       
+
             # Intermediate file name.  SAS writes output product to the following file.
             # After the SAS completes, the PGE wrapper renames the product file
             # according to proper file naming conventions.
             SASOutputFile: str()
-       
+
         PrimaryExecutable:
             ProductType: enum('GCOV')
             CompositeReleaseID: regex(r'\w\d\d\d\d\d', name='CRID', required=False)
             ProcessingType: enum('PR', 'UR', required=False)
             ProductAccuracy: enum('P', 'M', 'N', 'F', 'T', required=False)
-       
+
         DebugLevelGroup:
             DebugSwitch: bool()
-       
+
         #adt section - isce3 + pyre workflow
         processing:
             # Mechanism to select frequencies and polarizations
@@ -44,10 +44,10 @@ runconfig:
                     # List of polarization channels to process. Default empty representing all
                     A: any(list(str(min=2, max=2), min=1, max=4), str(min=2, max=2), null(), required=False)
                     B: any(list(str(min=2, max=2), min=1, max=4), str(min=2, max=2), null(), required=False)
-               
+
                 # Compute cross-elements (True) or diagonals only (False). Default: False
                 fullcovariance: bool(required=False)
-        
+
                 # Perform polarimetric symmetrization. It's only applicable
                 # for quad-polarimetric datasets (i.e. datasets that include
                 # HV and VH), otherwise, the flag is ignored.
@@ -61,7 +61,7 @@ runconfig:
 
             # Radiometric Terrain Correction (RTC)
             rtc: include('rtc_options', required=False)
-        
+
             # Geocode options: (e.g. output posting)
             geocode: include('geocode_options', required=False)
 
@@ -94,7 +94,7 @@ radar_grid_cubes_options:
 
     # Same as input DEM if not provided.
     outputEPSG: int(min=1024, max=32767, required=False)
-               
+
     # Output posting in same units as output EPSG.
     # If not provided, spacing values will be taken from provided DEM.
     output_posting:
@@ -103,21 +103,21 @@ radar_grid_cubes_options:
 
     # To control output grid in same units as output EPSG
     x_snap: num(min=0, required=False)
-               
+
     # To control output grid in same units as output EPSG
     y_snap: num(min=0, required=False)
-               
-    top_left:    
+
+    top_left:
         # Set top-left y in same units as output EPSG
         y_abs: num(required=False)
-       
+
         # Set top-left x in same units as output EPSG
         x_abs: num(required=False)
-               
-    bottom_right:  
+
+    bottom_right:
         # Set bottom-right y in same units as output EPSG
         y_abs: num(required=False)
-       
+
         # Set bottom-right x in same units as output EPSG
         x_abs: num(required=False)
 

@@ -5,13 +5,9 @@
 
 #pragma once
 
-namespace isce3 {
-    namespace cuda {
-        namespace geometry {
+namespace isce3 { namespace cuda { namespace geometry {
 
-            // Utility function for getting device memory
-            size_t getDeviceMem();
+// Utility function for getting device memory
+size_t getDeviceMem();
 
-        }
-    }
-}
+}}} // namespace isce3::cuda::geometry

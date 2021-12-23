@@ -8,8 +8,8 @@
 #include <gtest/gtest.h>
 
 #include <isce3/core/EMatrix.h>
-#include <isce3/signal/flatten.h>
 #include <isce3/signal/CrossMultiply.h>
+#include <isce3/signal/flatten.h>
 
 TEST(CrossMultiply, RunCrossMultiply)
 {

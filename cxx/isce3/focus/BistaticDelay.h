@@ -1,7 +1,8 @@
 #pragma once
 
-#include <isce3/core/Common.h>
 #include <isce3/core/forward.h>
+
+#include <isce3/core/Common.h>
 
 namespace isce3 { namespace focus {
 
@@ -21,10 +22,9 @@ namespace isce3 { namespace focus {
  * \returns     The bistatic propagation delay (s)
  */
 CUDA_HOSTDEV
-double bistaticDelay(const isce3::core::Vec3 & p,
-                     const isce3::core::Vec3 & v,
-                     const isce3::core::Vec3 & x);
+double bistaticDelay(const isce3::core::Vec3& p, const isce3::core::Vec3& v,
+        const isce3::core::Vec3& x);
 
-}}
+}} // namespace isce3::focus
 
 #include "BistaticDelay.icc"

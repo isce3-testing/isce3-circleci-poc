@@ -36,7 +36,7 @@ DATADIR=${WORKSPACE}/test_gcov
 CONTAINERTAG=container-${TAG}
 CONTAINER_DATADIR=/tmp/data
 
-# download test data from artifactory 
+# download test data from artifactory
 if [ -d ${DATADIR} ]; then
   rm -rf ${DATADIR}
 fi
@@ -61,9 +61,9 @@ docker run \
   -w ${CONTAINER_DATADIR} \
   --name ${CONTAINERTAG} ${IMAGE}:${TAG} \
   /bin/bash -c "source /opt/docker/bin/entrypoint_source &&
-                echo ${CONTAINER_DATADIR}: && 
-                ls -al ${CONTAINER_DATADIR} && 
-                cd ${CONTAINER_DATADIR} && 
+                echo ${CONTAINER_DATADIR}: &&
+                ls -al ${CONTAINER_DATADIR} &&
+                cd ${CONTAINER_DATADIR} &&
                 mkdir output_gcov scratch_gcov qa_gcov &&
                 time python3 /opt/isce/packages/nisar/workflows/rslc2gcov.py run_config_gcov.yaml --restart &&
                 time python3 /opt/QualityAssurance/verify_gcov.py  --fpdf qa_gcov/graphs.pdf --fhdf qa_gcov/stats.h5 --flog qa_gcov/qa.log --validate --quality output_gcov/gcov.h5

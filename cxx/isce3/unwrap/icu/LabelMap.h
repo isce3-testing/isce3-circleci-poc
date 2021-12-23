@@ -2,17 +2,15 @@
 
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
-#include <vector> // std::vector
+#include <vector>  // std::vector
 
-namespace isce3::unwrap::icu
-{
+namespace isce3::unwrap::icu {
 
 // \brief Table of connected component label equivalences
 //
-// Maintains a list of all connected component labels along with a mapping 
+// Maintains a list of all connected component labels along with a mapping
 // to their minimum equivalent label.
-class LabelMap
-{
+class LabelMap {
 public:
     // Constructor
     LabelMap();
@@ -30,7 +28,7 @@ private:
     std::vector<uint8_t> _labels;
 };
 
-}
+} // namespace isce3::unwrap::icu
 
 // Get inline implementations.
 #define ISCE_UNWRAP_ICU_LABELMAP_ICC

@@ -1,14 +1,14 @@
 #include "Presum.h"
 
-#include <isce3/core/Kernels.h>
-#include <isce3/except/Error.h>
-#include <isce3/focus/Presum.h>
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
+#include <isce3/core/Kernels.h>
 #include <isce3/core/LUT2d.h>
 #include <isce3/core/Orbit.h>
+#include <isce3/except/Error.h>
+#include <isce3/focus/Presum.h>
 #include <isce3/product/RadarGridParameters.h>
 
 namespace py = pybind11;
@@ -17,15 +17,15 @@ using isce3::core::Kernel;
 
 void addbindings_presum(pybind11::module& m)
 {
-    m.def("get_presum_weights",
-        [](const Kernel<double>& acorr,
-           const Eigen::Ref<const Eigen::VectorXd>& t,
-           double tout) {
-               long offset = 0;
-               auto w = getPresumWeights(acorr, t, tout, &offset);
-               return std::make_pair(offset, w);
-           },
-        R"(Compute weights for reconstructing data from non-uniform samples.
+    m.def(
+             "get_presum_weights",
+             [](const Kernel<double>& acorr,
+                     const Eigen::Ref<const Eigen::VectorXd>& t, double tout) {
+                 long offset = 0;
+                 auto w = getPresumWeights(acorr, t, tout, &offset);
+                 return std::make_pair(offset, w);
+             },
+             R"(Compute weights for reconstructing data from non-uniform samples.
 
         Parameters
         ----------
@@ -48,8 +48,6 @@ void addbindings_presum(pybind11::module& m)
         Sample reconstructed from input data `x` with
             weights.dot(x[offset:offset + len(weights)])
         )",
-        py::arg("acorr"), py::arg("t"), py::arg("tout")
-    )
-    .def("fill_weights", &fillWeights)
-    ;
+             py::arg("acorr"), py::arg("t"), py::arg("tout"))
+            .def("fill_weights", &fillWeights);
 }

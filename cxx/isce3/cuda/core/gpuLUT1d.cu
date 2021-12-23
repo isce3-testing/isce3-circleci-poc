@@ -101,7 +101,7 @@ eval(double x) const {
             const double dy = _values[0] - _values[1];
             const double d = x - _coords[1];
             result = (dy / dx) * d + _values[1];
-            return result; 
+            return result;
         } else {
             return result;
         }
@@ -125,7 +125,7 @@ eval(double x) const {
         const int midpoint = (low + high) / 2;
         if (_coords[midpoint] < x) {
             low = midpoint + 1;
-        } else { 
+        } else {
             high = midpoint;
         }
     }
@@ -138,11 +138,11 @@ eval(double x) const {
     // The indices of the x bounds
     const int j0 = high - 1;
     const int j1 = high;
-    
+
     // Get coordinates at bounds
     double x1 = _coords[j0];
     double x2 = _coords[j1];
-    
+
     // Interpolate
     result = (x2 - x) / (x2 - x1) * _values[j0] + (x - x1) / (x2 - x1) * _values[j1];
     return result;
@@ -162,7 +162,7 @@ eval_h(double rng) {
 
     T * val_d;
     T val_h;
-    
+
     // Allocate memory for result on device
     checkCudaErrors(cudaMalloc((T **) &val_d, sizeof(T)));
 
@@ -182,4 +182,4 @@ eval_h(double rng) {
 template class isce3::cuda::core::gpuLUT1d<double>;
 template class isce3::cuda::core::gpuLUT1d<float>;
 
-// end of file  
+// end of file

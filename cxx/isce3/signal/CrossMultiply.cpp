@@ -10,22 +10,22 @@ namespace isce3 { namespace signal {
 CrossMultiply::CrossMultiply(int nrows, int ncols, int upsample)
     : _nrows([=]() {
           if (nrows < 1) {
-              throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                               "number of rows must be > 0");
+              throw isce3::except::DomainError(
+                      ISCE_SRCINFO(), "number of rows must be > 0");
           }
           return nrows;
       }()),
       _ncols([=]() {
           if (ncols < 1) {
-              throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                               "number of rows columns be > 0");
+              throw isce3::except::DomainError(
+                      ISCE_SRCINFO(), "number of rows columns be > 0");
           }
           return ncols;
       }()),
       _upsampleFactor([=]() {
           if (upsample < 1) {
-              throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                               "upsampling factor must be > 0");
+              throw isce3::except::DomainError(
+                      ISCE_SRCINFO(), "upsampling factor must be > 0");
           }
           return upsample;
       }()),
@@ -39,10 +39,10 @@ CrossMultiply::CrossMultiply(int nrows, int ncols, int upsample)
       _ifgram_up(_nrows, _fftsize * _upsampleFactor)
 {
     // make forward and inverse fft plans
-    _signal.forwardRangeFFT(_ref_slc.data(), _ref_slc_spec.data(), _fftsize,
-                            _nrows);
+    _signal.forwardRangeFFT(
+            _ref_slc.data(), _ref_slc_spec.data(), _fftsize, _nrows);
     _signal.inverseRangeFFT(_ref_slc_up_spec.data(), _ref_slc_up.data(),
-                            _fftsize * _upsampleFactor, _nrows);
+            _fftsize * _upsampleFactor, _nrows);
 }
 
 void CrossMultiply::crossmultiply(
@@ -55,33 +55,33 @@ void CrossMultiply::crossmultiply(
     // sanity checks
     if (ref_slc.rows() != _nrows) {
         throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Number of rows in reference slc must "
-                                         "be the same as the instance nrows.");
+                "Number of rows in reference slc must "
+                "be the same as the instance nrows.");
     }
     if (sec_slc.rows() != _nrows) {
         throw isce3::except::DomainError(ISCE_SRCINFO(),
-                                         "Number of rows in secondary slc must "
-                                         "be the same as the instance nrows.");
+                "Number of rows in secondary slc must "
+                "be the same as the instance nrows.");
     }
     if (ref_slc.cols() != _ncols) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(), "Number of columns in reference slc must be "
-                                "the same as the instance ncols.");
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
+                "Number of columns in reference slc must be "
+                "the same as the instance ncols.");
     }
     if (sec_slc.cols() != _ncols) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(), "Number of columns in secondary slc must be "
-                                "the same as the instance ncols.");
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
+                "Number of columns in secondary slc must be "
+                "the same as the instance ncols.");
     }
     if (ifgram.rows() != _nrows) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(), "Number of rows in output interferogram must "
-                                "be the same as the instance nrows.");
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
+                "Number of rows in output interferogram must "
+                "be the same as the instance nrows.");
     }
     if (ifgram.cols() != _ncols) {
-        throw isce3::except::DomainError(
-                ISCE_SRCINFO(), "Number of columns in output interferogram "
-                                "must be the same as the instance ncols.");
+        throw isce3::except::DomainError(ISCE_SRCINFO(),
+                "Number of columns in output interferogram "
+                "must be the same as the instance ncols.");
     }
     if (_upsampleFactor == 1) {
 

@@ -1,7 +1,1 @@
-from . import core
-from . import focus
-from . import geocode
-from . import geometry
-from . import image
-from . import signal
-from . import matchtemplate
+from . import core, focus, geocode, geometry, image, matchtemplate, signal

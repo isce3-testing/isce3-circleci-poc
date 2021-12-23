@@ -1,5 +1,5 @@
-runconfig: 
-    name: NISAR_L1-L-RSLC_RUNCONFIG    
+runconfig:
+    name: NISAR_L1-L-RSLC_RUNCONFIG
 
     groups:
         PGENameGroup:

@@ -29,7 +29,8 @@ using slc_t = pyre::grid::simple_t<2, pixel_t>;
 using correlator_t = ampcor::cuda::correlators::sequential_t<slc_t>;
 
 // driver
-int main() {
+int main()
+{
     // make a timer
     pyre::timer_t timer("ampcor.cuda.sanity");
     // make a channel for reporting the timings
@@ -38,21 +39,21 @@ int main() {
     // make a channel for logging progress
     pyre::journal::debug_t channel("ampcor.cuda");
     // sign in
-    channel
-        << pyre::journal::at(__HERE__)
-        << "test: adding reference and target tile pairs to the correlator"
-        << pyre::journal::endl;
+    channel << pyre::journal::at(__HERE__)
+            << "test: adding reference and target tile pairs to the correlator"
+            << pyre::journal::endl;
 
     // the reference tile extent
     int refDim = 64;
     // the margin around the reference tile
     int margin = 16;
     // therefore, the target tile extent
-    int tgtDim = refDim + 2*margin;
-    // the number of possible placements of the reference tile within the target tile
-    int placements = 2*margin + 1;
+    int tgtDim = refDim + 2 * margin;
+    // the number of possible placements of the reference tile within the target
+    // tile
+    int placements = 2 * margin + 1;
     // the number of pairs
-    slc_t::size_type pairs = placements*placements;
+    slc_t::size_type pairs = placements * placements;
 
     // the number of cells in a reference tile
     slc_t::size_type refCells = refDim * refDim;
@@ -67,9 +68,9 @@ int main() {
     slc_t::shape_type tgtShape = {tgtDim, tgtDim};
 
     // the reference layout with the given shape and default packing
-    slc_t::layout_type refLayout = { refShape };
+    slc_t::layout_type refLayout = {refShape};
     // the search window layout with the given shape and default packing
-    slc_t::layout_type tgtLayout = { tgtShape };
+    slc_t::layout_type tgtLayout = {tgtShape};
 
     // start the clock
     timer.reset().start();
@@ -78,18 +79,17 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "instantiating the manager: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "instantiating the manager: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // start the clock
     timer.reset().start();
     // build reference tiles
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; j<placements; ++j) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; j < placements; ++j) {
             // compute the pair id
-            int pid = i*placements + j;
+            int pid = i * placements + j;
 
             // make a reference raster
             slc_t ref(refLayout);
@@ -101,16 +101,18 @@ int main() {
             // fill it with zeroes
             std::fill(tgt.view().begin(), tgt.view().end(), 0);
             // make a slice
-            slc_t::slice_type slice = tgt.layout().slice({i,j}, {i+refDim, j+refDim});
+            slc_t::slice_type slice =
+                    tgt.layout().slice({i, j}, {i + refDim, j + refDim});
             // make a view of the tgt tile over this slice
             slc_t::view_type view = tgt.view(slice);
             // fill it with ones
             std::copy(ref.view().begin(), ref.view().end(), view.begin());
 
             // show me
-            channel << "tgt[" << i << "," << j << "]:" << pyre::journal::newline;
-            for (auto idx=0; idx<tgtDim; ++idx) {
-                for (auto jdx=0; jdx<tgtDim; ++jdx) {
+            channel << "tgt[" << i << "," << j
+                    << "]:" << pyre::journal::newline;
+            for (auto idx = 0; idx < tgtDim; ++idx) {
+                for (auto jdx = 0; jdx < tgtDim; ++jdx) {
                     channel << tgt[{idx, jdx}] << " ";
                 }
                 channel << pyre::journal::newline;
@@ -125,10 +127,9 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "creating reference dataset: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "creating reference dataset: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // verify
     // start the clock
@@ -136,32 +137,31 @@ int main() {
     // get the arena
     auto arena = c.arena();
     // go through all pairs
-    for (auto i=0; i<placements; ++i) {
-        for (auto j=0; i<placements; ++i) {
+    for (auto i = 0; i < placements; ++i) {
+        for (auto j = 0; i < placements; ++i) {
             // compute the pair id
-            auto pid = i*placements + j;
+            auto pid = i * placements + j;
             // get the reference raster
-            auto ref = arena + pid*cellsPerPair;
+            auto ref = arena + pid * cellsPerPair;
             // verify its contents
-            for (auto idx=0; idx<refDim; ++idx) {
-                for (auto jdx=0; jdx<refDim; ++jdx) {
+            for (auto idx = 0; idx < refDim; ++idx) {
+                for (auto jdx = 0; jdx < refDim; ++jdx) {
                     // the expected value
                     pixel_t expected = pid;
                     // the actual value
-                    pixel_t actual = ref[idx*refDim + jdx];
+                    pixel_t actual = ref[idx * refDim + jdx];
                     // compute the mismatch
-                    auto mismatch = std::abs(expected-actual)/std::abs(expected);
+                    auto mismatch =
+                            std::abs(expected - actual) / std::abs(expected);
                     // if there is a mismatch
                     if (mismatch > std::numeric_limits<value_t>::epsilon()) {
                         // make a channel
                         pyre::journal::error_t error("ampcor.cuda");
                         // complain
-                        error
-                            << pyre::journal::at(__HERE__)
-                            << "ref[" << pid << "; " << idx << ", " << jdx << "] : mismatch: "
-                            << "expected: " << expected
-                            << ", actual: " << actual
-                            << pyre::journal::endl;
+                        error << pyre::journal::at(__HERE__) << "ref[" << pid
+                              << "; " << idx << ", " << jdx << "] : mismatch: "
+                              << "expected: " << expected
+                              << ", actual: " << actual << pyre::journal::endl;
                         // and bail
                         throw std::runtime_error("verification error");
                     }
@@ -169,29 +169,30 @@ int main() {
             }
 
             // get the target raster
-            auto tgt = arena + pid*cellsPerPair + refCells;
+            auto tgt = arena + pid * cellsPerPair + refCells;
             // verify its contents
-            for (auto idx=0; idx<refDim; ++idx) {
-                for (auto jdx=0; jdx<refDim; ++jdx) {
+            for (auto idx = 0; idx < refDim; ++idx) {
+                for (auto jdx = 0; jdx < refDim; ++jdx) {
                     // the bounds of the copy of the ref tile in the tgt tile
-                    auto within = (idx >= i && idx < i+refDim && jdx >= j && idx < j+refDim);
-                    // the expected value depends on whether we are within the magic subtile
-                    pixel_t expected = within ? ref[idx*refDim + jdx] : 0;
+                    auto within = (idx >= i && idx < i + refDim && jdx >= j &&
+                                   idx < j + refDim);
+                    // the expected value depends on whether we are within the
+                    // magic subtile
+                    pixel_t expected = within ? ref[idx * refDim + jdx] : 0;
                     // the actual value
-                    pixel_t actual = tgt[idx*tgtDim + jdx];
+                    pixel_t actual = tgt[idx * tgtDim + jdx];
                     // compute the mismatch
-                    auto mismatch = std::abs(expected-actual)/std::abs(actual);
+                    auto mismatch =
+                            std::abs(expected - actual) / std::abs(actual);
                     // if there is a mismatch
                     if (mismatch > std::numeric_limits<value_t>::epsilon()) {
                         // make a channel
                         pyre::journal::error_t error("ampcor.cuda");
                         // complain
-                        error
-                            << pyre::journal::at(__HERE__)
-                            << "tgt[" << pid << "; " << idx << ", " << jdx << "] : mismatch: "
-                            << "expected: " << expected
-                            << ", actual: " << actual
-                            << pyre::journal::endl;
+                        error << pyre::journal::at(__HERE__) << "tgt[" << pid
+                              << "; " << idx << ", " << jdx << "] : mismatch: "
+                              << "expected: " << expected
+                              << ", actual: " << actual << pyre::journal::endl;
                         // and bail
                         throw std::runtime_error("verification error");
                     }
@@ -202,10 +203,9 @@ int main() {
     // stop the clock
     timer.stop();
     // show me
-    tlog
-        << pyre::journal::at(__HERE__)
-        << "verifying reference dataset: " << 1e3 * timer.read() << " ms"
-        << pyre::journal::endl;
+    tlog << pyre::journal::at(__HERE__)
+         << "verifying reference dataset: " << 1e3 * timer.read() << " ms"
+         << pyre::journal::endl;
 
     // show me
     c.dump();

@@ -4,7 +4,7 @@
 
 namespace py = pybind11;
 
-void addsubmodule_image(py::module & m)
+void addsubmodule_image(py::module& m)
 {
     py::module m_image = m.def_submodule("image");
 

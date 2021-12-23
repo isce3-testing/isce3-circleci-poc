@@ -19,8 +19,8 @@ Eigen::MatrixXd fillWeights(
     const auto nw = w0.size();
     // Allocate matrix and fill columns using LUT.
     Eigen::MatrixXd out(nw, nid);
-    _Pragma("omp parallel for")
-    for (long i = 0; i < nid; ++i) {
+    _Pragma("omp parallel for") for (long i = 0; i < nid; ++i)
+    {
         const auto wi = lut.at(ids[i]);
         if (wi.size() != nw) {
             throw std::length_error("Weight vector lengths must all match.");

@@ -90,7 +90,7 @@ runconfig:
             geo2rdr:
                 threshold: 1e-8
                 maxiter: 25
-               
+
             blocksize:
                 y: 1000
 

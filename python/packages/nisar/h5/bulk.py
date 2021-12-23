@@ -1,9 +1,17 @@
 #!/usr/bin/env python3 #
 
-def cp_h5_meta_data(src_h5, dst_h5, src_path, dst_path=None,
-        excludes=None, renames=None, flag_overwrite=False,
-        attach_scales_list = None): 
-    '''
+
+def cp_h5_meta_data(
+    src_h5,
+    dst_h5,
+    src_path,
+    dst_path=None,
+    excludes=None,
+    renames=None,
+    flag_overwrite=False,
+    attach_scales_list=None,
+):
+    """
     Copy HDF5 node contents
 
     Parameters:
@@ -28,10 +36,11 @@ def cp_h5_meta_data(src_h5, dst_h5, src_path, dst_path=None,
         List of new dimensions (scales) to overwrite
         existing dimensions attributes in destination
         datasets
-    '''
+    """
+
+    import os
 
     import h5py
-    import os
 
     # assign defaults as needed
     if dst_path is None:
@@ -57,7 +66,7 @@ def cp_h5_meta_data(src_h5, dst_h5, src_path, dst_path=None,
             dst_h5.create_group(dst_path)
         dst_group = dst_h5[dst_path]
 
-        for subnode_src in src_group.keys(): 
+        for subnode_src in src_group.keys():
             # check conditions while copying piecemeal
             if subnode_src in excludes:
                 continue
@@ -74,9 +83,11 @@ def cp_h5_meta_data(src_h5, dst_h5, src_path, dst_path=None,
 
             # copy group/dataset
             dst_group.copy(node_obj, subnode_dst)
-            if (attach_scales_list is not None and 
-                    'DIMENSION_LIST' in node_obj.attrs.keys()):
-                dst_group[subnode_dst].attrs.__delitem__('DIMENSION_LIST')
+            if (
+                attach_scales_list is not None
+                and "DIMENSION_LIST" in node_obj.attrs.keys()
+            ):
+                dst_group[subnode_dst].attrs.__delitem__("DIMENSION_LIST")
                 for i, dim in enumerate(attach_scales_list):
                     dst_group[subnode_dst].dims[i].attach_scale(dim)
     else:

@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
-import h5py
 import json
 import logging
 import os
+import sys
+import tempfile
+from typing import List
+
+import h5py
+import isce3
+import nisar.workflows.helpers as helpers
+import numpy as np
+from isce3.core import DateTime, LUT2d
+from isce3.io.gdal import GDT_CFloat32, Raster
 from nisar.products.readers.Raw import Raw, open_rrsd
 from nisar.products.writers import SLC
 from nisar.types import to_complex32
 from nisar.workflows import gpu_check
-import numpy as np
-import isce3
-from isce3.core import DateTime, LUT2d
-from isce3.io.gdal import Raster, GDT_CFloat32
 from nisar.workflows.yaml_argparse import YamlArgparse
-import nisar.workflows.helpers as helpers
 from ruamel.yaml import YAML
-import sys
-import tempfile
-from typing import List
 
 # TODO some CSV logger
 log = logging.getLogger("focus")
@@ -24,6 +25,7 @@ log = logging.getLogger("focus")
 # https://stackoverflow.com/a/6993694/112699
 class Struct(object):
     "Convert nested dict to object, assuming keys are valid identifiers."
+
     def __init__(self, data):
         for name, value in data.items():
             setattr(self, name, self._wrap(value))
@@ -37,9 +39,9 @@ class Struct(object):
 
 def load_config(yaml):
     "Load default runconfig, override with user input, and convert to Struct"
-    parser = YAML(typ='safe')
+    parser = YAML(typ="safe")
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    cfg = parser.load(open(f'{dir_path}/defaults/focus.yaml', 'r'))
+    cfg = parser.load(open(f"{dir_path}/defaults/focus.yaml", "r"))
     with open(yaml) as f:
         user = parser.load(f)
     helpers.deep_update(cfg, user)
@@ -53,9 +55,10 @@ def dump_config(cfg: Struct, filename):
             if isinstance(d[k], Struct):
                 d[k] = struct2dict(d[k])
         return d
+
     parser = YAML()
     parser.indent = 4
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         d = struct2dict(cfg)
         parser.dump(d, f)
 
@@ -74,16 +77,16 @@ def cosine_window(n: int, pedestal: float):
     return (1 - b) + b * np.cos(2 * np.pi * t / (n - 1))
 
 
-def get_window(win: Struct, msg=''):
+def get_window(win: Struct, msg=""):
     """Return window function f(n) that return a window of length n
     given runconfig group describing the window.
     """
     kind = win.kind.lower()
-    if kind == 'kaiser':
+    if kind == "kaiser":
         log.info(f"{msg}Kaiser(beta={win.shape})")
         return lambda n: np.kaiser(n, win.shape)
-    elif kind == 'cosine':
-        log.info(f'{msg}Cosine(pedestal_height={win.shape})')
+    elif kind == "cosine":
+        log.info(f"{msg}Cosine(pedestal_height={win.shape})")
         return lambda n: cosine_window(n, win.shape)
     raise NotImplementedError(f"window {kind} not in (Kaiser, Cosine).")
 
@@ -100,9 +103,11 @@ def get_chirp(cfg: Struct, raw: Raw, frequency: str, tx: str):
 
 
 def parse_rangecomp_mode(mode: str):
-    lut = {"full": isce3.focus.RangeComp.Mode.Full,
-           "same": isce3.focus.RangeComp.Mode.Same,
-           "valid": isce3.focus.RangeComp.Mode.Valid}
+    lut = {
+        "full": isce3.focus.RangeComp.Mode.Full,
+        "same": isce3.focus.RangeComp.Mode.Same,
+        "valid": isce3.focus.RangeComp.Mode.Valid,
+    }
     mode = mode.lower()
     if mode not in lut:
         raise ValueError(f"Invalid RangeComp mode {mode}")
@@ -131,7 +136,7 @@ def get_attitude(cfg: Struct):
     return raw.getAttitude()
 
 
-def get_total_grid_bounds(rawfiles: List[str], frequency='A'):
+def get_total_grid_bounds(rawfiles: List[str], frequency="A"):
     times, ranges = [], []
     for fn in rawfiles:
         raw = open_rrsd(fn)
@@ -148,7 +153,7 @@ def get_total_grid_bounds(rawfiles: List[str], frequency='A'):
     return epoch, tmin, tmax, rmin, rmax
 
 
-def get_total_grid(rawfiles: List[str], dt, dr, frequency='A'):
+def get_total_grid(rawfiles: List[str], dt, dr, frequency="A"):
     epoch, tmin, tmax, rmin, rmax = get_total_grid_bounds(rawfiles, frequency)
     nt = int(np.ceil((tmax - tmin) / dt))
     nr = int(np.ceil((rmax - rmin) / dr))
@@ -158,19 +163,20 @@ def get_total_grid(rawfiles: List[str], dt, dr, frequency='A'):
 
 
 def squint(t, r, orbit, attitude, side, angle=0.0, dem=None, **kw):
-    """Find squint angle given imaging time and range to target.
-    """
+    """Find squint angle given imaging time and range to target."""
     p, v = orbit.interpolate(t)
     R = attitude.interpolate(t).to_rotation_matrix()
-    axis = R[:,1]
+    axis = R[:, 1]
     # In NISAR coordinate frames (see D-80882 and REE User Guide) left/right is
     # implemented as a 180 yaw flip, so the left/right flag can just be
     # inferred by the sign of axis.dot(v). Verify this convention.
     inferred_side = "left" if axis.dot(v) > 0 else "right"
     if side.lower() != inferred_side:
-        raise ValueError(f"Requested side={side.lower()} but "
-                         f"inferred side={inferred_side} based on orientation "
-                         f"(Y_RCS.dot(V) = {axis.dot(v)})")
+        raise ValueError(
+            f"Requested side={side.lower()} but "
+            f"inferred side={inferred_side} based on orientation "
+            f"(Y_RCS.dot(V) = {axis.dot(v)})"
+        )
     if dem is None:
         dem = isce3.geometry.DEMInterpolator()
     # NOTE Here "left" means an acute, positive look angle by right-handed
@@ -194,7 +200,8 @@ def convert_epoch(t: List[float], epoch_in, epoch_out):
 def get_dem(cfg: Struct):
     dem = isce3.geometry.DEMInterpolator(
         height=cfg.processing.dem.reference_height,
-        method=cfg.processing.dem.interp_method)
+        method=cfg.processing.dem.interp_method,
+    )
     fn = cfg.DynamicAncillaryFileGroup.DEMFile
     if fn:
         log.info(f"Loading DEM {fn}")
@@ -204,16 +211,18 @@ def get_dem(cfg: Struct):
     return dem
 
 
-def make_doppler_lut(rawfiles: List[str],
-        az: float = 0.0,
-        orbit: isce3.core.Orbit = None,
-        attitude: isce3.core.Attitude = None,
-        dem: isce3.geometry.DEMInterpolator = None,
-        azimuth_spacing: float = 1.0,
-        range_spacing: float = 1e3,
-        frequency: str = "A",
-        interp_method: str = "bilinear",
-        **rdr2geo):
+def make_doppler_lut(
+    rawfiles: List[str],
+    az: float = 0.0,
+    orbit: isce3.core.Orbit = None,
+    attitude: isce3.core.Attitude = None,
+    dem: isce3.geometry.DEMInterpolator = None,
+    azimuth_spacing: float = 1.0,
+    range_spacing: float = 1e3,
+    frequency: str = "A",
+    interp_method: str = "bilinear",
+    **rdr2geo,
+):
     """Generate Doppler look up table (LUT).
 
     Parameters
@@ -273,14 +282,13 @@ def make_doppler_lut(rawfiles: List[str],
         _, v = orbit.interpolate(ti)
         vi = np.linalg.norm(v)
         for j, rj in enumerate(r):
-            sq = squint(ti, rj, orbit, attitude, side, angle=az, dem=dem,
-                        **rdr2geo)
-            dop[i,j] = squint_to_doppler(sq, wvl, vi)
+            sq = squint(ti, rj, orbit, attitude, side, angle=az, dem=dem, **rdr2geo)
+            dop[i, j] = squint_to_doppler(sq, wvl, vi)
     lut = LUT2d(np.asarray(r), t, dop, interp_method, False)
     return fc, lut
 
 
-def make_doppler(cfg: Struct, frequency='A'):
+def make_doppler(cfg: Struct, frequency="A"):
     log.info("Generating Doppler LUT from pointing")
     orbit = get_orbit(cfg)
     attitude = get_attitude(cfg)
@@ -289,13 +297,18 @@ def make_doppler(cfg: Struct, frequency='A'):
     az = np.radians(opt.azimuth_boresight_deg)
     rawfiles = cfg.InputFileGroup.InputFilePath
 
-    fc, lut = make_doppler_lut(rawfiles,
-                               az=az, orbit=orbit, attitude=attitude,
-                               dem=dem, azimuth_spacing=opt.spacing.azimuth,
-                               range_spacing=opt.spacing.range,
-                               frequency=frequency,
-                               interp_method=opt.interp_method,
-                               **vars(opt.rdr2geo))
+    fc, lut = make_doppler_lut(
+        rawfiles,
+        az=az,
+        orbit=orbit,
+        attitude=attitude,
+        dem=dem,
+        azimuth_spacing=opt.spacing.azimuth,
+        range_spacing=opt.spacing.range,
+        frequency=frequency,
+        interp_method=opt.interp_method,
+        **vars(opt.rdr2geo),
+    )
 
     log.info(f"Made Doppler LUT for fc={fc} Hz with mean={lut.data.mean()} Hz")
     return fc, lut
@@ -305,15 +318,23 @@ def zero_doppler_like(dop: LUT2d):
     x = np.zeros_like(dop.data)
     # Assume we don't care about interp method or bounds when all values == 0.
     method, check_bounds = "nearest", False
-    return LUT2d(dop.x_start, dop.y_start, dop.x_spacing, dop.y_spacing, x,
-                 method, check_bounds)
+    return LUT2d(
+        dop.x_start, dop.y_start, dop.x_spacing, dop.y_spacing, x, method, check_bounds
+    )
 
 
 def scale_doppler(dop: LUT2d, c: float):
     if dop.have_data:
         x = c * dop.data
-        return LUT2d(dop.x_start, dop.y_start, dop.x_spacing, dop.y_spacing, x,
-                    dop.interp_method, dop.bounds_error)
+        return LUT2d(
+            dop.x_start,
+            dop.y_start,
+            dop.x_spacing,
+            dop.y_spacing,
+            x,
+            dop.interp_method,
+            dop.bounds_error,
+        )
     if dop.ref_value == 0.0:
         return LUT2d()
     raise NotImplementedError("No way to scale Doppler with nonzero ref_value")
@@ -349,17 +370,16 @@ def make_output_grid(cfg: Struct, igrid):
     nr = int(np.round((r1 - r0) / dr))
     nt = int(np.round((t1 - t0) * prf))
     assert (nr > 0) and (nt > 0)
-    ogrid = isce3.product.RadarGridParameters(t0, igrid.wavelength, prf, r0,
-                                              dr, igrid.lookside, nt, nr,
-                                              igrid.ref_epoch)
+    ogrid = isce3.product.RadarGridParameters(
+        t0, igrid.wavelength, prf, r0, dr, igrid.lookside, nt, nr, igrid.ref_epoch
+    )
     return ogrid
-
 
 
 def get_kernel(cfg: Struct):
     # TODO
     opt = cfg.processing.azcomp.kernel
-    if opt.type.lower() != 'knab':
+    if opt.type.lower() != "knab":
         raise NotImplementedError("Only Knab kernel implemented.")
     n = 1 + 2 * opt.halfwidth
     kernel = isce3.core.KnabKernel(n, 1 / 1.2)
@@ -379,10 +399,16 @@ def verify_uniform_pri(t: np.ndarray, atol=0.0, rtol=0.001):
     return np.allclose(dt, pri, atol=atol, rtol=rtol)
 
 
-def resample(raw: np.ndarray, t: np.ndarray,
-             grid: isce3.product.RadarGridParameters, swaths: np.ndarray,
-             orbit: isce3.core.Orbit, doppler: isce3.core.LUT2d, L=12.0,
-             fn="regridded.c8"):
+def resample(
+    raw: np.ndarray,
+    t: np.ndarray,
+    grid: isce3.product.RadarGridParameters,
+    swaths: np.ndarray,
+    orbit: isce3.core.Orbit,
+    doppler: isce3.core.LUT2d,
+    L=12.0,
+    fn="regridded.c8",
+):
     """
     Fill gaps and resample raw data to uniform grid using BLU method.
 
@@ -450,7 +476,7 @@ def resample(raw: np.ndarray, t: np.ndarray,
             # Invert the hash to get the mask back
             valid = (uid & twiddle).astype(bool)
             # Pull out valid times for this mask config and compute weights.
-            tj = t[offset:offset+nw][valid]
+            tj = t[offset : offset + nw][valid]
             joff, jwgt = isce3.focus.get_presum_weights(acor, tj, tout)
             assert joff == 0
             # Now insert zeros where data is invalid to get full-length weights.
@@ -460,10 +486,10 @@ def resample(raw: np.ndarray, t: np.ndarray,
         # Fill weights for entire block using look up table.
         w = isce3.focus.fill_weights(ids, lut)
         # Read raw data.
-        block = np.s_[offset:offset+nw, :]
+        block = np.s_[offset : offset + nw, :]
         x = raw[block]
         # Compute Doppler deramp.  Zero phase at tout means no need to re-ramp.
-        trel = t[offset:offset+nw] - tout
+        trel = t[offset : offset + nw] - tout
         fd = doppler.eval(tout, r)
         deramp = np.exp(-2j * np.pi * trel[:, None] * fd[None, :])
         # compute weighted sum of deramped pulses.
@@ -511,8 +537,7 @@ def focus(runconfig):
     # Check that center frequency doesn't depend on TX polarization since
     # this is assumed in RSLC Doppler metadata.
     for frequency, polarizations in raw.polarizations.items():
-        fc_list = [raw.getCenterFrequency(frequency, pol[0])
-            for pol in polarizations]
+        fc_list = [raw.getCenterFrequency(frequency, pol[0]) for pol in polarizations]
         if len(set(fc_list)) > 1:
             raise NotImplementedError("TX frequency agility not supported")
 
@@ -536,20 +561,20 @@ def focus(runconfig):
     log.info(f"len(pulses) = {len(pulse_times)}")
     log.info("Raw grid is %s", raw_grid)
     # Different grids for frequency A and B.
-    ogrid = dict(A = make_output_grid(cfg, raw_grid))
+    ogrid = dict(A=make_output_grid(cfg, raw_grid))
     log.info("Output grid A is %s", ogrid["A"])
     if "B" in raw.frequencies:
         # Ensure aligned grids between A and B by just using an integer skip.
         # Sample rate of A is always an integer multiple of B.
         # Don't assume A and B have same polarization, e.g., Quasi-Quad-Pol
         tx = raw.polarizations["B"][0][0]
-        rskip = int(np.round(raw.getRanges("B", tx).spacing
-            / raw.getRanges("A", txref).spacing))
+        rskip = int(
+            np.round(raw.getRanges("B", tx).spacing / raw.getRanges("A", txref).spacing)
+        )
         ogrid["B"] = ogrid["A"][:, ::rskip]
         log.info("Output grid B is %s", ogrid["B"])
 
-    polygon = isce3.geometry.get_geo_perimeter_wkt(ogrid["A"], orbit,
-                                                   zerodop, dem)
+    polygon = isce3.geometry.get_geo_perimeter_wkt(ogrid["A"], orbit, zerodop, dem)
 
     output_slc_path = os.path.abspath(cfg.ProductPathGroup.SASOutputFile)
 
@@ -559,14 +584,17 @@ def focus(runconfig):
     product = cfg.PrimaryExecutable.ProductType
     log.info(f"Creating output {product} product {output_slc_path}")
     slc = SLC(output_slc_path, mode="w", product=product)
-    slc.set_orbit(orbit) # TODO acceleration, orbitType
+    slc.set_orbit(orbit)  # TODO acceleration, orbitType
     if attitude:
         slc.set_attitude(attitude, orbit.reference_epoch)
-    slc.copy_identification(raw, polygon=polygon,
+    slc.copy_identification(
+        raw,
+        polygon=polygon,
         track=cfg.Geometry.RelativeOrbitNumber,
         frame=cfg.Geometry.FrameNumber,
         start_time=ogrid["A"].sensing_datetime(0),
-        end_time=ogrid["A"].sensing_datetime(ogrid["A"].length - 1))
+        end_time=ogrid["A"].sensing_datetime(ogrid["A"].length - 1),
+    )
 
     # store metadata for each frequency
     dop = dict()
@@ -582,13 +610,17 @@ def focus(runconfig):
 
         # add calibration section
         for pol in raw.polarizations[frequency]:
-            slc.add_calibration_section(frequency, pol, t,
-                                        orbit.reference_epoch, r)
+            slc.add_calibration_section(frequency, pol, t, orbit.reference_epoch, r)
 
     freq = raw.frequencies[0]
-    slc.set_geolocation_grid(orbit, ogrid[freq], dop[freq],
-                             epsg=4326, dem=dem,
-                             **vars(cfg.processing.azcomp.geo2rdr))
+    slc.set_geolocation_grid(
+        orbit,
+        ogrid[freq],
+        dop[freq],
+        epsg=4326,
+        dem=dem,
+        **vars(cfg.processing.azcomp.geo2rdr),
+    )
 
     # Scratch directory for intermediate outputs
     scratch_dir = os.path.abspath(cfg.ProductPathGroup.ScratchPath)
@@ -608,15 +640,15 @@ def focus(runconfig):
         log.info(f"Number of sub-swaths = {swaths.shape[0]}")
 
         def temp(suffix):
-            return tempfile.NamedTemporaryFile(dir=scratch_dir, suffix=suffix,
-                delete=cfg.processing.delete_tempfiles)
+            return tempfile.NamedTemporaryFile(
+                dir=scratch_dir, suffix=suffix, delete=cfg.processing.delete_tempfiles
+            )
 
         rawfd = temp("_raw.c8")
         log.info(f"Decoding raw data to memory map {rawfd.name}.")
-        raw_mm = np.memmap(rawfd, mode="w+", shape=rawdata.shape,
-            dtype=np.complex64)
+        raw_mm = np.memmap(rawfd, mode="w+", shape=rawdata.shape, dtype=np.complex64)
         for pulse in range(0, rawdata.shape[0], na):
-            block = np.s_[pulse:pulse+na, :]
+            block = np.s_[pulse : pulse + na, :]
             z = rawdata[block]
             # Remove NaNs.  TODO could incorporate into gap mask.
             z[np.isnan(z)] = 0.0
@@ -628,9 +660,16 @@ def focus(runconfig):
         else:
             regridfd = temp("_regrid.c8")
             log.info(f"Resampling non-uniform raw data to {regridfd.name}.")
-            regridded = resample(raw_mm, raw_times, raw_grid, swaths, orbit,
-                                 dop[frequency], fn=regridfd,
-                                 L=cfg.processing.nominal_antenna_size.azimuth)
+            regridded = resample(
+                raw_mm,
+                raw_times,
+                raw_grid,
+                swaths,
+                orbit,
+                dop[frequency],
+                fn=regridfd,
+                L=cfg.processing.nominal_antenna_size.azimuth,
+            )
 
         del raw_mm, rawfd
 
@@ -643,8 +682,7 @@ def focus(runconfig):
 
         # Rangecomp modifies range grid.  Also update wavelength.
         rc_grid = raw_grid.copy()
-        rc_grid.starting_range -= (
-            rc_grid.range_pixel_spacing * rc.first_valid_sample)
+        rc_grid.starting_range -= rc_grid.range_pixel_spacing * rc.first_valid_sample
         rc_grid.width = rc.output_size
         rc_grid.wavelength = isce3.core.speed_of_light / fc
         igeom = isce3.container.RadarGeometry(rc_grid, orbit, dop[frequency])
@@ -656,7 +694,7 @@ def focus(runconfig):
 
         for pulse in range(0, rawdata.shape[0], na):
             log.info(f"Range compressing block at pulse {pulse}")
-            block = np.s_[pulse:pulse+na, :]
+            block = np.s_[pulse : pulse + na, :]
             rc.rangecompress(rcfile.data[block], regridded[block])
 
         del regridded, regridfd
@@ -684,10 +722,20 @@ def focus(runconfig):
                 log.info(f"Azcomp block at (i, j) = ({i}, {j})")
                 bgrid = ogrid[frequency][block]
                 ogeom = isce3.container.RadarGeometry(bgrid, orbit, zerodop)
-                z = np.zeros(bgrid.shape, 'c8')
-                backproject(z, ogeom, rcfile.data, igeom, dem, fc, azres,
-                            kernel, atmos, vars(cfg.processing.azcomp.rdr2geo),
-                            vars(cfg.processing.azcomp.geo2rdr))
+                z = np.zeros(bgrid.shape, "c8")
+                backproject(
+                    z,
+                    ogeom,
+                    rcfile.data,
+                    igeom,
+                    dem,
+                    fc,
+                    azres,
+                    kernel,
+                    atmos,
+                    vars(cfg.processing.azcomp.rdr2geo),
+                    vars(cfg.processing.azcomp.geo2rdr),
+                )
                 log.debug(f"max(abs(z)) = {np.max(np.abs(z))}")
                 z *= deramp[None, j:jmax]
                 zf = to_complex32(scale * z)
@@ -705,8 +753,10 @@ def configure_logging():
     log_level = logging.DEBUG
     log.setLevel(log_level)
     # Format from L0B PGE Design Document, section 9.  Kludging error code.
-    msgfmt = ('%(asctime)s.%(msecs)03d, %(levelname)s, RSLC, %(module)s, '
-        '999999, %(pathname)s:%(lineno)d, "%(message)s"')
+    msgfmt = (
+        "%(asctime)s.%(msecs)03d, %(levelname)s, RSLC, %(module)s, "
+        '999999, %(pathname)s:%(lineno)d, "%(message)s"'
+    )
     fmt = logging.Formatter(msgfmt, "%Y-%m-%d %H:%M:%S")
     sh = logging.StreamHandler()
     sh.setLevel(log_level)
@@ -730,5 +780,5 @@ def main(argv):
     focus(cfg)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1:])

@@ -136,9 +136,9 @@ TEST(Basis, FactoredYPR)
 {
     // This pair is from NISAR Radar Echo Emulator (REE) "out17" test case.
     auto angles = EulerAngles(deg2rad(-3.8946948276198485),
-                              deg2rad(8.604948585720144e-16), deg2rad(0.0));
+            deg2rad(8.604948585720144e-16), deg2rad(0.0));
     auto quaternion = Quaternion(-0.5641527828808183, 0.29095772599574443,
-                                 0.6570552008158168, 0.40663706463147226);
+            0.6570552008158168, 0.40663706463147226);
     // Corresponding position and velocity.
     Vec3 position {3595770.2903752117, -6145673.956536981, 233357.30879290705};
     Vec3 velocity {-1469.6807450495169, -578.7892748024412, 7403.171539154211};

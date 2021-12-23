@@ -53,17 +53,17 @@ public:
     inline auto data() const;
 
     // data access
-    inline const auto & operator[](size_type offset) const;
-    inline const auto & operator[](const index_type & index) const;
+    inline const auto& operator[](size_type offset) const;
+    inline const auto& operator[](const index_type& index) const;
 
     // support for iterating over my data
     inline auto view();
-    inline auto view(const slice_type & slice);
+    inline auto view(const slice_type& slice);
 
     inline auto view() const;
-    inline auto view(const slice_type & slice) const;
+    inline auto view(const slice_type& slice) const;
 
-    inline auto constview(const slice_type & slice) const;
+    inline auto constview(const slice_type& slice) const;
 
     // meta-methods
 public:

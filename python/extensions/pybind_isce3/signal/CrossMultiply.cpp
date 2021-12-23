@@ -18,19 +18,18 @@ void addbinding(py::class_<CrossMultiply>& pyCrossMultiply)
 
     pyCrossMultiply
             .def(py::init<int, int, int>(), py::arg("nrows"), py::arg("ncols"),
-                 py::arg("upsample_factor") = 2,
-                 R"(
+                    py::arg("upsample_factor") = 2,
+                    R"(
             Crossmultiplies two aligned SLC images and computes interferogram
             )")
-            .def(
-                    "crossmultiply",
-                    &CrossMultiply::crossmultiply,
-                    py::arg("out"), py::arg("ref_slc"), py::arg("sec_slc"), R"(
+            .def("crossmultiply", &CrossMultiply::crossmultiply, py::arg("out"),
+                    py::arg("ref_slc"), py::arg("sec_slc"), R"(
             Performs cross multiplication on a batch of input signals
             )")
 
             .def_property_readonly("nrows", &CrossMultiply::nrows)
             .def_property_readonly("ncols", &CrossMultiply::ncols)
-            .def_property_readonly("upsample_factor", &CrossMultiply::upsample_factor)
+            .def_property_readonly(
+                    "upsample_factor", &CrossMultiply::upsample_factor)
             .def_property_readonly("fftsize", &CrossMultiply::fftsize);
 }

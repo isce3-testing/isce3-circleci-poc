@@ -122,7 +122,7 @@ void addbinding(pybind11::enum_<geocodeMemoryMode>& pyGeocodeMemoryMode)
             .value("SINGLE_BLOCK", geocodeMemoryMode::SINGLE_BLOCK)
             .value("BLOCKS_GEOGRID", geocodeMemoryMode::BLOCKS_GEOGRID)
             .value("BLOCKS_GEOGRID_AND_RADARGRID",
-                   geocodeMemoryMode::BLOCKS_GEOGRID_AND_RADARGRID);
+                    geocodeMemoryMode::BLOCKS_GEOGRID_AND_RADARGRID);
 };
 
 template void addbinding(py::class_<Geocode<float>>&);

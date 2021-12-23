@@ -1,6 +1,10 @@
 #include "Backproject.h"
 
 #include <cmath>
+#include <limits>
+#include <string>
+#include <vector>
+
 #include <isce3/container/RadarGeometry.h>
 #include <isce3/core/Constants.h>
 #include <isce3/core/Ellipsoid.h>
@@ -10,9 +14,6 @@
 #include <isce3/except/Error.h>
 #include <isce3/geometry/DEMInterpolator.h>
 #include <isce3/geometry/geometry.h>
-#include <limits>
-#include <string>
-#include <vector>
 
 #include "BistaticDelay.h"
 
@@ -21,18 +22,12 @@ using namespace isce3::geometry;
 
 using isce3::container::RadarGeometry;
 
-namespace isce3 {
-namespace focus {
+namespace isce3 { namespace focus {
 
 inline std::complex<float> sumCoherent(const std::complex<float>* data,
-                                       const Linspace<double>& sampling_window,
-                                       const std::vector<Vec3>& pos,
-                                       const std::vector<Vec3>& vel,
-                                       const Vec3& x,
-                                       double fc,
-                                       double tau_atm,
-                                       const Kernel<float>& kernel,
-                                       int kstart, int kstop)
+        const Linspace<double>& sampling_window, const std::vector<Vec3>& pos,
+        const std::vector<Vec3>& vel, const Vec3& x, double fc, double tau_atm,
+        const Kernel<float>& kernel, int kstart, int kstop)
 {
     // loop over pulses within integration window
     std::complex<double> sum(0., 0.);
@@ -71,7 +66,7 @@ void backproject(std::complex<float>* out, const RadarGeometry& out_geometry,
 
     // check that dry_tropo_model is supported internally
     if (not(dry_tropo_model == DryTroposphereModel::NoDelay or
-            dry_tropo_model == DryTroposphereModel::TSX)) {
+                dry_tropo_model == DryTroposphereModel::TSX)) {
 
         std::string errmsg = "unexpected dry troposphere model";
         throw isce3::except::InvalidArgument(ISCE_SRCINFO(), errmsg);
@@ -129,10 +124,10 @@ void backproject(std::complex<float>* out, const RadarGeometry& out_geometry,
                 double r = out_slant_range[i];
                 double fD = out_geometry.doppler().eval(t, r);
 
-                auto converged = rdr2geo(
-                        t, r, fD, out_geometry.orbit(), ellipsoid, dem, llh,
-                        wvl, out_geometry.lookSide(), r2g_params.threshold,
-                        r2g_params.maxiter, r2g_params.extraiter);
+                auto converged = rdr2geo(t, r, fD, out_geometry.orbit(),
+                        ellipsoid, dem, llh, wvl, out_geometry.lookSide(),
+                        r2g_params.threshold, r2g_params.maxiter,
+                        r2g_params.extraiter);
 
                 if (not converged) {
                     all_converged = false;
@@ -147,11 +142,10 @@ void backproject(std::complex<float>* out, const RadarGeometry& out_geometry,
             double t, r;
             t = in_geometry.radarGrid().sensingMid();
             {
-                auto converged =
-                        geo2rdr(llh, ellipsoid, in_geometry.orbit(),
-                                in_geometry.doppler(), t, r, wvl,
-                                in_geometry.lookSide(), g2r_params.threshold,
-                                g2r_params.maxiter, g2r_params.delta_range);
+                auto converged = geo2rdr(llh, ellipsoid, in_geometry.orbit(),
+                        in_geometry.doppler(), t, r, wvl,
+                        in_geometry.lookSide(), g2r_params.threshold,
+                        g2r_params.maxiter, g2r_params.delta_range);
 
                 if (not converged) {
                     all_converged = false;
@@ -193,7 +187,7 @@ void backproject(std::complex<float>* out, const RadarGeometry& out_geometry,
             // integrate pulses
             out[j * out_geometry.gridWidth() + i] =
                     sumCoherent(in, sampling_window, pos, vel, x, fc, tau_atm,
-                                kernel, kstart, kstop);
+                            kernel, kstart, kstop);
         }
     }
 
@@ -204,5 +198,4 @@ void backproject(std::complex<float>* out, const RadarGeometry& out_geometry,
     }
 }
 
-} // namespace focus
-} // namespace isce3
+}} // namespace isce3::focus

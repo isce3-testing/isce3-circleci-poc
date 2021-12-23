@@ -6,7 +6,7 @@ Raster
 ========
 
 Raster provides a light wrapper for isce::io::Raster objects for the primary purpose
-of passing h5py and GDAL-compatible rasters to lower-level ISCE routines. 
+of passing h5py and GDAL-compatible rasters to lower-level ISCE routines.
 Provides basic querying of raster information.
 
 

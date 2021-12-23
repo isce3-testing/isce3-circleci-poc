@@ -2,8 +2,7 @@
 
 #include <isce3/core/EMatrix.h>
 
-namespace isce3 {
-namespace signal {
+namespace isce3 { namespace signal {
 
 /**
  * @brief Multilooks an input Eigen::Array by taking the
@@ -19,7 +18,7 @@ namespace signal {
  */
 template<typename EigenT1, typename EigenT2>
 auto multilookWeightedAvg(const EigenT1& input, int row_looks, int col_looks,
-                          const EigenT2& weights)
+        const EigenT2& weights)
 {
 
     const auto nrows = input.rows() / row_looks;
@@ -28,14 +27,14 @@ auto multilookWeightedAvg(const EigenT1& input, int row_looks, int col_looks,
     using value_type = typename EigenT1::value_type;
     isce3::core::EArray2D<value_type> output(nrows, ncols);
 
-    #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
     for (int row = 0; row < nrows; ++row) {
         for (int col = 0; col < ncols; ++col) {
 
-            const auto cells = input.block(row * row_looks, col * col_looks,
-                                           row_looks, col_looks);
-            const auto wgts = weights.block(row * row_looks, col * col_looks,
-                                            row_looks, col_looks);
+            const auto cells = input.block(
+                    row * row_looks, col * col_looks, row_looks, col_looks);
+            const auto wgts = weights.block(
+                    row * row_looks, col * col_looks, row_looks, col_looks);
 
             output(row, col) = (cells * wgts).sum() / wgts.sum();
         }
@@ -63,12 +62,12 @@ auto multilookSummed(const EigenType& input, int row_looks, int col_looks)
     using value_type = typename EigenType::value_type;
     isce3::core::EArray2D<value_type> output(nrows, ncols);
 
-    #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
     for (int row = 0; row < nrows; ++row) {
         for (int col = 0; col < ncols; ++col) {
 
             output(row, col) = input.block(row * row_looks, col * col_looks,
-                                           row_looks, col_looks)
+                                            row_looks, col_looks)
                                        .sum();
         }
     }
@@ -95,12 +94,12 @@ auto multilookAveraged(const EigenType& input, int row_looks, int col_looks)
     using value_type = typename EigenType::value_type;
     isce3::core::EArray2D<value_type> output(nrows, ncols);
 
-    #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
     for (int row = 0; row < nrows; ++row) {
         for (int col = 0; col < ncols; ++col) {
 
             output(row, col) = input.block(row * row_looks, col * col_looks,
-                                           row_looks, col_looks)
+                                            row_looks, col_looks)
                                        .mean();
         }
     }
@@ -124,7 +123,7 @@ auto multilookAveraged(const EigenType& input, int row_looks, int col_looks)
  */
 template<typename EigenInput>
 auto multilookNoData(const EigenInput& input, int row_looks, int col_looks,
-                     const typename EigenInput::value_type nodata)
+        const typename EigenInput::value_type nodata)
 {
 
     auto upcast_bool = [](const bool b) {
@@ -149,11 +148,10 @@ auto multilookNoData(const EigenInput& input, int row_looks, int col_looks,
  */
 template<typename EigenInput>
 auto multilookPow(const EigenInput& input, int row_looks, int col_looks,
-                  const int exponent)
+        const int exponent)
 {
 
     return multilookAveraged(input.abs().pow(exponent), row_looks, col_looks);
 }
 
-} // namespace signal
-} // namespace isce3
+}} // namespace isce3::signal

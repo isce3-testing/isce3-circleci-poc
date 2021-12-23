@@ -10,7 +10,7 @@ namespace pybind11 {
 // FIXME: Contribute better readonly support to pybind11!
 inline auto roarray(const buffer_info& info, handle base)
 {
-    array a{pybind11::dtype(info), info.shape, info.strides, info.ptr, base};
+    array a {pybind11::dtype(info), info.shape, info.strides, info.ptr, base};
     if (info.readonly) {
         detail::array_proxy(a.ptr())->flags &=
                 ~detail::npy_api::NPY_ARRAY_WRITEABLE_;

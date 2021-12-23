@@ -2,17 +2,17 @@
 
 import os
 
-from osgeo import gdal
-import numpy as np
-
 import iscetest
+import numpy as np
 import pybind_isce3 as isce
 from nisar.products.readers import SLC
+from osgeo import gdal
+
 
 def test_run():
-    '''
+    """
     check if geo2rdr runs
-    '''
+    """
     # prepare Geo2Rdr init params
     h5_path = os.path.join(iscetest.data, "envisat.h5")
 
@@ -25,8 +25,9 @@ def test_run():
     ellipsoid = isce.core.Ellipsoid()
 
     # init Geo2Rdr class
-    geo2rdr_obj = isce.cuda.geometry.Geo2Rdr(radargrid, orbit,
-            ellipsoid, doppler, threshold=1e-9, numiter=50)
+    geo2rdr_obj = isce.cuda.geometry.Geo2Rdr(
+        radargrid, orbit, ellipsoid, doppler, threshold=1e-9, numiter=50
+    )
 
     # load rdr2geo unit test output
     rdr2geo_raster = isce.io.Raster("topo.vrt")
@@ -36,9 +37,9 @@ def test_run():
 
 
 def test_validate():
-    '''
+    """
     validate generated results
-    '''
+    """
     # list of test outputs
     test_outputs = ["range.off", "azimuth.off"]
 
@@ -52,11 +53,11 @@ def test_validate():
         test_arr = np.ma.masked_array(test_arr, mask=np.abs(test_arr) > 999.0)
 
         # accumulate error
-        test_err = np.sum(test_arr*test_arr)
+        test_err = np.sum(test_arr * test_arr)
 
-        assert( test_err < 1e-9 ), f"{test_output} accumulated error fail"
+        assert test_err < 1e-9, f"{test_output} accumulated error fail"
 
 
-if  __name__ == "__main__":
+if __name__ == "__main__":
     test_run()
     test_validate()

@@ -10,8 +10,8 @@
 #include <isce3/core/Projections.h>
 #include <isce3/io/Raster.h>
 
-isce3::geometry::DEMInterpolator::
-~DEMInterpolator() {
+isce3::geometry::DEMInterpolator::~DEMInterpolator()
+{
     if (_interp) {
         delete _interp;
     }
@@ -21,7 +21,8 @@ isce3::geometry::DEMInterpolator::
 }
 
 /** Set EPSG code for input DEM */
-void isce3::geometry::DEMInterpolator::epsgCode(int epsgcode) {
+void isce3::geometry::DEMInterpolator::epsgCode(int epsgcode)
+{
     _epsgcode = epsgcode;
     _proj = isce3::core::createProj(epsgcode);
 }
@@ -55,7 +56,7 @@ isce3::error::ErrorCode isce3::geometry::DEMInterpolator::loadDEM(
     const double lastY = firstY + (demRaster.length() - 2) * deltaY;
     const double lastX = firstX + (demRaster.width() - 2) * deltaX;
 
-    //Initialize projection
+    // Initialize projection
     int epsgcode = demRaster.getEPSG();
     _epsgcode = epsgcode;
     _proj = isce3::core::createProj(epsgcode);
@@ -122,15 +123,14 @@ isce3::error::ErrorCode isce3::geometry::DEMInterpolator::loadDEM(
 
 // Load DEM into memory
 /** @param[in] demRaster input DEM raster to subset
-  *
-  * Loads the entire DEM */
-void isce3::geometry::DEMInterpolator::
-loadDEM(isce3::io::Raster & demRaster) {
+ *
+ * Loads the entire DEM */
+void isce3::geometry::DEMInterpolator::loadDEM(isce3::io::Raster& demRaster)
+{
 
-    //Get the dimensions of the raster
+    // Get the dimensions of the raster
     int width = demRaster.width();
     int length = demRaster.length();
-
 
     // Get original GeoTransform using raster
     double geoTransform[6];
@@ -141,7 +141,7 @@ loadDEM(isce3::io::Raster & demRaster) {
     const double firstY = geoTransform[3] + 0.5 * deltaY;
     const double firstX = geoTransform[0] + 0.5 * deltaX;
 
-    //Initialize projection
+    // Initialize projection
     int epsgcode = demRaster.getEPSG();
     _epsgcode = epsgcode;
     _proj = isce3::core::createProj(epsgcode);
@@ -165,24 +165,25 @@ loadDEM(isce3::io::Raster & demRaster) {
     _haveRaster = true;
 }
 
-
 // Debugging output
-void isce3::geometry::DEMInterpolator::
-declare() const {
+void isce3::geometry::DEMInterpolator::declare() const
+{
     pyre::journal::info_t info("isce.core.DEMInterpolator");
     info << "Actual DEM bounds used:" << pyre::journal::newline
          << "Top Left: " << _xstart << " " << _ystart << pyre::journal::newline
          << "Bottom Right: " << _xstart + _deltax * (_dem.width() - 1) << " "
-         << _ystart + _deltay * (_dem.length() - 1) << " " << pyre::journal::newline
-         << "Spacing: " << _deltax << " " << _deltay << pyre::journal::newline
-         << "Dimensions: " << _dem.width() << " " << _dem.length() << pyre::journal::endl;
+         << _ystart + _deltay * (_dem.length() - 1) << " "
+         << pyre::journal::newline << "Spacing: " << _deltax << " " << _deltay
+         << pyre::journal::newline << "Dimensions: " << _dem.width() << " "
+         << _dem.length() << pyre::journal::endl;
 }
 
 /** @param[out] maxValue Maximum DEM height
-  * @param[out] meanValue Mean DEM height
-  * @param[in] info Pyre journal channel for printing info. */
-void isce3::geometry::DEMInterpolator::
-computeHeightStats(float & maxValue, float & meanValue, pyre::journal::info_t & info) {
+ * @param[out] meanValue Mean DEM height
+ * @param[in] info Pyre journal channel for printing info. */
+void isce3::geometry::DEMInterpolator::computeHeightStats(
+        float& maxValue, float& meanValue, pyre::journal::info_t& info)
+{
     // Announce myself
     info << "Computing DEM statistics" << pyre::journal::newline;
     // If we don't have a DEM, just use reference height
@@ -194,7 +195,7 @@ computeHeightStats(float & maxValue, float & meanValue, pyre::journal::info_t & 
         float sum = 0.0;
         for (int i = 0; i < int(_dem.length()); ++i) {
             for (int j = 0; j < int(_dem.width()); ++j) {
-                float value = _dem(i,j);
+                float value = _dem(i, j);
                 if (value > maxValue)
                     maxValue = value;
                 sum += value;
@@ -212,21 +213,22 @@ computeHeightStats(float & maxValue, float & meanValue, pyre::journal::info_t & 
 
 // Compute middle latitude and longitude using reference height
 isce3::geometry::DEMInterpolator::cartesian_t
-isce3::geometry::DEMInterpolator::
-midLonLat() const {
+isce3::geometry::DEMInterpolator::midLonLat() const
+{
     // Create coordinates for middle X/Y
-    cartesian_t xyz{midX(), midY(), _refHeight};
+    cartesian_t xyz {midX(), midY(), _refHeight};
 
     // Call projection inverse
     return _proj->inverse(xyz);
 }
 
 /** @param[in] lon Longitude of interpolation point.
-  * @param[in] lat Latitude of interpolation point.
-  *
-  * Interpolate DEM at a given longitude and latitude */
-double isce3::geometry::DEMInterpolator::
-interpolateLonLat(double lon, double lat) const {
+ * @param[in] lat Latitude of interpolation point.
+ *
+ * Interpolate DEM at a given longitude and latitude */
+double isce3::geometry::DEMInterpolator::interpolateLonLat(
+        double lon, double lat) const
+{
 
     // If we don't have a DEM, just return reference height
     double value = _refHeight;
@@ -236,7 +238,7 @@ interpolateLonLat(double lon, double lat) const {
 
     // Pass latitude and longitude through projection
     cartesian_t xyz;
-    const cartesian_t llh{lon, lat, 0.0};
+    const cartesian_t llh {lon, lat, 0.0};
     _proj->forward(llh, xyz);
 
     // Interpolate DEM at its native coordinates
@@ -246,11 +248,11 @@ interpolateLonLat(double lon, double lat) const {
 }
 
 /** @param[in] x X-coordinate of interpolation point.
-  * @param[in] y Y-coordinate of interpolation point.
-  *
-  * Interpolate DEM at native coordinates */
-double isce3::geometry::DEMInterpolator::
-interpolateXY(double x, double y) const {
+ * @param[in] y Y-coordinate of interpolation point.
+ *
+ * Interpolate DEM at native coordinates */
+double isce3::geometry::DEMInterpolator::interpolateXY(double x, double y) const
+{
 
     // If we don't have a DEM, just return reference height
     double value = _refHeight;

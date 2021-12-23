@@ -42,7 +42,7 @@ runconfig:
                     # 'all' for all polarizations found in RSLC
                     # [polarizations] for list of specific frequency(s) e.g. [HH, HV] or [HH]
                     # empty for no polarizations
-                    A: 
+                    A:
 
                 # OPTIONAL - If we want full covariance instead of diagonals only. Default False
                 fullcovariance:   False
@@ -59,7 +59,7 @@ runconfig:
                     y:
 
             # OPTIONAL - if amplitude data needs to be mulitlooked before GCOV generation
-            pre_process:   
+            pre_process:
                azimuth_looks: 1
                range_looks:   1
 
@@ -84,7 +84,7 @@ runconfig:
             geocode:
                 # OPTIONAL -
                 algorithm_type: area_projection
- 
+
                 # OPTIONAL - Choices: "single_block", "geogrid", "geogrid_radargrid", and "auto" (default)
                 memory_mode: auto
 
@@ -96,15 +96,15 @@ runconfig:
 
                 save_nlooks: True
                 save_rtc: True
-                 
+
                 # OPTIONAL - Same as input DEM if not provided.
-                outputEPSG: 
+                outputEPSG:
 
                 # OPTIONAL - Spacing between pixels, in same units as output EPSG.
                 # If no provided, values will match spacing in provided DEM
                 output_posting:
                     A:
-                        x_posting: 100 
+                        x_posting: 100
                         y_posting: 100
                     B:
                         x_posting: 100
@@ -117,7 +117,7 @@ runconfig:
                 x_snap: 100
 
                 # OPTIONAL - Can control with absolute values or with snap values
-                top_left:        
+                top_left:
                     # OPTIONAL - Set top-left y in same units as output EPSG
                     y_abs: 9437800
                     # OPTIONAL - Set top-left x in same units as output EPSG
@@ -147,7 +147,6 @@ runconfig:
             #gpu_id: 0
 
         # OPTIONAL - Location to save logs, use runconfig*_yaml.log if not specified
-        logging: 
+        logging:
             path: output_gcov/gcov.log
             write_mode: 'w'
-

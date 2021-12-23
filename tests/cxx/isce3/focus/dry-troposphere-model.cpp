@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+
 #include <isce3/except/Error.h>
 #include <isce3/focus/DryTroposphereModel.h>
 
@@ -18,7 +19,7 @@ TEST(DryTroposphereModelTest, FromString)
     EXPECT_EQ(parseDryTropoModel("nodelay"), DryTroposphereModel::NoDelay);
     EXPECT_EQ(parseDryTropoModel("tsx"), DryTroposphereModel::TSX);
 
-    EXPECT_THROW({parseDryTropoModel("asdf");}, InvalidArgument);
+    EXPECT_THROW({ parseDryTropoModel("asdf"); }, InvalidArgument);
 }
 
 int main(int argc, char* argv[])

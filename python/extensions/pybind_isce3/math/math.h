@@ -4,4 +4,4 @@
 
 namespace py = pybind11;
 
-void addsubmodule_math(py::module &);
+void addsubmodule_math(py::module&);

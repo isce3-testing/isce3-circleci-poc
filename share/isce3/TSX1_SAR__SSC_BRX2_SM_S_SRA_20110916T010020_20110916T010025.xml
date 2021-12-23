@@ -262,8 +262,8 @@
         </sceneCornerCoord>
         <headingAngle>3.49651448156726758E+02</headingAngle>
       </sceneInfo>
-  
-    
+
+
   <previewInfo>
         <quicklooks>
           <imageDataFormat>TIFF grayscale</imageDataFormat>
@@ -305,8 +305,8 @@
         </browseImage>
         <mapPlotFormat>PNG</mapPlotFormat>
       </previewInfo>
-  
-  
+
+
   </productInfo>
   <productSpecific>
     <complexImageInfo beamID="tanDEM_a1_020">
