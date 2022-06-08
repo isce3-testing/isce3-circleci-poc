@@ -9,12 +9,7 @@ pipeline {
   stages {
     stage("Set up Docker images with ISCE3 build prereqs") {
       steps {
-        sh "/usr/local/bin/python3 tools/run.py setup"
-      }
-    }
-    stage("Configure ISCE3") {
-      steps {
-        sh "/usr/local/bin/python3 tools/run.py configure"
+        sh "nvidia-smi"
       }
     }
   }
