@@ -1,0 +1,35 @@
+#!groovy
+
+pipeline {
+  options {
+    disableConcurrentBuilds()
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+  }
+  agent any
+  stages {
+    stage("Set up Docker images with ISCE3 build prereqs") {
+      steps {
+        sh "/usr/local/bin/python3 tools/run.py setup"
+      }
+    }
+    stage("Configure ISCE3") {
+      steps {
+        sh "/usr/local/bin/python3 tools/run.py configure"
+      }
+    }
+  }
+  post {
+    success {
+      echo 'I succeeded!'
+    }
+    unstable {
+      echo 'I am unstable :/'
+    }
+    failure {
+      echo 'I failed :('
+    }
+    changed {
+      echo 'Things were different before...'
+    }
+  }
+}
