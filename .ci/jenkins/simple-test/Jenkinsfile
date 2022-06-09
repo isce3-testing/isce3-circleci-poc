@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage("Check CUDA devices") {
       steps {
-        sh "nvidia-smi"
+        sh "nvidia-smi -a"
       }
     }
     stage("Find Python interpreter") {
