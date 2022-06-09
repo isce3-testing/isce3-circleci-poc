@@ -7,9 +7,14 @@ pipeline {
   }
   agent { label 'opera-adt-build-fleet-gpu' }
   stages {
-    stage("Set up Docker images with ISCE3 build prereqs") {
+    stage("Check CUDA devices") {
       steps {
         sh "nvidia-smi -a"
+      }
+    }
+    stage("Find Python interpreter") {
+      steps {
+        which python
       }
     }
   }
