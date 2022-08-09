@@ -10,8 +10,22 @@ pipeline {
     // Personal Access Token (PAT) for authenticating github-fn transactions
     // for the CI server. Secret credentials are managed via the Jenkins UI.
     RTBURNS_PAT = credentials('d5f10ff5-2bf9-4bf3-ab05-22f0a388084a')
+    // PAT for writing to github status API
+    GITHUB_STATUS_PAT = credentials('236fc01e-7a9f-40c4-8dda-853846ee3881')
   }
   stages {
+    stage("Set CI pending status") {
+      steps {
+        sh "env" // debug
+        sh '''curl "https://api.github.com/repos/isce3-testing/isce3-circleci-poc/statuses/$GIT_COMMIT" \
+              "-X POST " \
+              -H "Content-Type: application/json" \
+              -H "Authorization: token $GITHUB_STATUS_PAT" \
+              -d "{\"state\": \"pending\", \"description\": \"Jenkins build\", \"target_url\": \"https://example.com\"}"
+            '''
+
+      }
+    }
     stage("Set up Docker images with ISCE3 build prereqs") {
       steps {
         sh "/usr/local/bin/python3 tools/run.py setup"
