@@ -5,10 +5,21 @@ pipeline {
     disableConcurrentBuilds()
     buildDiscarder(logRotator(numToKeepStr: '10'))
   }
+  environment {
+    // Personal Access Token (PAT) for writing to github status API
+    GITHUB_STATUS_PAT = credentials('236fc01e-7a9f-40c4-8dda-853846ee3881')
+  }
   agent { label 'opera-adt-build-fleet-gpu' }
   stages {
     stage("Set up Docker images with ISCE3 build prereqs") {
       steps {
+        sh "env" // debug
+        sh '''curl "https://api.github.com/repos/isce3-testing/isce3-circleci-poc/statuses/$GIT_COMMIT" \
+              "-X POST " \
+              -H "Content-Type: application/json" \
+              -H "Authorization: token $GITHUB_STATUS_PAT" \
+              -d "{\"state\": \"pending\", \"description\": \"Jenkins build\", \"target_url\": \"https://example.com\"}"
+            '''
         sh "nvidia-smi -a"
       }
     }
