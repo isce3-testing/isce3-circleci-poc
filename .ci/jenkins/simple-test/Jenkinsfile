@@ -11,7 +11,7 @@ pipeline {
   }
   agent { label 'opera-adt-build-fleet-gpu' }
   stages {
-    stage("Set CI pending status") {
+    stage("Set up Docker images with ISCE3 build prereqs") {
       steps {
         sh "env" // debug
         sh '''curl "https://api.github.com/repos/isce3-testing/isce3-circleci-poc/statuses/$GIT_COMMIT" \
@@ -20,11 +20,6 @@ pipeline {
               -H "Authorization: token $GITHUB_STATUS_PAT" \
               -d "{\"state\": \"pending\", \"description\": \"Jenkins build\", \"target_url\": \"https://example.com\"}"
             '''
-
-      }
-    }
-    stage("Set up Docker images with ISCE3 build prereqs") {
-      steps {
         sh "nvidia-smi -a"
       }
     }
