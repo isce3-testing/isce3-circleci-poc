@@ -18,7 +18,7 @@ pipeline {
               "-X POST " \
               -H "Content-Type: application/json" \
               -H "Authorization: token $GITHUB_STATUS_PAT" \
-              -d "{\"state\": \"pending\", \"description\": \"Jenkins build\", \"target_url\": \"https://example.com\"}"
+              -d "{\\"state\\": \\"pending\\", \\"description\\": \\"Jenkins build\\", \\"target_url\\": \\"https://example.com\\"}"
             '''
         sh "nvidia-smi -a"
       }
