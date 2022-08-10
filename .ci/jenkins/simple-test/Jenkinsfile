@@ -13,9 +13,8 @@ pipeline {
   stages {
     stage("Set up Docker images with ISCE3 build prereqs") {
       steps {
-        sh "env" // debug
         sh '''curl "https://api.github.com/repos/isce3-testing/isce3-circleci-poc/statuses/$GIT_COMMIT" \
-              "-X POST " \
+              -X POST \
               -H "Content-Type: application/json" \
               -H "Authorization: token $GITHUB_STATUS_PAT" \
               -d "{\\"state\\": \\"pending\\", \\"description\\": \\"Jenkins build\\", \\"target_url\\": \\"https://example.com\\"}"
