@@ -26,12 +26,24 @@ pipeline {
   post {
     success {
       echo 'I succeeded!'
+      sh '''curl "https://api.github.com/repos/isce3-testing/isce3-circleci-poc/statuses/$GIT_COMMIT" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token $GITHUB_STATUS_PAT" \
+            -d "{\\"state\\": \\"success\\", \\"description\\": \\"Jenkins build\\", \\"target_url\\": \\"https://example.com\\"}"
+          '''
     }
     unstable {
       echo 'I am unstable :/'
     }
     failure {
       echo 'I failed :('
+      sh '''curl "https://api.github.com/repos/isce3-testing/isce3-circleci-poc/statuses/$GIT_COMMIT" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token $GITHUB_STATUS_PAT" \
+            -d "{\\"state\\": \\"failure\\", \\"description\\": \\"Jenkins build\\", \\"target_url\\": \\"https://example.com\\"}"
+          '''
     }
     changed {
       echo 'Things were different before...'
